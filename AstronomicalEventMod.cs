@@ -69,20 +69,32 @@ namespace AstronomicalEvent
         {
             if (AstronomicalSettings.BuiltInMenu.Value && PPressed())
                 ui.Toggle();
-            mgr.Tick();
-            AstronomicalDebug.Tick(mgr);
+            // each part on its own, so one that throws does not skip the others for that frame
+            Guard("Event", mgr.Tick);
+            Guard("Test console", () => AstronomicalDebug.Tick(mgr));
+            Guard("Kevin", AstronomicalCube.PersistTick);
+            Guard("Purple lake", AstronomicalCubeLake.PersistTick);
+            Guard("Ice Storm snow", AstronomicalIceStorm.PersistTick);
+            Guard("Klombo", AstronomicalKlombo.Tick);
+            AstronomicalEventApi.Pump();
+        }
+
+        static readonly System.Collections.Generic.Dictionary<string, float> lastWarn = new System.Collections.Generic.Dictionary<string, float>();
+
+        static void Guard(string what, System.Action a)
+        {
             try
             {
-                AstronomicalCube.PersistTick();
-                AstronomicalCubeLake.PersistTick();
-                AstronomicalIceStorm.PersistTick();
-                AstronomicalKlombo.Tick();
+                a();
             }
             catch (System.Exception e)
             {
-                Log.LogWarning("Klombo: " + e.Message);
+                float t;
+                if (lastWarn.TryGetValue(what, out t) && Time.unscaledTime - t < 5f)
+                    return; // at most one warning per part every 5 s
+                lastWarn[what] = Time.unscaledTime;
+                Log.LogWarning(what + ": " + e);
             }
-            AstronomicalEventApi.Pump();
         }
 
         static bool PPressed()

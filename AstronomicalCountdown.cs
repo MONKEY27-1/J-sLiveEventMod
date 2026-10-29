@@ -12,8 +12,9 @@ namespace AstronomicalEvent
         TextMesh main,
             shadow;
         Material mat;
-        Font font;
+        static Font font; // created once and reused: Hide() destroys the text objects but not the font
         Vector3 spot;
+        int shown = -1;
         bool hasSpot;
 
         public static Vector3 FindSpot(Vector3 fallback)
@@ -76,7 +77,8 @@ namespace AstronomicalEvent
             go = new GameObject("AstronomicalCountdown");
             try
             {
-                font = Font.CreateDynamicFontFromOSFont(new[] { "Bahnschrift", "Arial Black", "Impact", "Arial" }, 128);
+                if (font == null)
+                    font = Font.CreateDynamicFontFromOSFont(new[] { "Bahnschrift", "Arial Black", "Impact", "Arial" }, 128);
             }
             catch { }
             if (font == null)
@@ -126,9 +128,14 @@ namespace AstronomicalEvent
             if (go == null || !hasSpot)
                 return;
             int s = Mathf.CeilToInt(Mathf.Max(0f, secondsLeft));
-            string t = "EVENT STARTS IN\n" + (s >= 60 ? (s / 60) + ":" + (s % 60).ToString("00") : s.ToString());
-            main.text = t;
-            shadow.text = t;
+            if (s != shown)
+            {
+                // rebuild the text meshes only when the number changes, not every frame
+                shown = s;
+                string t = "EVENT STARTS IN\n" + (s >= 60 ? (s / 60) + ":" + (s % 60).ToString("00") : s.ToString());
+                main.text = t;
+                shadow.text = t;
+            }
             var cam = Camera.main;
             go.transform.position = spot;
             if (cam != null)
@@ -158,6 +165,7 @@ namespace AstronomicalEvent
                 mat = null;
             }
             hasSpot = false;
+            shown = -1;
         }
     }
 }
