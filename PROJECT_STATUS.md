@@ -311,3 +311,45 @@ Replaces every earlier animation clip (the wave is deleted; the 9 retargeted cli
 - Characters stand on their soles (-0.09 m, the loader pivots at the ankle joint); Slone is painted now (slone_paint.py -> slone_p.glb -> anim_human2); boulder sits on the stair 3 m ahead of the Foundation, is shoved sideways at 9:12 and falls (explosion when it lands).
 - Fist bump: closer (3.4 m), fists meet at 12:01, slight tumble.
 - Zero Point radius 26 -> 16; guards on the first stairs; Origin removed; cabin colliders removed; landings turned; bridges lower; Idle2 mech rework; ZP plasma.
+
+## Update 44 - code cleanup, compile check, J CLIENT movement / utility / room modules (NOT tested in-game)
+- All C# (event mod + J CLIENT) reformatted with CSharpier (config `.csharpierrc.yaml`, print width 140). Whitespace only:
+  CSharpier checks the syntax tree is unchanged, and deterministic builds of both projects are byte-identical before / after.
+- Event mod fixes (code review, not bugs seen in game): seeking / skipping while paused no longer starts the music during the
+  pause (Resume used to pull the clock back to the old spot); a finished event that is sought back into the show runs again;
+  a scene that throws every frame logs once per 5 s instead of every frame; an event without music no longer keeps the
+  previous event's mp3 and the synthesized track is reused; two equal section bounds in an event.json no longer give NaN;
+  the countdown sign reuses one font and rebuilds its text only when the number changes; each part of the plugin Update
+  runs on its own (one that throws no longer skips the rest that frame).
+- AstronomicalEventMod.csproj now excludes `JClient/**` (the nested J CLIENT sources were picked up by the root build).
+- `tools/compile_check/check.sh` builds both projects without the game (Unity 2021.3 reference assemblies + Harmony from
+  NuGet, stubs for the Gorilla Tag / BepInEx / Photon / Input System members the code already uses). See its README.
+- J CLIENT: `tools/list_modules.py` handles the formatted sources (after the reformat it only found 156 of 345 modules);
+  MODULES.txt regenerated (it had also been missing the existing 'New Year Year' setting).
+- J CLIENT: 119 new modules, each a different mechanic (no colour / strength variants), in four new categories plus
+  Utilities and Room. Everything moves only you, except the Room tools which use the game's own computer flow (name
+  moderation and account permissions still apply). No projectiles, no visuals / HUD / cosmetics / emotes / soundboard
+  additions, nothing that targets other players.
+  - Flight (16): Wingsuit, Helicopter Arms, Grab The Air, Broomstick, Hoverboard, Space Flight, Drone Mode, Terrain Hover,
+    Cruise Control, Balloon Float, Levitation Hands, Orbit Flight, Kite, Updrafts, Slipstream, Feather Fall.
+  - Parkour (29): Wall Run, Wall Run Up, Wall Jump, Wall Slide, Ledge Grab, Auto Mantle, Ground Pound, Slide, Bunny Hop,
+    Charge Jump, Triple Jump, Squat Jump, Clap Jump, Celeste Dash, Air Strafe, Hang Time, Fast Fall, Power Push,
+    Climb Boost, Surface Magnet, Edge Guard, Rope Swing, Zipline, Arm Swinger, Ski Mode, Punch Dash, Walk In Place,
+    Surf, Phase Through.
+  - Teleport (25): Portal Gun, Recall, Rewind, Floor Down, Floor Up, Hop Onto, Random Spot, Highest Point, Swap Marker,
+    tour (Add / Next / Clear / Share / Load), Set Home / Go Home (saved in the config), Save State / Load State,
+    Fall Rescue, Auto Unstuck, Step Teleport, Arc Teleport, Back To Room Start, Paste Position, Previous Spot.
+  - Experimental (24): Planet Gravity, Look Gravity, Thick Air, Wind, Tornado, Bungee Jump, Floor Is Lava,
+    Random Gravity, Reverse Momentum, Momentum Bank, Speed Limit, Zero-G Zone, Size By Speed, Puppet Strings,
+    Drunk Monke, Echo Jump, Inertia Dampener, Nod Jump, Velocity Snap, Thin Air, Sky Floor, Crouch Shrink,
+    Gravity Dial, Repulsor Hands.
+  - Utilities (+13): Route Recorder, Route Autopilot, Lap Timer, Save / Load Preset, Mod Roulette, Movement Panic,
+    Timed Mods, Timelapse, Backup Settings, Idle FPS Saver, Game Volume, Mute In Background.
+  - Room (+12): Join Last Room, Leave When Alone, Random Colour, Match Colour, Name From Clipboard,
+    Join Code From Clipboard, Join/Leave Alerts, Auto Join On Start, Daily Room, Copy Player List, Auto Leave Public,
+    Session Time Limit.
+  - Shared helpers in src/Mods/MoveKit.cs (ground / wall checks, hand and head motion relative to the body, crouch
+    detection, room / standing-spot tracking called from Plugin.Update).
+  - VR board: the category sidebar shrinks its rows to fit (it had room for 17 rows; there are 21 now).
+- Not verified: everything in-game (feel and strength of every new module, crouch / squat / nod / clap detection
+  thresholds, which VR buttons clash when several modules are on). All new modules compile against the stubs only.

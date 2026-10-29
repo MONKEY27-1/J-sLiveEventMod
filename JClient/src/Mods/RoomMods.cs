@@ -74,6 +74,7 @@ namespace JClient
     public static class RoomMods
     {
         static ConfigEntry<string> savedCode;
+        internal static string SavedCode => savedCode != null ? savedCode.Value : "";
         const string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
         static string Random(int n)
@@ -161,7 +162,7 @@ namespace JClient
             }
         }
 
-        static IEnumerator LeaveThen(Action then)
+        internal static IEnumerator LeaveThen(Action then)
         {
             if (Game.InRoom)
             {

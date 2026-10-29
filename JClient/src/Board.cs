@@ -468,17 +468,23 @@ namespace JClient
                 Color.white
             );
             Label(new Vector3(sx + 0.011f, top - 0.041f, -0.004f), "R E L E A S E", 0.0007f, Dim);
-            float y = top - 0.058f;
+            // rows shrink to fit when there are more categories than the sidebar holds at full size
+            int rows = DesktopUI.ModuleCats.Count() + DesktopUI.General.Length;
+            float first = top - 0.058f,
+                last = -top + 0.016f,
+                step = Mathf.Min(0.0158f, (first - last - 0.006f) / Mathf.Max(1, rows - 1)),
+                rowH = Mathf.Min(0.014f, step - 0.0015f);
+            float y = first;
             foreach (var cat in DesktopUI.ModuleCats)
             {
-                CatRow(scx, y, cat);
-                y -= 0.0158f;
+                CatRow(scx, y, cat, rowH);
+                y -= step;
             }
             y -= 0.006f;
             foreach (var cat in DesktopUI.General)
             {
-                CatRow(scx, y, cat);
-                y -= 0.0158f;
+                CatRow(scx, y, cat, rowH);
+                y -= step;
             }
 
             // ---- main area ----
@@ -551,16 +557,23 @@ namespace JClient
             );
         }
 
-        static void CatRow(float cx, float y, string cat)
+        static void CatRow(float cx, float y, string cat, float h)
         {
             bool sel = Board.Search.Length == 0 && Board.Cat == cat;
-            float w = SideW - 0.012f;
+            float w = SideW - 0.012f,
+                k = h / 0.014f; // text shrinks with the row
             var bg = sel ? new Color(Fx.Accent.r * 0.2f, Fx.Accent.g * 0.2f, Fx.Accent.b * 0.25f + 0.05f) : PanelC;
-            AddButton(new Vector3(cx, y, -0.002f), new Vector2(w, 0.014f), "", bg, Color.white, () => Board.OpenCategory(cat), 0.001f);
+            AddButton(new Vector3(cx, y, -0.002f), new Vector2(w, h), "", bg, Color.white, () => Board.OpenCategory(cat), 0.001f);
             if (sel)
-                Panel(new Vector3(cx - w / 2f + 0.002f, y, -0.006f), new Vector3(0.0025f, 0.01f, 0.001f), Fx.Accent);
-            Label(new Vector3(cx - w / 2f + 0.008f, y, -0.006f), cat, 0.00105f, sel ? Color.white : new Color(0.78f, 0.8f, 0.88f));
-            Label(new Vector3(cx + w / 2f - 0.006f, y, -0.006f), DesktopUI.CountOf(cat).ToString(), 0.0009f, Dim, TextAnchor.MiddleRight);
+                Panel(new Vector3(cx - w / 2f + 0.002f, y, -0.006f), new Vector3(0.0025f, h * 0.7f, 0.001f), Fx.Accent);
+            Label(new Vector3(cx - w / 2f + 0.008f, y, -0.006f), cat, 0.00105f * k, sel ? Color.white : new Color(0.78f, 0.8f, 0.88f));
+            Label(
+                new Vector3(cx + w / 2f - 0.006f, y, -0.006f),
+                DesktopUI.CountOf(cat).ToString(),
+                0.0009f * k,
+                Dim,
+                TextAnchor.MiddleRight
+            );
         }
 
         static void Card(float cx, float cy, float w, Mod m, Color accent)

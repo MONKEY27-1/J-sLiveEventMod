@@ -43,6 +43,12 @@ namespace JClient
             Cosmetics.Register();
             Safety.Register();
             WorldFx.Register();
+            Flight.Register();
+            Parkour.Register();
+            TeleportMods.Register();
+            Experimental.Register();
+            UtilitiesMore.Register();
+            RoomMore.Register();
             try
             {
                 KlomboMods.Register();
@@ -128,6 +134,7 @@ namespace JClient
                         m.Set(m.cOn.Value, quiet: true);
             }
             Board.Update();
+            MoveKit.Track();
 
             foreach (var m in Mods.All)
             {

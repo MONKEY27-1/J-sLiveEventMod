@@ -1,4 +1,4 @@
-J CLIENT - 345 modules
+J CLIENT - 465 modules
 Desktop: Q opens the menu. VR: hold left Y (or right B if 'Menu On Right Hand').
 Guns: VR right grip aims + right trigger fires; desktop hold right mouse + left click.
 == MOVEMENT (60) ==
@@ -63,6 +63,108 @@ Guns: VR right grip aims + right trigger fires; desktop hold right mouse + left 
   Disable Wind Barriers  [toggle] - Turns off wind pushes and the Forest dome barrier (re-enable after changing maps to catch new ones)
   Air Swim  [toggle] - Swim through the air as if underwater
 
+== FLIGHT (16) ==
+  Wingsuit  [toggle] - Spread your arms while falling: dive to build speed, look up to turn it into height
+  Helicopter Arms  [toggle] - Swing your arms in big circles at shoulder height like rotor blades to lift off
+  Grab The Air  [toggle] - Hold a grip anywhere to grab the air itself and pull yourself along; let go mid-pull to fling
+  Broomstick  [toggle] - Hold right grip and steer with your hand like a broom: the further you reach, the faster you fly
+  Hoverboard  [toggle] - Ride a hoverboard just above the ground: right trigger (desktop: T) speeds up and you carve where you look. B hops
+  Space Flight  [toggle] - Zero gravity with real momentum: right trigger (desktop: T) thrusts where you look, left trigger brakes
+  Drone Mode  [toggle] - Hold right grip and your hand becomes a joystick: move it forward, back, sideways, up or down from where you grabbed
+  Terrain Hover  [toggle] - Hover a fixed height above whatever is below you, following hills and drops. Left stick moves, right stick sets the height
+  Cruise Control  [toggle] - Right B (desktop: G) locks your current speed and direction until you press it again
+  Balloon Float  [toggle] - Hold left grip to fill your balloon and float, left trigger to let air out. Over 100% you rise, under it you sink slowly
+  Levitation Hands  [toggle] - Raise both hands above your head to float up - the higher you reach, the faster. Lower them to come back down
+  Orbit Flight  [toggle] - Fire the gun at a spot and you circle around it. Left stick: speed and distance, right stick: height
+  Kite  [toggle] - You're a kite on a 14 m string tied to where you turned it on: the wind lifts you and drags you around
+  Updrafts  [toggle] - Columns of warm air (faint rising sparkles) appear around you; glide or fly into one and it carries you up
+  Slipstream  [toggle] - Ride in another player's wake: stay right behind someone moving fast and you speed up
+  Feather Fall  [toggle] - You never fall faster than a slow float, from any height
+
+== PARKOUR (29) ==
+  Wall Run  [toggle] - Touch a wall with a hand while moving fast to run along it, keeping your speed and barely falling (up to 2.5 s)
+  Wall Run Up  [toggle] - Sprint straight into a wall and touch it: your speed turns upward and you run up the wall (once per landing)
+  Wall Jump  [toggle] - Touch a wall in the air and press right A to kick off it, up and away
+  Wall Slide  [toggle] - Keep a hand on a wall while falling to slide down it slowly instead of dropping
+  Ledge Grab  [toggle] - Grip the top edge of a wall to hang from it; press A or X to pull yourself up onto it
+  Auto Mantle  [toggle] - Run at a ledge, crate or step up to 1.5 m high and you hop up onto it automatically
+  Ground Pound  [toggle] - Press right B in the air to slam straight down; you bounce back up a little when you hit the ground
+  Slide  [toggle] - Crouch down low while running to slide along the ground with a burst of speed; stand up to stop
+  Bunny Hop  [toggle] - Jump again right as you land (within a quarter second) to keep your speed and gain a little each hop
+  Charge Jump  [toggle] - Hold right A on the ground to charge (the buzz speeds up), let go to jump up to 3x higher
+  Triple Jump  [toggle] - Chain three quick jumps: the second goes higher and the third is a big leap, like a platformer
+  Squat Jump  [toggle] - Squat down for real, then spring up quickly to jump high
+  Clap Jump  [toggle] - Clap your hands to jump, even in mid-air
+  Celeste Dash  [toggle] - Right B dashes in the left-stick direction (or where you look; push right stick up to aim upward). Two dashes, landing refills
+  Air Strafe  [toggle] - Steer in mid-air with the left stick without gaining extra speed
+  Hang Time  [toggle] - Floaty peaks: you hang at the top of every jump for a moment
+  Fast Fall  [toggle] - Double gravity on the way down only: snappier jumps and quicker landings
+  Power Push  [toggle] - Push off with both hands at exactly the same time for a 35% stronger launch
+  Climb Boost  [toggle] - Pulling yourself up walls gives extra upward speed: climb trees and towers much faster
+  Surface Magnet  [toggle] - Your hands are drawn to any surface within 30 cm, so grabbing walls and branches is easier
+  Edge Guard  [toggle] - Stops you walking off drops higher than 2.5 m, like sneaking at an edge. Hold right A to go over anyway
+  Rope Swing  [toggle] - Fire the gun to tie a rope of fixed length to that point and swing like a pendulum while you hold fire; let go to fly off
+  Zipline  [toggle] - Fire the gun twice to string a zipline between two spots, then hold a grip near the line to slide down it
+  Arm Swinger  [toggle] - Swing your arms like you're jogging (no need to touch the ground) to run where you look
+  Ski Mode  [toggle] - Slopes become ski runs: you speed up downhill with no friction and carve by looking where you want to go
+  Punch Dash  [toggle] - Make a fist (grip) and punch hard forward to dash in that direction
+  Walk In Place  [toggle] - March on the spot (your head bobbing) to walk forward where you look - no arm movement needed
+  Surf  [toggle] - Steep ramps become surf ramps: you glide along them without losing speed instead of sliding off
+  Phase Through  [toggle] - Hold both grips with your hands on a wall and press right A to pass through to the other side
+
+== TELEPORT (25) ==
+  Portal Gun  [toggle] - Fire the gun to place an orange portal, fire again for a blue one. Go into one to come out of the other with your speed
+  Recall  [toggle] - Right B (desktop: R) snaps you back to where you were 3 seconds ago
+  Rewind  [toggle] - Hold left grip + left trigger (desktop: B) to rewind your last 10 seconds of movement like a video
+  Floor Down  [button] - Drops you to the next surface below the one you're on (down a level, down a tree, down to the ground)
+  Floor Up  [button] - Puts you on top of the next thing above you (up a level, onto the branch or roof overhead); press again to keep climbing
+  Hop Onto  [button] - Teleports you on top of whatever you're looking at: a crate, roof, branch or rock (up to 25 m away)
+  Random Spot  [button] - Teleports you to a random open spot within 60 m - good for exploring (Undo Teleport takes you back)
+  Highest Point  [button] - Teleports you onto the highest surface within 40 m (rooftops, treetops, peaks)
+  Swap Marker  [button] - First press drops a marker; every press after that swaps you and the marker (bounce between two spots)
+  Add Tour Stop  [button] - Adds the spot you're on to your tour (up to 20 stops)
+  Next Tour Stop  [button] - Teleports to the next stop of your tour, looping back to the first
+  Clear Tour  [button] - Removes every tour stop
+  Share Tour  [button] - Copies your tour to the clipboard so a friend can load it
+  Load Tour  [button] - Loads a tour from the clipboard (made with Share Tour)
+  Set Home  [button] - Saves where you're standing as home - kept after restarting the game
+  Go Home  [button] - Teleports you to your saved home
+  Save State  [button] - Saves your position AND your speed, like a save state - for practising a tricky jump
+  Load State  [button] - Puts you back at the saved state, moving exactly as fast as you were
+  Fall Rescue  [toggle] - If you fall more than 30 m (off the map or a cliff) you're put back on the last ground you stood on
+  Auto Unstuck  [toggle] - Notices when your head is stuck inside a wall or branch and pops you out on top
+  Step Teleport  [toggle] - Flick the left stick to hop 2.5 m that way (comfortable movement that stops at walls)
+  Arc Teleport  [toggle] - Hold left trigger to aim a curved teleport arc from your left hand; let go to land where it ends (red = nowhere to land)
+  Back To Room Start  [button] - Teleports you to where you were just after joining this room
+  Paste Position  [button] - Teleports to coordinates from your clipboard - share spots with friends using Copy Position
+  Previous Spot  [button] - Goes back to the last place you stood still; keep pressing to go further back (10 spots)
+
+== EXPERIMENTAL (24) ==
+  Planet Gravity  [toggle] - Fire the gun at a spot: gravity now pulls toward it, so you can walk around rocks and trees like tiny planets
+  Look Gravity  [toggle] - Right B (desktop: U) makes gravity point the way you're looking, so you fall toward that wall. Press again for normal
+  Thick Air  [toggle] - The air is thick like honey: you drift slowly and float down gently after every jump
+  Wind  [toggle] - A gusty wind that slowly changes direction pushes you around - lean into it
+  Tornado  [toggle] - Press right B to get swept up in a tornado: you spin up into the air for 4 seconds, then get flung out
+  Bungee Jump  [toggle] - Press right B to tie a bungee cord where you are, then jump off something: it stretches and bounces you. B again cuts it
+  Floor Is Lava  [toggle] - south
+  Random Gravity  [toggle] - Every 8 seconds gravity points a new random way: down, up or sideways
+  Reverse Momentum  [toggle] - Right B (desktop: O) instantly reverses the way you're moving
+  Momentum Bank  [toggle] - Right B (desktop: M) freezes you and stores your speed; press again to get it all back at once
+  Speed Limit  [toggle] - Caps how fast you can go - calmer for beginners, or a challenge for you  (options: 3 m/s / 5 m/s / 8 m/s)
+  Zero-G Zone  [toggle] - Right B places a 10 m bubble where gravity is off - float around inside it. B again moves the bubble to you
+  Size By Speed  [toggle] - You grow bigger the faster you go (up to 1.8x) and shrink back when you slow down
+  Puppet Strings  [toggle] - You dangle from a puppeteer's strings 6 m above you that slowly follow you around. Right stick moves the puppeteer up or down
+  Drunk Monke  [toggle] - Your steps wander off on their own - try walking in a straight line
+  Echo Jump  [toggle] - Every jump echoes: 0.6 s later you get a second, slightly smaller jump in mid-air
+  Inertia Dampener  [toggle] - Heavy, smooth movement: your speed changes gradually, like a monke with a lot of weight behind it
+  Nod Jump  [toggle] - Nod your head (a quick down-up) to jump - hands-free
+  Velocity Snap  [toggle] - Retro movement: you can only travel in the 8 compass directions, like an old arcade game
+  Thin Air  [toggle] - Gravity gets weaker the higher you climb above where you turned it on; 80 m up you barely fall
+  Sky Floor  [toggle] - A see-through floor appears at your feet and follows you, so you can walk on air at that height. Left grip + right stick moves it up or down
+  Crouch Shrink  [toggle] - Crouch down to shrink to ant size and squeeze into tiny gaps; stand up tall to grow back
+  Gravity Dial  [toggle] - Turn gravity up or down live: hold left grip and push the left stick (desktop: [ and ]), anywhere from -1x to 3x
+  Repulsor Hands  [toggle] - Surfaces under your hands push you up like repulsor jets: hold your hands low over the ground to hover
+
 == VISUALS (35) ==
   Chams  [toggle] - See every player's body through walls
   Box ESP  [toggle] - A box around every player, visible through walls
@@ -117,7 +219,7 @@ Guns: VR right grip aims + right trigger fires; desktop hold right mouse + left 
   Tag Alarm  [toggle] - Buzz + warning when a tagger is within 6 m
   Tag Counter  [toggle] - How many players are tagged
 
-== UTILITIES (19) ==
+== UTILITIES (32) ==
   Save Waypoint ...  [button] -  saved
   Go To Waypoint ...  [button] -  not set
   Undo Teleport  [button] - Goes back to where you were before your last teleport
@@ -137,8 +239,21 @@ Guns: VR right grip aims + right trigger fires; desktop hold right mouse + left 
   Measure Tape  [toggle] - Fire twice with the gun to measure the distance between two points
   Flashlight  [toggle] - Cyan spotlight from your hand (desktop: from your head)
   Quit Game  [button] - Closes Gorilla Tag
+  Route Recorder  [toggle] - While on, records the path you move along (up to 10 minutes) for Route Autopilot
+  Route Autopilot  [toggle] - Replays your recorded route: you move along it by yourself, at the speed you recorded it
+  Lap Timer  [toggle] - Fire the gun to set a start/finish pad; each time you come back through it you get your lap time and best lap
+  Save Preset  [button] - Remembers which mods are on right now (kept after restarting the game)
+  Load Preset  [button] - Turns on exactly the mods in your saved preset and turns every other mod off
+  Mod Roulette  [toggle] - Every 30 seconds a random movement mod switches on (and the previous one off) - surprise yourself
+  Movement Panic  [button] - Turns off every Movement, Flight, Parkour, Teleport and Experimental mod at once and stops you dead
+  Timed Mods  [toggle] - Power-up mode: any mod you switch on while this is on turns itself off again after 20 seconds
+  Timelapse  [toggle] - Saves a screenshot every few seconds into its own folder, ready to turn into a timelapse video  (options: 2 s / 5 s / 15 s)
+  Backup Settings  [button] - Copies your J CLIENT settings file (every mod, keybind and favourite) to a dated backup next to it
+  Idle FPS Saver  [toggle] - After 30 s without moving or pressing anything, caps the frame rate to 30 to save power and heat; moving restores it
+  Game Volume  [toggle] - Turns the whole game's sound down for you: voices, music and effects  (options: 75% / 50% / 25% / 10%)
+  Mute In Background  [toggle] - Silences the game while its window isn't focused (desktop alt-tab)
 
-== ROOM (10) ==
+== ROOM (22) ==
   Change Name  [button] - Type a new name (max 12) on the board or keyboard
   Random Name  [button] - Sets a random MONKE#### name
   Set Room Code  [button] - Choose the code used by Join Saved Room
@@ -149,6 +264,18 @@ Guns: VR right grip aims + right trigger fires; desktop hold right mouse + left 
   Leave Room  [button] - Disconnect to single player
   Rejoin Room  [button] - Leave and join the same code again
   Copy Room Code  [button] - Copies the current room code to the clipboard
+  Join Last Room  [button] - Joins the room you were in before this one
+  Leave When Alone  [toggle] - Leaves the room once you've been the only one in it for 15 seconds
+  Random Colour  [button] - Picks a random fur colour, the same way the in-game computer does (everyone sees it)
+  Match Colour  [button] - Copies the fur colour of the closest player - twin with your friends
+  Name From Clipboard  [button] - Sets your name to the text in your clipboard (letters and numbers, max 12; name moderation still applies)
+  Join Code From Clipboard  [button] - Joins the room code in your clipboard - paste codes from friends straight in
+  Join/Leave Alerts  [toggle] - Tells you (with a little buzz) when someone joins or leaves the room
+  Auto Join On Start  [toggle] - When the game starts, joins your saved room code (Set Room Code) by itself - once per launch
+  Daily Room  [button] - Joins today's J CLIENT meet-up code; it changes every day and is the same for everyone
+  Copy Player List  [button] - Copies the names of everyone in the room to your clipboard
+  Auto Leave Public  [toggle] - Keeps you out of public lobbies: leaves any public, non-modded room after 3 seconds. Private and modded rooms are fine
+  Session Time Limit  [toggle] - Counts your time in rooms and leaves when the limit is up, with a warning 1 minute before - handy for screen-time limits  (options: 15 min / 30 min / 60 min / 90 min)
 
 == COSMETICS (20) ==
   Rainbow Monke  [toggle] - Your fur cycles through colours (only you see it)
@@ -326,8 +453,9 @@ Guns: VR right grip aims + right trigger fires; desktop hold right mouse + left 
   Use Saved Stage  [button] - Start at the saved stage instead of in front of you
   Event Countdown Sky  [toggle] - Huge countdown in the sky to the next event sequence
 
-== SETTINGS (33) ==
+== SETTINGS (34) ==
   Event Selected  [button] - Which installed event Start runs (more events can be added as folders)
+  New Year Year  [button] - Year the New Year event counts down to (2022 uses the crystal ball). Applies on next start
   Event Tell Others  [button] - Starting/stopping the event also starts/stops it for other mod users in any lobby
   Event Join Others  [button] - Join events that other mod users start (Forest only)
   Event Countdown  [button] - Countdown between pressing Start and the event beginning (0 = off). Shown in Event Status and the sky countdown
