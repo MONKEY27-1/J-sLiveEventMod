@@ -1,0 +1,68 @@
+19:42:57 | INFO: Data are loaded, start creating Blender stuff
+19:42:57 | INFO: Blender create Mesh node M_MED_Marshmellow_DJ.mo_M_Marshmello_DJ_Body_NewMaster_Inst_0
+19:42:57 | INFO: Blender create Mesh node M_MED_Marshmellow_DJ.mo_M_MED_ASN_Starfish_Head_01_0
+19:42:57 | INFO: Blender create Mesh node M_MED_Marshmellow_DJ.mo_M_MED_ASN_Starfish_Head_01_Hair_0
+19:42:57 | INFO: Blender create Mesh node M_MED_Marshmellow_DJ.mo_M_Med_Marshmellow_DJ_Hat_New_0
+19:42:58 | INFO: glTF import finished in 0.87s
+DJ segments 535 unique 535
+  DJ pose 0 / 7408 elapsed 0 s
+  DJ pose 600 / 7408 elapsed 9 s
+  DJ pose 1200 / 7408 elapsed 17 s
+  DJ pose 1800 / 7408 elapsed 26 s
+  DJ pose 2400 / 7408 elapsed 35 s
+  DJ pose 3000 / 7408 elapsed 44 s
+  DJ pose 3600 / 7408 elapsed 52 s
+  DJ pose 4200 / 7408 elapsed 60 s
+  DJ pose 4800 / 7408 elapsed 70 s
+  DJ pose 5400 / 7408 elapsed 79 s
+  DJ pose 6000 / 7408 elapsed 87 s
+  DJ pose 6600 / 7408 elapsed 95 s
+  DJ pose 7200 / 7408 elapsed 104 s
+  DJ key 0 / 7408 elapsed 107 s
+  DJ key 1200 / 7408 elapsed 119 s
+  DJ key 2400 / 7408 elapsed 150 s
+  DJ key 3600 / 7408 elapsed 200 s
+  DJ key 4800 / 7408 elapsed 270 s
+  DJ key 6000 / 7408 elapsed 359 s
+  DJ key 7200 / 7408 elapsed 468 s
+Dance segments 535 unique 535
+  Dance pose 0 / 7408 elapsed 0 s
+  Dance pose 600 / 7408 elapsed 9 s
+  Dance pose 1200 / 7408 elapsed 16 s
+  Dance pose 1800 / 7408 elapsed 23 s
+  Dance pose 2400 / 7408 elapsed 31 s
+  Dance pose 3000 / 7408 elapsed 38 s
+  Dance pose 3600 / 7408 elapsed 46 s
+  Dance pose 4200 / 7408 elapsed 53 s
+  Dance pose 4800 / 7408 elapsed 60 s
+  Dance pose 5400 / 7408 elapsed 67 s
+  Dance pose 6000 / 7408 elapsed 74 s
+  Dance pose 6600 / 7408 elapsed 82 s
+  Dance pose 7200 / 7408 elapsed 90 s
+  Dance key 0 / 7408 elapsed 93 s
+  Dance key 1200 / 7408 elapsed 104 s
+  Dance key 2400 / 7408 elapsed 134 s
+  Dance key 3600 / 7408 elapsed 184 s
+  Dance key 4800 / 7408 elapsed 255 s
+  Dance key 6000 / 7408 elapsed 343 s
+  Dance key 7200 / 7408 elapsed 458 s
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+19:59:08 | INFO: Starting glTF 2.0 export
+19:59:08 | INFO: Extracting primitive: M_MED_Marshmellow_DJ.mo_M_Marshmello_DJ_Body_NewMaster_Inst_0
+19:59:08 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.
+19:59:08 | INFO: Primitives created: 1
+19:59:08 | INFO: Extracting primitive: M_MED_Marshmellow_DJ.mo_M_MED_ASN_Starfish_Head_01_0
+19:59:08 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.
+19:59:08 | INFO: Primitives created: 1
+19:59:08 | INFO: Extracting primitive: M_MED_Marshmellow_DJ.mo_M_MED_ASN_Starfish_Head_01_Hair_0
+19:59:08 | INFO: Primitives created: 1
+19:59:08 | INFO: Extracting primitive: M_MED_Marshmellow_DJ.mo_M_Med_Marshmellow_DJ_Hat_New_0
+19:59:08 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.
+19:59:08 | INFO: Primitives created: 1
+20:01:53 | INFO: Finished glTF 2.0 export in 164.6540653705597 s
+
+wrote cache/marsh/marsh_dance.glb 15617 KB
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

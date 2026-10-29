@@ -1,0 +1,98 @@
+
+        // ------------------------------------------------------------------ the extras
+        LineRenderer MakeLine(string name, Material mat, int n, bool loop)
+        {
+            var g = new GameObject(name); g.transform.SetParent(root.transform, false); var l = g.AddComponent<LineRenderer>(); l.useWorldSpace = true; l.positionCount = n; l.loop = loop; l.sharedMaterial = mat; l.shadowCastingMode = ShadowCastingMode.Off; l.enabled = false; return l;
+        }
+        void SetRing(LineRenderer l, Vector3 c, float r, Quaternion q)
+        {
+            int n = l.positionCount; for (int k = 0; k < n; k++) { float a = k * Mathf.PI * 2f / n; l.SetPosition(k, W(c + q * new Vector3(Mathf.Cos(a) * r, 0f, Mathf.Sin(a) * r))); }
+        }
+        void BuildExtras()
+        {
+            var soft = kit.Glow(Color.white, lineTex, 3001); float zb = deckFront - 2.4f; floorY = GroundAt(stageC.x, deckFront - 3f);
+            for (int i = 0; i < waves.Length; i++) waves[i] = MakeLine("Wave" + i, soft, 64, true);
+            for (int i = 0; i < halos.Length; i++) halos[i] = MakeLine("Halo" + i, soft, 72, true);
+            for (int i = 0; i < search.Length; i++) { search[i] = MakeLine("Search" + i, soft, 2, false); float x = stageC.x + (i - 3.5f) * (stageHalfW * 2f / 8f); searchO[i] = new Vector3(x, GroundAt(x, 3f), 3f); }
+            float[] px = { -(stageHalfW + 3f), stageHalfW + 3f, -(stageHalfW + 3f), stageHalfW + 3f, -(stageHalfW + 17f), stageHalfW + 17f }, pz = { deckFront + 2f, deckFront + 2f, deckFront + 30f, deckFront + 30f, STAGE_Z - 14f, STAGE_Z - 14f };
+            for (int i = 0; i < pillars.Length; i++) { pillars[i] = MakeLine("Pillar" + i, soft, 2, false); float x = stageC.x + px[i]; pillO[i] = new Vector3(x, GroundAt(x, pz[i]), pz[i]); }
+            fog = MakePS("ConcertFog", matGlow, 1500, 0f, 9f); orbs = MakePS("ConcertOrbs", matGlow, 700, 0f, 9f);
+            for (int k = 0; k < 3; k++) barMat[k] = kit.Glow(Color.white, null, 3001);
+            var box = kit.Box(new Vector3(1f, 1f, 1f), 1f);
+            for (int i = 0; i < bars.Length; i++) { float x = stageC.x + (i / (float)(bars.Length - 1) - 0.5f) * (stageHalfW * 2f - 2f); bars[i] = kit.Obj("Bar" + i, root.transform, box, barMat[i % 3], new Vector3(x, GroundAt(x, zb) + 0.05f, zb), Quaternion.identity, new Vector3(1.5f, 0.5f, 0.9f), false).transform; }
+        }
+        void Wave(float t)
+        {
+            waveT[waveNext] = t; waveC[waveNext] = Pc(UnityEngine.Random.Range(0, 3), t); waveNext = (waveNext + 1) % waves.Length; waveAt = new Vector3(stageC.x, floorY + 0.3f, deckFront - 3f);
+        }
+        void Firework(float t0, int kind)
+        {
+            if (fireworks.Count > 24) return; var f = new Firework { T0 = t0, Rise = Rnd(1.3f, 1.9f), Kind = kind };
+            f.A = new Vector3(stageC.x + Rnd(-1f, 1f) * stageHalfW, deckTop, STAGE_Z + Rnd(8f, 16f)); f.B = f.A + new Vector3(Rnd(-25f, 25f), Rnd(55f, 90f), Rnd(-5f, 20f));
+            f.C = song == 4 ? Color.HSVToRGB(Rnd(0f, 1f), 0.8f, 1f) : Pc(UnityEngine.Random.Range(0, 3), t0); fireworks.Add(f);
+        }
+        static int TakeA(ref float acc, float rate, float dt) { acc += rate * dt; int n = (int)acc; acc -= n; return n; }
+        void Extras(float t, float dt, int bi, float pulse, float en)
+        {
+            bool live = en > 0.1f || flashV > 0.1f;
+            // floor shockwaves from the stage front
+            for (int i = 0; i < waves.Length; i++)
+            {
+                var w = waves[i]; if (w == null) continue; float age = t - waveT[i], life = 2.2f; bool on = age >= 0f && age < life; if (w.enabled != on) w.enabled = on; if (!on) continue;
+                float k = age / life; SetRing(w, waveAt, 3f + age * 30f, Quaternion.identity); var c = waveC[i]; w.startColor = w.endColor = new Color(c.r, c.g, c.b, 0.9f * (1f - k) * (1f - k)); w.widthMultiplier = (2.6f * (1f - 0.7f * k)) * sc;
+            }
+            // three spinning halos round the giant hologram
+            float ha = Mathf.Clamp01(holoAmt * 1.5f); Vector3 mid = giantRest + Vector3.up * (-26f * (1f - holoAmt) + 10f);
+            for (int i = 0; i < halos.Length; i++)
+            {
+                var h = halos[i]; if (h == null) continue; bool on = ha > 0.02f; if (h.enabled != on) h.enabled = on; if (!on) continue;
+                var q = Quaternion.Euler(60f * Mathf.Sin(t * 0.4f + i * 2f), t * (30f + 25f * i) * (i % 2 == 0 ? 1f : -1f), 40f * Mathf.Cos(t * 0.3f + i)); SetRing(h, mid, (9f + 4f * i) * (1f + 0.08f * pulse), q);
+                var c = Pc(i, t); h.startColor = h.endColor = new Color(c.r, c.g, c.b, 0.85f * ha); h.widthMultiplier = (0.5f + 0.4f * pulse) * sc;
+            }
+            // searchlights sweeping over the crowd, pillars of light at the stage corners and beside the bears
+            for (int i = 0; i < search.Length; i++)
+            {
+                var s = search[i]; if (s == null) continue; if (s.enabled != live) s.enabled = live; if (!live) continue;
+                var d = new Vector3(Mathf.Sin(t * 0.6f + i * 0.8f) * 0.55f, 1f, 0.35f + 0.25f * Mathf.Sin(t * 0.45f + i * 1.3f)).normalized; var c = Pc(i % 3, t);
+                s.SetPosition(0, W(searchO[i])); s.SetPosition(1, W(searchO[i] + d * 160f)); s.widthMultiplier = (5f + 2f * pulse) * sc; s.startColor = s.endColor = new Color(c.r, c.g, c.b, 0.2f + 0.12f * pulse);
+            }
+            for (int i = 0; i < pillars.Length; i++)
+            {
+                var s = pillars[i]; if (s == null) continue; s.enabled = true; var c = Color.Lerp(Pc(i % 3, t), Color.white, flashV * 0.6f);
+                s.SetPosition(0, W(pillO[i])); s.SetPosition(1, W(pillO[i] + Vector3.up * 130f)); s.widthMultiplier = (2.2f + 1.5f * pulse) * sc; s.startColor = s.endColor = new Color(c.r, c.g, c.b, (live ? 0.25f + 0.5f * pulse : 0.12f) + 0.3f * flashV);
+            }
+            // the equaliser wall along the stage front
+            for (int k = 0; k < 3; k++) { var c = Pc(k, t); float b = 0.65f + 0.35f * pulse; barMat[k].color = new Color(c.r * b, c.g * b, c.b * b, 1f); }
+            for (int i = 0; i < bars.Length; i++)
+            {
+                if (bars[i] == null) continue; float h = 0.4f + Mathf.Clamp01(en * 1.8f) * (3f + 9f * Mathf.Abs(Mathf.Sin(i * 0.55f + t * 4.5f + bi))) + 4f * pulse * Mathf.Abs(Mathf.Sin(i * 1.3f)); bars[i].localScale = new Vector3(1.5f, h, 0.9f);
+            }
+            Fireworks(t);
+            if (paused || dt <= 0f) return;
+            // ground fog (coloured by the lights) and orbs drifting up out of the crowd
+            var fc = Pc(UnityEngine.Random.Range(0, 3), t);
+            for (int k = TakeA(ref accFog, (6f + 24f * en) * Parts, dt); k > 0; k--) Emit(fog, new Vector3(stageC.x + Rnd(-1f, 1f) * stageHalfW, floorY + 0.3f, deckFront + Rnd(-2f, 3f)), new Vector3(Rnd(-0.6f, 0.6f), 0.15f, -Rnd(1.2f, 2.2f)), new Color(fc.r, fc.g, fc.b, Rnd(0.07f, 0.14f)), Rnd(7f, 12f), Rnd(7f, 10f));
+            for (int k = TakeA(ref accOrb, (5f + 10f * en) * Parts, dt); k > 0; k--) Emit(orbs, new Vector3(stageC.x + Rnd(-1f, 1f) * (stageHalfW + 10f), floorY + 0.5f, Rnd(2f, Mathf.Max(4f, deckFront - 3f))), new Vector3(Rnd(-0.6f, 0.6f), Rnd(1.2f, 3f), Rnd(-0.6f, 0.6f)), Color.HSVToRGB(Rnd(0f, 1f), 0.6f, 1f), Rnd(0.5f, 1.1f), Rnd(7f, 10f));
+        }
+        void Fireworks(float t)
+        {
+            for (int i = fireworks.Count - 1; i >= 0; i--)
+            {
+                var f = fireworks[i]; float age = t - f.T0; if (age < 0f) continue; if (age > f.Rise + 3f) { fireworks.RemoveAt(i); continue; }
+                if (age < f.Rise)
+                {
+                    float u = 1f - (1f - age / f.Rise) * (1f - age / f.Rise); var p = Vector3.Lerp(f.A, f.B, u);
+                    if (!paused) for (int k = 0; k < 3; k++) Emit(fx, p, new Vector3(Rnd(-1.5f, 1.5f), Rnd(-4f, -1f), Rnd(-1.5f, 1.5f)), new Color(1f, 0.85f, 0.5f), 0.7f, Rnd(0.4f, 0.8f));
+                }
+                else if (!f.Burst && !paused)
+                {
+                    f.Burst = true; int n = (int)(160 * Parts);
+                    for (int k = 0; k < n; k++)
+                    {
+                        Vector3 d; if (f.Kind == 1) { float a = Rnd(0f, 6.2832f); d = new Vector3(Mathf.Cos(a), Mathf.Sin(a), Rnd(-0.12f, 0.12f)); } else d = UnityEngine.Random.onUnitSphere;
+                        Emit(fx, f.B, d * Rnd(12f, 22f), Color.Lerp(f.C, Color.white, Rnd(0f, 0.4f)), 1.1f * Rnd(0.6f, 1.4f), Rnd(1.6f, 2.6f));
+                    }
+                    lightKick = Mathf.Max(lightKick, 0.5f);
+                }
+            }
+        }

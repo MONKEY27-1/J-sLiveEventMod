@@ -1,0 +1,71 @@
+19:42:57 | INFO: Data are loaded, start creating Blender stuff
+19:42:57 | INFO: Blender create Mesh node Object_2_F_MED_FuzzyBear_0
+19:42:57 | INFO: Blender create Mesh node Object_3_F_MED_FuzzyBear_Head_0
+19:42:57 | INFO: Blender create Mesh node Object_4_F_MED_FuzzyBear_skin_0
+19:42:57 | INFO: Blender create Mesh node Object_5_FuzzyBear_Eyeball_L_0
+19:42:57 | INFO: Blender create Mesh node Object_6_FuzzyBear_Eyeball_R_0
+19:42:57 | INFO: Blender create Mesh node Object_7_Hat_F_Med_Soldier_BR039_0
+19:42:57 | INFO: glTF import finished in 0.22s
+BearA segments 535 unique 535
+  BearA pose 0 / 7408 elapsed 0 s
+  BearA pose 600 / 7408 elapsed 4 s
+  BearA pose 1200 / 7408 elapsed 8 s
+  BearA pose 1800 / 7408 elapsed 12 s
+  BearA pose 2400 / 7408 elapsed 16 s
+  BearA pose 3000 / 7408 elapsed 20 s
+  BearA pose 3600 / 7408 elapsed 24 s
+  BearA pose 4200 / 7408 elapsed 29 s
+  BearA pose 4800 / 7408 elapsed 33 s
+  BearA pose 5400 / 7408 elapsed 37 s
+  BearA pose 6000 / 7408 elapsed 41 s
+  BearA pose 6600 / 7408 elapsed 44 s
+  BearA pose 7200 / 7408 elapsed 48 s
+  BearA key 0 / 7408 elapsed 50 s
+  BearA key 1200 / 7408 elapsed 62 s
+  BearA key 2400 / 7408 elapsed 94 s
+  BearA key 3600 / 7408 elapsed 146 s
+  BearA key 4800 / 7408 elapsed 216 s
+  BearA key 6000 / 7408 elapsed 304 s
+  BearA key 7200 / 7408 elapsed 412 s
+BearB segments 535 unique 535
+  BearB pose 0 / 7408 elapsed 0 s
+  BearB pose 600 / 7408 elapsed 4 s
+  BearB pose 1200 / 7408 elapsed 7 s
+  BearB pose 1800 / 7408 elapsed 11 s
+  BearB pose 2400 / 7408 elapsed 14 s
+  BearB pose 3000 / 7408 elapsed 18 s
+  BearB pose 3600 / 7408 elapsed 21 s
+  BearB pose 4200 / 7408 elapsed 25 s
+  BearB pose 4800 / 7408 elapsed 29 s
+  BearB pose 5400 / 7408 elapsed 32 s
+  BearB pose 6000 / 7408 elapsed 36 s
+  BearB pose 6600 / 7408 elapsed 40 s
+  BearB pose 7200 / 7408 elapsed 44 s
+  BearB key 0 / 7408 elapsed 45 s
+  BearB key 1200 / 7408 elapsed 56 s
+  BearB key 2400 / 7408 elapsed 87 s
+  BearB key 3600 / 7408 elapsed 135 s
+  BearB key 4800 / 7408 elapsed 201 s
+  BearB key 6000 / 7408 elapsed 291 s
+  BearB key 7200 / 7408 elapsed 397 s
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+19:57:10 | INFO: Starting glTF 2.0 export
+19:57:10 | INFO: Extracting primitive: Object_2_F_MED_FuzzyBear_0
+19:57:11 | INFO: Primitives created: 1
+19:57:11 | INFO: Extracting primitive: Object_3_F_MED_FuzzyBear_Head_0
+19:57:11 | INFO: Primitives created: 1
+19:57:11 | INFO: Extracting primitive: Object_4_F_MED_FuzzyBear_skin_0
+19:57:11 | INFO: Primitives created: 1
+19:57:11 | INFO: Extracting primitive: Object_5_FuzzyBear_Eyeball_L_0
+19:57:11 | INFO: Primitives created: 1
+19:57:11 | INFO: Extracting primitive: Object_6_FuzzyBear_Eyeball_R_0
+19:57:11 | INFO: Primitives created: 1
+19:57:11 | INFO: Extracting primitive: Object_7_Hat_F_Med_Soldier_BR039_0
+19:57:11 | INFO: Primitives created: 1
+19:59:03 | INFO: Finished glTF 2.0 export in 112.50158071517944 s
+
+wrote cache/marsh/bear_dance.glb 15914 KB
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

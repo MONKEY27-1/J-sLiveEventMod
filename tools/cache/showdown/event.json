@@ -1,0 +1,44 @@
+{
+ "id": "finalshowdown",
+ "name": "The Final Showdown",
+ "kind": "showdown",
+ "music": "showdown.mp3",
+ "lead": 0,
+ "length": 303.5,
+ "bounds": [
+  0.0,
+  47.0,
+  81.5,
+  116.5,
+  153.5,
+  204.0,
+  254.0,
+  303.5
+ ],
+ "names": [
+  "The Monster Arrives",
+  "The Forest Is Threatened",
+  "The Robot Awakens",
+  "The First Battle",
+  "Ambush and the Energy Source",
+  "Power Punch and the Hidden Sword",
+  "The Final Clash"
+ ],
+ "cues": "cues.json",
+ "sword": "sword.glb",
+ "plateau": 0.0,
+ "actors": [
+  {
+   "id": "monster",
+   "glb": "monster.glb",
+   "height": 131.48,
+   "ankle": 9.0
+  },
+  {
+   "id": "robot",
+   "glb": "robot.glb",
+   "height": 82.55,
+   "ankle": 5.0
+  }
+ ]
+}
