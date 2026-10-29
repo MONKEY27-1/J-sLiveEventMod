@@ -28,7 +28,8 @@ namespace AstronomicalEvent
         const int Rate = 22050;
         volatile float[] pcm;
         Task job;
-        AudioClip clip;
+        AudioClip clip,
+            synth;
         GameObject go;
         AudioSource src;
         GainFilter gain;
@@ -44,7 +45,24 @@ namespace AstronomicalEvent
 
         public void Prepare()
         {
-            if (job != null || clip != null || external)
+            if (external)
+            {
+                // the previous event's music file is still current: drop it, or an event without music would play it
+                if (src != null)
+                {
+                    src.Stop();
+                    src.clip = null;
+                }
+                clip = null;
+                external = false;
+                Offset = 0f;
+            }
+            if (synth != null)
+            {
+                clip = synth; // synthesized once already
+                return;
+            }
+            if (job != null || clip != null)
                 return;
             Status = "synthesizing";
             job = Task.Run(() =>
@@ -81,6 +99,7 @@ namespace AstronomicalEvent
                         pos += buf.Length;
                     }
                 );
+                synth = clip;
                 pcm = null;
                 Status = "ready";
             }
@@ -232,11 +251,11 @@ namespace AstronomicalEvent
             Stop();
             if (go != null)
                 UnityEngine.Object.Destroy(go);
-            if (clip != null && !external)
-                UnityEngine.Object.Destroy(clip);
+            if (synth != null)
+                UnityEngine.Object.Destroy(synth);
             go = null;
             src = null;
-            clip = null;
+            clip = synth = null;
         }
 
         static float[] Synth()

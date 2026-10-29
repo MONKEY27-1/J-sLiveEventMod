@@ -563,9 +563,18 @@ namespace AstronomicalEvent
             catch (Exception e)
             {
                 Message = "Effect error: " + e.Message;
-                AstronomicalEventMod.Log.LogError(e);
+                if (e.Message != lastApplyError || Time.unscaledTime - lastApplyErrorAt > 5f)
+                {
+                    lastApplyError = e.Message;
+                    lastApplyErrorAt = Time.unscaledTime;
+                    AstronomicalEventMod.Log.LogError(e);
+                }
             }
         }
+
+        // a scene that throws every frame would otherwise write a stack trace 60+ times a second (log spam and a big frame-rate drop)
+        string lastApplyError;
+        float lastApplyErrorAt = -99f;
 
         public int CurrentSequence
         {
@@ -724,8 +733,23 @@ namespace AstronomicalEvent
                 SeekToSequence(Mathf.Min(AstronomicalSequence.Start.Length - 1, CurrentSequence + 1));
                 return;
             }
-            T = Mathf.Max(0f, next - 0.3f);
-            if (audioStarted && Audio.Ready)
+            SeekAudio(Mathf.Max(0f, next - 0.3f));
+        }
+
+        // Moves the clock and the music together. While paused the music is stopped and restarts at the new time on Resume
+        // (PlayAt alone would start it playing during the pause, and Resume would then pull the clock back to the old spot).
+        // A finished event that is sought back into the show runs again.
+        void SeekAudio(float t)
+        {
+            T = Mathf.Clamp(t, 0f, Mathf.Max(0f, AstronomicalSequence.Total - 0.05f));
+            if (State == EventState.Finished)
+                State = EventState.Running;
+            if (State == EventState.Paused)
+            {
+                Audio.Stop();
+                audioStarted = false;
+            }
+            else if (audioStarted && Audio.Ready)
                 Audio.PlayAt(T);
         }
 
@@ -764,18 +788,14 @@ namespace AstronomicalEvent
         {
             if (State == EventState.Idle)
                 return;
-            T = t;
-            if (audioStarted && Audio.Ready)
-                Audio.PlayAt(T);
+            SeekAudio(t);
         }
 
         public void SeekToSequence(int seq)
         {
             if (State == EventState.Idle)
                 return;
-            T = AstronomicalSequence.Start[Mathf.Clamp(seq, 0, AstronomicalSequence.Start.Length - 1)];
-            if (audioStarted && Audio.Ready)
-                Audio.PlayAt(T); // the music is the clock: seek it too, or it would pull the show back
+            SeekAudio(AstronomicalSequence.Start[Mathf.Clamp(seq, 0, AstronomicalSequence.Start.Length - 1)]); // the music is the clock: seek it too, or it would pull the show back
         }
     }
 }

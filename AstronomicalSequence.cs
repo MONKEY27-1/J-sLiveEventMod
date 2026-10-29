@@ -82,7 +82,7 @@ namespace AstronomicalEvent
                     i = k;
                     break;
                 }
-            u = Math.Max(0f, Math.Min(1f, (t - Start[i]) / Duration[i]));
+            u = Duration[i] > 0f ? Math.Max(0f, Math.Min(1f, (t - Start[i]) / Duration[i])) : 1f; // two equal bounds in an event.json would give NaN
             return i;
         }
     }
