@@ -2,9 +2,10 @@
 import re, sys, pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-ORDER = ["Movement", "Visuals", "Tag", "Utilities", "Room", "Cosmetics", "Safety", "World FX", "Rig", "Fun", "Soundboard", "Master", "Events", "Settings"]
+ORDER = ["Movement", "Flight", "Parkour", "Teleport", "Experimental", "Visuals", "Tag", "Utilities", "Room", "Cosmetics", "Safety", "World FX", "Rig", "Fun", "Soundboard", "Master", "Events", "Settings"]
 # helper -> fixed category (None = use the file's `const string c`)
-CALL = re.compile(r'((?:Mods\.[TBC]|Follow|HudLine)\((c|"[^"]+")|Pool\(|Attached\(|Spawner\(|Setting\(|Pose\(|Mood\()\s*,?\s*"([^"]+)"')
+# whitespace / line breaks are allowed anywhere between the call and its first arguments (the sources are formatted with CSharpier)
+CALL = re.compile(r'((?:Mods\.[TBC]|Follow|HudLine)\(\s*(c|"[^"]+")|Pool\(|Attached\(|Spawner\(|Setting\(|Pose\(|Mood\()\s*,?\s*"([^"]+)"')
 FIXED = {"Pool(": "Visuals", "Attached(": "Cosmetics", "Spawner(": "World FX", "Setting(": "Settings", "Pose(": "Rig", "Mood(": "World FX"}
 
 
@@ -21,15 +22,15 @@ def parse(path):
             continue
         seg = text[m.end():matches[i + 1].start() if i + 1 < len(matches) else len(text)]
         stmt = re.sub(r'Mods\.Get\("[^"]*"\)', "", seg).replace("\\\\", "\\")  # everything up to the next registration
-        infos = re.findall(r'\.Info\("([^"]*)"\)', stmt) or re.findall(r'"([^"]*)"\)', stmt)
+        infos = re.findall(r'\.Info\("([^"]*)"\)', stmt) or re.findall(r'"([^"]*)"\s*\)', stmt)
         info = infos[-1] if infos else ""
-        opts = re.search(r'\.Opts\(("[^)]*)\)', stmt)
+        opts = re.search(r'\.Opts\(\s*("[^)]*)\)', stmt)
         opts = re.findall(r'"([^"]*)"', opts.group(1)) if opts else []
         kind = "button" if head.startswith(("Mods.B", "Setting(")) else "cycle" if head.startswith("Mods.C") else "toggle"
         name = m.group(3)
         if seg.lstrip().startswith("+"):
             name = name.strip() + " ..."  # name built in a loop (waypoints, sounds, modes): listed once
-        others = ".OthersOnly()" in stmt or text[max(0, m.start() - 2):m.start()] == "M("
+        others = ".OthersOnly()" in stmt or re.search(r"\bM\(\s*$", text[max(0, m.start() - 60):m.start()]) is not None
         yield cat, name, info, opts, others, kind
 
 
