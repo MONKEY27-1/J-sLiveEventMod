@@ -185,7 +185,7 @@ namespace AstronomicalEvent
         void MechAlive(float t, bool arms)
         {
             if (mechM == null || mechM.Pivot == null) return;
-            if (lifeBones == null) { var l = new List<Transform>(); foreach (var tr in mechM.Pivot.GetComponentsInChildren<Transform>(true)) { var n = tr.name; if (n.StartsWith("spine_0") || n.StartsWith("neck_01") || n.StartsWith("upperarm_") || n.StartsWith("lowerarm_") || n.StartsWith("clavicle_")) l.Add(tr); } lifeBones = l.ToArray(); }
+            if (lifeBones == null) { var l = new List<Transform>(); foreach (var tr in mechM.Pivot.GetComponentsInChildren<Transform>(true)) { var n = tr.name; if (n == "spine_01_06" || n == "spine_02_07" || n == "spine_03_08" || n == "spine_04_09" || n == "spine_05_010" || n == "neck_01_0128" || n == "upperarm_l_012" || n == "lowerarm_l_013" || n == "upperarm_r_081" || n == "lowerarm_r_082") l.Add(tr);  } lifeBones = l.ToArray(); }   // ONLY bones the clips write every frame (extra rotation on others piled up: the mech tweaked out)
             for (int i = 0; i < lifeBones.Length; i++) { var tr = lifeBones[i]; if (tr == null) continue; bool arm = !tr.name.StartsWith("spine_0") && !tr.name.StartsWith("neck_01"); if (arm && !arms) continue; float am = arm ? 3.0f : 1.4f, ph = i * 1.7f; tr.localRotation *= Quaternion.Euler(am * Mathf.Sin(t * 1.3f + ph), am * 0.7f * Mathf.Sin(t * 0.9f + ph * 1.3f), am * Mathf.Sin(t * 1.1f + ph * 0.7f)); }
         }
 
