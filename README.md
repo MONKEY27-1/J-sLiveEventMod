@@ -15,4 +15,3 @@ Events are data folders (`event.json` + glb models + music) under `BepInEx/plugi
 `JClient/` is the source of the J CLIENT menu mod (with `EventMods.cs` that drives this plugin) plus its built `JClient.dll`.
 ## Install events from the repo
 Press P in-game (built-in menu) -> "INSTALL FROM REPO" -> Load event list -> Install; or put `repo` / `install <id>` in `BepInEx/eventtest.txt`. Files that already match are skipped (it also updates).
-(files over 90 MB are not in the repo: tools/cache/showdown/cattus_real_fixed.glb, monster.glb, showdown_pair.blend)
