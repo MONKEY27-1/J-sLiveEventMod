@@ -1,0 +1,51 @@
+{
+ "id": "rocketlaunch",
+ "name": "Rocket Launch (2018)",
+ "kind": "rocket",
+ "music": "rocket.mp3",
+ "lead": 0,
+ "length": 134.86,
+ "bounds": [
+  0,
+  6.5,
+  10.4,
+  24,
+  34.9,
+  51.6,
+  54,
+  73,
+  79.5,
+  83,
+  107.4,
+  118.67,
+  120.3,
+  122,
+  134.86
+ ],
+ "names": [
+  "Countdown",
+  "Ignition",
+  "Lift-off",
+  "The Climb",
+  "The Sky Cracks",
+  "Into the Rift",
+  "The Rift Hangs Open",
+  "Build-up",
+  "The Rift Blast",
+  "Lightning and Quakes",
+  "Climax",
+  "The Final Hit",
+  "The Rift Collapses",
+  "Aftermath"
+ ],
+ "cues": "cues.json",
+ "plateau": 0.0,
+ "actors": [
+  {
+   "id": "rocket",
+   "glb": "rocket.glb",
+   "height": 150,
+   "ankle": 5.0
+  }
+ ]
+}

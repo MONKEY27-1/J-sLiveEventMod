@@ -1,0 +1,41 @@
+{
+ "id": "newyear",
+ "name": "New Year Countdown (2019-2022)",
+ "kind": "newyear",
+ "music": "newyear.mp3",
+ "lead": 0,
+ "length": 130.0,
+ "bounds": [
+  0,
+  5,
+  9,
+  18,
+  28,
+  38,
+  42,
+  63,
+  130.0
+ ],
+ "names": [
+  "The night sky",
+  "The rift opens",
+  "The ball appears",
+  "The countdown",
+  "Midnight!",
+  "Confetti",
+  "The new year",
+  "The end"
+ ],
+ "props": [
+  {
+   "id": "disco",
+   "glb": "disco.glb",
+   "lit": false
+  },
+  {
+   "id": "crystal",
+   "glb": "crystal.glb",
+   "lit": false
+  }
+ ]
+}

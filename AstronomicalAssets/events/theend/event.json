@@ -1,0 +1,83 @@
+{
+ "id": "theend",
+ "name": "The End (2019)",
+ "kind": "end",
+ "music": "theend.mp3",
+ "lead": 0,
+ "length": 309.7,
+ "bounds": [
+  0,
+  20,
+  24,
+  55,
+  58,
+  68,
+  88,
+  132,
+  146,
+  169,
+  175,
+  186,
+  193,
+  195,
+  208,
+  237,
+  241,
+  250,
+  277,
+  296,
+  309.7
+ ],
+ "names": [
+  "Waiting",
+  "Ignition",
+  "Lift-off",
+  "The First Rift",
+  "The Rocket Enters",
+  "Rockets Reappear",
+  "Seven Rockets",
+  "Into One Rift",
+  "Again, Unstable",
+  "The Meteor Enters",
+  "The Rift Is Gone",
+  "The Zero Point Rift",
+  "The First Dive",
+  "We Enter the Sky",
+  "Six Rockets and the Meteor",
+  "The Impact",
+  "Pushed Back",
+  "The Black Hole Pulls",
+  "Black Screen",
+  "The Black Hole"
+ ],
+ "cues": "cues.json",
+ "plateau": 0.0,
+ "actors": [
+  {
+   "id": "rocket",
+   "glb": "rocket.glb",
+   "height": 150,
+   "ankle": 5.0
+  },
+  {
+   "id": "meteor",
+   "glb": "meteor.glb",
+   "height": 70,
+   "ankle": 5.0
+  }
+ ],
+ "props": [
+  {
+   "id": "zeropoint",
+   "glb": "zeropoint.glb"
+  },
+  {
+   "id": "blackhole",
+   "glb": "blackhole.glb"
+  },
+  {
+   "id": "vault",
+   "glb": "vault.glb"
+  }
+ ]
+}

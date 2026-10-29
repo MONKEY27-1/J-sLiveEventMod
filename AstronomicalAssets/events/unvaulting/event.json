@@ -1,0 +1,99 @@
+{
+ "id": "unvaulting",
+ "name": "The Unvaulting (2019)",
+ "kind": "unvault",
+ "music": "unvault.mp3",
+ "lead": 0,
+ "length": 340.0,
+ "bounds": [
+  0,
+  15,
+  55,
+  240,
+  248,
+  266,
+  281,
+  308,
+  319,
+  328,
+  330,
+  340.0
+ ],
+ "names": [
+  "Waiting",
+  "The Vault",
+  "Voting",
+  "The Winner Is Decided",
+  "The Item Breaks",
+  "The Volcano Explodes",
+  "The First Rock",
+  "The Second Rock",
+  "The Rock Splits",
+  "Tilted Towers Is Hit",
+  "The Final Rock"
+ ],
+ "props": [
+  {
+   "id": "w0",
+   "glb": "w0.glb",
+   "lit": true
+  },
+  {
+   "id": "w1",
+   "glb": "w1.glb",
+   "lit": true
+  },
+  {
+   "id": "w2",
+   "glb": "w2.glb",
+   "lit": true
+  },
+  {
+   "id": "w3",
+   "glb": "w3.glb",
+   "lit": true
+  },
+  {
+   "id": "w4",
+   "glb": "w4.glb",
+   "lit": true
+  },
+  {
+   "id": "w5",
+   "glb": "w5.glb",
+   "lit": true
+  },
+  {
+   "id": "vault",
+   "glb": "vault.glb"
+  },
+  {
+   "id": "zeropoint",
+   "glb": "zeropoint.glb"
+  },
+  {
+   "id": "site",
+   "glb": "site.glb",
+   "lit": true
+  },
+  {
+   "id": "buildings",
+   "glb": "buildings.glb",
+   "lit": true
+  },
+  {
+   "id": "rim",
+   "glb": "rim.glb",
+   "lit": true
+  },
+  {
+   "id": "volcano",
+   "glb": "volcano.glb",
+   "lit": true
+  },
+  {
+   "id": "pillar",
+   "glb": "pillar.glb"
+  }
+ ]
+}

@@ -1,0 +1,36 @@
+{
+ "id": "cubelake",
+ "name": "The Cube Sinking - Loot Lake (2018)",
+ "kind": "cubelake",
+ "music": "lake.mp3",
+ "lead": 0,
+ "length": 105.0,
+ "bounds": [
+  0,
+  11,
+  15,
+  18,
+  50,
+  85,
+  86,
+  89,
+  105.0
+ ],
+ "names": [
+  "The cube on the dock",
+  "The cube tips over",
+  "It hits the water",
+  "The cube dissolves",
+  "The water turns purple",
+  "The lake goes normal",
+  "The burst of light",
+  "The purple lake"
+ ],
+ "props": [
+  {
+   "id": "cube",
+   "glb": "cube.glb",
+   "lit": true
+  }
+ ]
+}

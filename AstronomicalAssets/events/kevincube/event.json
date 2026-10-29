@@ -1,0 +1,36 @@
+{
+ "id": "kevincube",
+ "name": "Kevin the Cube (2018)",
+ "kind": "cube",
+ "music": "kevin.mp3",
+ "lead": 0,
+ "length": 51.0,
+ "bounds": [
+  0,
+  5,
+  10,
+  18,
+  23,
+  25,
+  29,
+  33,
+  51.0
+ ],
+ "names": [
+  "The rift opens",
+  "The rift grows",
+  "First lightning",
+  "The lightning builds",
+  "The cube begins to appear",
+  "Kevin",
+  "Kevin floats",
+  "The rift is gone"
+ ],
+ "props": [
+  {
+   "id": "cube",
+   "glb": "cube.glb",
+   "lit": true
+  }
+ ]
+}

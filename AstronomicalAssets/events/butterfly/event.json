@@ -1,0 +1,44 @@
+{
+ "id": "butterfly",
+ "name": "The Butterfly Event (Season 6, 2018)",
+ "kind": "butterfly",
+ "music": "butterfly.mp3",
+ "lead": 0,
+ "length": 140.0,
+ "bounds": [
+  0,
+  60,
+  62,
+  108,
+  130,
+  135,
+  137,
+  140.0
+ ],
+ "names": [
+  "The spinning cube",
+  "The explosion",
+  "The In-Between",
+  "The butterfly appears",
+  "It flies to you",
+  "It lands on your hand",
+  "The white flash"
+ ],
+ "props": [
+  {
+   "id": "cube",
+   "glb": "cube.glb",
+   "lit": true
+  },
+  {
+   "id": "butterfly",
+   "glb": "butterfly.glb",
+   "lit": false
+  },
+  {
+   "id": "inbetween",
+   "glb": "inbetween.glb",
+   "lit": false
+  }
+ ]
+}

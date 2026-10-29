@@ -1,0 +1,179 @@
+{
+ "id": "collision",
+ "name": "Collision (Season 2 Finale, 2022) - part 1",
+ "kind": "collision",
+ "music": "collision.mp3",
+ "lead": 0,
+ "length": 741.0,
+ "bounds": [
+  0,
+  95,
+  115,
+  191,
+  200,
+  251,
+  465,
+  477,
+  493,
+  516,
+  582,
+  626,
+  644,
+  689,
+  711,
+  735,
+  741.0
+ ],
+ "names": [
+  "The Moon Base",
+  "The launch",
+  "Entering the atmosphere",
+  "Landing",
+  "The tanks and the barriers",
+  "The weapon hits",
+  "The Collider",
+  "The ground gives way",
+  "Underground",
+  "Below the Collider",
+  "Up the stairs",
+  "Slone",
+  "The mech hand",
+  "The Collider falls",
+  "Falling",
+  "To be continued"
+ ],
+ "props": [
+  {
+   "id": "cabin",
+   "glb": "cabin.glb",
+   "lit": false,
+   "lazy": false
+  },
+  {
+   "id": "moonbase",
+   "glb": "moonbase.glb",
+   "lit": false,
+   "lazy": false
+  },
+  {
+   "id": "collider",
+   "glb": "collider.glb",
+   "lit": false,
+   "lazy": false
+  },
+  {
+   "id": "mech",
+   "glb": "mech.glb",
+   "lit": false,
+   "lazy": false
+  },
+  {
+   "id": "tank",
+   "glb": "tank.glb",
+   "lit": false,
+   "lazy": false
+  },
+  {
+   "id": "dome",
+   "glb": "dome.glb",
+   "lit": false,
+   "lazy": false
+  },
+  {
+   "id": "brute",
+   "glb": "brute.glb",
+   "lit": false,
+   "lazy": false
+  },
+  {
+   "id": "sword",
+   "glb": "sword.glb",
+   "lit": false,
+   "lazy": false
+  },
+  {
+   "id": "origin",
+   "glb": "origin.glb",
+   "lit": false,
+   "lazy": false
+  },
+  {
+   "id": "asteroid",
+   "glb": "asteroid.glb",
+   "lit": false,
+   "lazy": false
+  },
+  {
+   "id": "island",
+   "glb": "island.glb",
+   "lit": false,
+   "lazy": false
+  },
+  {
+   "id": "jones",
+   "glb": "jones.glb",
+   "lit": false,
+   "lazy": true
+  },
+  {
+   "id": "foundation",
+   "glb": "foundation.glb",
+   "lit": false,
+   "lazy": true
+  },
+  {
+   "id": "guard",
+   "glb": "guard.glb",
+   "lit": false,
+   "lazy": true
+  },
+  {
+   "id": "slone",
+   "glb": "slone.glb",
+   "lit": false,
+   "lazy": true
+  },
+  {
+   "id": "cavern",
+   "glb": "cavern.glb",
+   "lit": false,
+   "lazy": true
+  },
+  {
+   "id": "zeropoint",
+   "glb": "zeropoint.glb",
+   "lit": false,
+   "lazy": true
+  },
+  {
+   "id": "crate",
+   "glb": "crate.glb",
+   "lit": false,
+   "lazy": true
+  },
+  {
+   "id": "boulder",
+   "glb": "boulder.glb",
+   "lit": false,
+   "lazy": true
+  },
+  {
+   "id": "tbc",
+   "glb": "tbc.glb",
+   "lit": false,
+   "lazy": true
+  },
+  {
+   "id": "mushroom",
+   "glb": "mushroom.glb",
+   "lit": false,
+   "lazy": true
+  },
+  {
+   "id": "rifle",
+   "glb": "rifle.glb",
+   "lit": false,
+   "lazy": true
+  }
+ ]
+}
