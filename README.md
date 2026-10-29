@@ -10,3 +10,8 @@ Events are data folders (`event.json` + glb models + music) under `BepInEx/plugi
 ## Everything needed to continue
 - `AstronomicalAssets/` - the installed event folders (copy to `BepInEx/plugins/JsLiveEventsMod/`), `tools/cache/collision` - built Collision models, `sources/` - the original supplied models + music.
 - Build: `dotnet build -c Release`; install: `python tools/build_collision.py install`; test in-game: `tools/gt_restart.sh` + `BepInEx/eventtest.txt` commands (see `AstronomicalDebug.cs`). Blender 5.2 + Python with numpy are used by the tools.
+
+## J CLIENT
+`JClient/` is the source of the J CLIENT menu mod (with `EventMods.cs` that drives this plugin) plus its built `JClient.dll`.
+## Install events from the repo
+Press P in-game (built-in menu) -> "INSTALL FROM REPO" -> Load event list -> Install; or put `repo` / `install <id>` in `BepInEx/eventtest.txt`. Files that already match are skipped (it also updates).

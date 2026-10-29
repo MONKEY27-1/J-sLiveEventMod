@@ -1,0 +1,362 @@
+J CLIENT - 345 modules
+Desktop: Q opens the menu. VR: hold left Y (or right B if 'Menu On Right Hand').
+Guns: VR right grip aims + right trigger fires; desktop hold right mouse + left click.
+== MOVEMENT (60) ==
+  Fly  [toggle] - Hold right A (desktop: F) to fly where you look  (options: Slow / Normal / Fast / Insane)
+  WASD Fly  [toggle] - Desktop: WASD move, hold right mouse to look, Space up, Ctrl down, Shift boost. Hovers when idle  (options: Slow / Normal / Fast / Insane)
+  Joystick Fly  [toggle] - VR: left stick moves, right stick up/down  (options: Slow / Normal / Fast / Insane)
+  Speed Boost  [toggle] - Multiplies your arm-swing speed and speed cap  (options: 1.25x / 1.5x / 2x / 3x)
+  Speed Cap Off  [toggle] - Removes the max running speed cap
+  Low Gravity  [toggle] - Floatier jumps  (options: 25% / 50% / 75%)
+  Zero Gravity  [toggle] - No gravity at all
+  High Gravity  [toggle] - Double gravity
+  Platforms  [toggle] - Hold grip to stand on a platform under that hand (desktop: Z / X)  (options: Cyan / Invisible / Rainbow / Beat)
+  NoClip  [toggle] - Go through the map. Your platforms stay solid; with no platform or fly you hover in place
+  Long Arms  [toggle] - Longer reach  (options: Short / Medium / Long)
+  Size Changer  [toggle] - Changes your player scale  (options: Tiny / Small / Big / Huge)
+  Wall Walk  [toggle] - Gravity pulls you toward the last surface your hands touched
+  Air Grab  [toggle] - Hold both grips to freeze in mid-air
+  Dash  [toggle] - Right B (desktop: Left Shift) bursts you forward  (options: Light / Strong / Rocket)
+  Air Jump  [toggle] - Left X (desktop: J) jumps in mid-air
+  Hover  [toggle] - Hold left trigger (desktop: H) to hover in place
+  Ice Skate  [toggle] - Every surface is slippery
+  Iron Monke  [toggle] - Hold grips: thrusters push you away from your hands (point hands down to rise)  (options: Low / Medium / High)
+  Grapple Gun  [toggle] - Aim and fire to latch on and get pulled toward that point
+  Auto Run  [toggle] - Keeps you running where you look
+  Anchor  [toggle] - Locks you in place
+  Slingshot  [toggle] - Hold both grips to charge, release to launch where you look
+  Momentum Keeper  [toggle] - Keeps your sideways speed when your hands hit the ground
+  Bounce Pads  [toggle] - Fire the gun to drop a bounce pad (max 6). Only you bounce on them
+  Glide  [toggle] - Hold both arms out wide while falling to glide down slowly
+  Ghost Monkey  [toggle] - Your monke stays frozen where it was; you walk away as two glowing orbs
+  Blink  [toggle] - Right B (desktop: E) teleports you 5 m forward
+  Trigger Fly  [toggle] - Hold right trigger to fly where you look
+  Hand Fly  [toggle] - Hold right grip to fly in the direction your hand points
+  Flap Fly  [toggle] - Flap both arms downward like wings to fly up
+  Jetpack  [toggle] - Hold both grips to rocket upward
+  Rocket Boots  [toggle] - Right A (desktop: Space) blasts you straight up
+  Super Monke  [toggle] - 2x speed plus fast flying on right A (desktop: F)
+  Spider Monke  [toggle] - Pull a trigger to shoot a web from that hand and swing on it
+  Pogo  [toggle] - You bounce automatically like on a pogo stick
+  Elevator  [toggle] - Hover; right stick up/down (desktop: Page Up/Down) moves you vertically
+  Velocity Boost  [toggle] - Left X (desktop: K) multiplies your current speed by 1.6
+  Instant Stop  [toggle] - Desktop L (VR: both grips + both triggers) kills all your momentum
+  Car Mode  [toggle] - Drive along the ground with the left stick (desktop: arrow keys)
+  Gravity Flip  [toggle] - Gravity pulls you up instead of down
+  Super Jump  [toggle] - Every jump goes 80% higher
+  Gentle Wall Walk  [toggle] - Hold grip while touching a wall to be pulled gently toward it
+  Airstrike  [toggle] - Fire the gun: teleport high above that spot and slam back down
+  Ender Pearl  [toggle] - Hold right grip to hold a pearl, release to throw it, and teleport where it lands
+  Punch Mod  [toggle] - Other players can punch you across the map by swinging at your head
+  Safety Bubble  [toggle] - Gently pushes you away from anyone closer than 1.2 m
+  Solid Players  [toggle] - Other players become solid so you can stand and climb on them (local)
+  Pull Mod  [toggle] - Hold grip while running: each push off the ground pulls you a little further
+  Long Jump  [toggle] - Hold A: every jump off the ground goes 60% further
+  Sticky Hands  [toggle] - Hands stick to whatever they touch
+  Climby Hands  [toggle] - Grab any surface with grip and climb it like a rope
+  Disable Body Collider  [toggle] - Turns off your body collider
+  Disable Head Collider  [toggle] - Turns off your head collider
+  Slide Control  [toggle] - Steer on ice and slides  (options: Perfect / Weak)
+  Uncap Arm Length  [toggle] - Removes the arm distance limit
+  Bouncy  [toggle] - You bounce off surfaces instead of stopping
+  Disable Water  [toggle] - Water stops working as water (beach etc.)
+  Disable Wind Barriers  [toggle] - Turns off wind pushes and the Forest dome barrier (re-enable after changing maps to catch new ones)
+  Air Swim  [toggle] - Swim through the air as if underwater
+
+== VISUALS (35) ==
+  Chams  [toggle] - See every player's body through walls
+  Box ESP  [toggle] - A box around every player, visible through walls
+  Tracers  [toggle] - Lines from your hand to every player
+  Head ESP  [toggle] - Glowing heads through walls
+  Skeleton ESP  [toggle] - Stick-figure lines for head, body and hands through walls
+  Nametags  [toggle] - Name, distance and tag state above every player
+  FPS Counter  [toggle] - Frames per second on the HUD
+  Speedometer  [toggle] - Your speed on the HUD
+  Coordinates  [toggle] - Your position on the HUD
+  Clock  [toggle] - Real-world time on the HUD
+  Fullbright  [toggle] - Max ambient light everywhere
+  Night Vision  [toggle] - Green-tinted bright vision
+  No Fog  [toggle] - Removes distance fog
+  Desktop FOV  [toggle] - Desktop camera field of view  (options: 70 / 90 / 110 / 130)
+  Zoom  [toggle] - Desktop: hold C to zoom
+  Trajectory Line  [toggle] - Shows where your current momentum will carry you
+  Hand Contact Markers  [toggle] - Drops a dot wherever your hands hit a surface
+  Velocity ESP  [toggle] - A line from each player showing where they're heading and how fast
+  Beacons  [toggle] - A tall light beam above every player, visible from anywhere
+  Infection Tracers  [toggle] - Tracers only to tagged players
+  Runner Tracers  [toggle] - Tracers only to untagged players
+  Arrow ESP  [toggle] - Short arrows around your chest pointing at every player
+  Look Direction ESP  [toggle] - Shows where every player is looking
+  Hand ESP  [toggle] - Glowing hands on every player through walls
+  Tag Range ESP  [toggle] - A red bubble around taggers showing roughly how far they can reach
+  Proximity Rings  [toggle] - A ring under each player: red = close, yellow = medium, green = far
+  Crosshair  [toggle] - A cyan crosshair in the middle of the desktop window
+  Compass  [toggle] - Which way you're facing
+  Ping  [toggle] - Your connection ping
+  Server Region  [toggle] - Which server region you're on
+  Height  [toggle] - Your height in the map
+  Room Timer  [toggle] - How long you've been in this room
+  Nearest Player  [toggle] - Name and distance of the closest player
+  Tag State  [toggle] - Whether you're it
+  Peak Speed  [toggle] - Fastest you've gone since turning it on
+
+== TAG (15) ==
+  Tag Gun  [toggle] - Aim at a player and fire to tag them
+  Tag All  [button] - Tags every untagged player, one at a time
+  Tag Nearest  [button] - Tags the closest untagged player
+  Tag Random  [button] - Tags a random untagged player
+  Tag Aura  [toggle] - Automatically tags anyone who gets close  (options: 2 m / 4 m / 8 m)
+  Tag Reach  [toggle] - Longer tag distance from your hands  (options: 3 m / 5 m / 8 m)
+  No Tag Freeze  [toggle] - Skip the freeze after getting tagged
+  Tag Self  [button] - Master only: make yourself it
+  Untag Self  [button] - Master only: remove yourself from the infected
+  Untag All  [button] - Master only: clears every infected player
+  Follow Gun  [toggle] - Hold fire on a player and your monke follows right behind them
+  Orbit Gun  [toggle] - Hold fire on a player and your monke circles them
+  It Finder  [toggle] - Arrow toward the nearest tagger (or nearest runner when you're it)
+  Tag Alarm  [toggle] - Buzz + warning when a tagger is within 6 m
+  Tag Counter  [toggle] - How many players are tagged
+
+== UTILITIES (19) ==
+  Save Waypoint ...  [button] -  saved
+  Go To Waypoint ...  [button] -  not set
+  Undo Teleport  [button] - Goes back to where you were before your last teleport
+  TP To Nearest Player  [button] - Teleports next to the closest player
+  Copy Position  [button] - Copies your coordinates to the clipboard
+  Distance Tracker  [toggle] - How far you've moved since turning it on
+  Free Cam  [toggle] - Desktop: detach the camera. WASD/Space/Ctrl move, hold right mouse to look, Shift = fast
+  Spectate Gun  [toggle] - Desktop: hold fire on a player to watch them from behind
+  Teleport Gun  [toggle] - Aim and fire to teleport to that spot
+  Set Checkpoint  [button] - Saves your current position
+  Go To Checkpoint  [button] - Teleports to the saved position
+  TP To Random Player  [button] - Teleports you next to a random player
+  Unstuck  [button] - Pops you 3 m straight up
+  Screenshot  [button] - Saves a PNG to Pictures\J CLIENT
+  Stopwatch  [toggle] - Starts timing when enabled
+  Breadcrumbs  [toggle] - Leaves a dotted trail of where you've been
+  Measure Tape  [toggle] - Fire twice with the gun to measure the distance between two points
+  Flashlight  [toggle] - Cyan spotlight from your hand (desktop: from your head)
+  Quit Game  [button] - Closes Gorilla Tag
+
+== ROOM (10) ==
+  Change Name  [button] - Type a new name (max 12) on the board or keyboard
+  Random Name  [button] - Sets a random MONKE#### name
+  Set Room Code  [button] - Choose the code used by Join Saved Room
+  Join Saved Room  [button] - Join (or create) the room code you set
+  Join Code Now  [button] - Type any code and join it straight away
+  Join Random Code  [button] - Join a brand-new private room with a random 6-character code
+  Join Random Public  [button] - Leave and join a random public room for the current map
+  Leave Room  [button] - Disconnect to single player
+  Rejoin Room  [button] - Leave and join the same code again
+  Copy Room Code  [button] - Copies the current room code to the clipboard
+
+== COSMETICS (20) ==
+  Rainbow Monke  [toggle] - Your fur cycles through colours (only you see it)
+  Monke Colour  [toggle] - Local fur colour  (options: Cyan / Red / Green / Purple / White / Black)
+  Body Material  [toggle] - Local body material from the game's own set  (options: 1 / 2 / 3 / 4 / 5 / 6)
+  Hide My Body  [toggle] - Hides your own body in mirrors and third person (local)
+  Hand Trails  [toggle] - Cyan trails behind your hands
+  Body Trail  [toggle] - A long trail behind your body
+  Glow Hands  [toggle] - Your hands light up the world around them
+  Halo  [toggle] - A glowing halo over your head
+  Crown  [toggle] - A gold crown
+  Hand Orbs  [toggle] - Little orbs circling your hands
+  Cyan Aura  [toggle] - Sparkles floating around you
+  Sparkle Hands  [toggle] - Your hands sparkle
+  Wings  [toggle] - Flapping wings on your back
+  Big Heads  [toggle] - Everyone else gets a big head (only you see it)  (options: 1.5x / 2x / 3x)
+  Cyan Nametags  [toggle] - Recolours everyone's name tag locally
+  Cape  [toggle] - A red cape that flows behind you
+  Cool Glasses  [toggle] - Sunglasses (see them in mirrors / third person)
+  Backpack  [toggle] - A backpack on your back
+  Fire Hands  [toggle] - Your hands are on fire
+  Afterimages  [toggle] - Leaves fading copies of yourself when you move fast
+
+== SAFETY (14) ==
+  AntiReport  [toggle] - Detects nearby hands at your scoreboard report button and leaves the room
+  Personal Space Leave  [toggle] - Leaves the room when anyone's body or hands get closer than the radius you set  (options: 1 m / 2 m / 3 m / 5 m / 8 m)
+  Change Identity  [button] - Random MONKE#### name and random fur colour (same flow as the in-game computer)
+  Change Identity On Leave  [toggle] - Picks a new random name and colour every time you leave a room
+  Mute Everyone  [toggle] - Locally mutes every player's voice
+  Unmute Everyone  [button] - Clears manual mutes
+  Mute Gun  [toggle] - Fire at a player to mute/unmute them (local)
+  Auto-Mute Loud  [toggle] - Mutes anyone who screams at max volume for over 1.5 s
+  Hide Everyone  [toggle] - Locally hides every other player
+  Hide Gun  [toggle] - Fire at a player to hide/show them (local)
+  Anti AFK Kick  [toggle] - Stops the game kicking you from the room after 2 minutes without moving
+  Lag Guard  [toggle] - If FPS stays under 30 for 3 s, turns off heavy visual mods
+  Room Info  [toggle] - Room code, public/private, player count, master
+  Player List  [toggle] - Names of everyone in the room
+
+== WORLD FX (25) ==
+  Sunset Filter  [toggle] - Warm orange sunset lighting
+  Blackout  [toggle] - Almost pitch dark (pairs well with Flashlight)
+  Pink Haze  [toggle] - Dreamy pink fog
+  Blood Moon  [toggle] - Dark red horror lighting
+  Remove Purple Ghost  [toggle] - Hides the purple lurker ghost and mutes its sounds (only for you)
+  Heavy Rain  [toggle] - A downpour around you (local)
+  Meteor Shower  [toggle] - Flaming meteors streak down from the sky (local)
+  Time Of Day  [toggle] - Locks the sky to a time slot (local only)  (options: 1 / 2 / 3 / 4 / 5 / 6 / 7 / 8 / 9 / 10)
+  Weather  [toggle] - Forces clear skies or rain (local only)  (options: Clear / Rain)
+  Neon Wireframe  [toggle] - Renders the world as wireframe (may not show on every GPU)
+  Cyan Atmosphere  [toggle] - Cyan fog and tint over everything
+  Rainbow Fog  [toggle] - Slowly shifting rainbow fog
+  Bass Pulse  [toggle] - World lighting pulses to whatever is playing (great with the Astronomical Event)
+  Underwater World  [toggle] - Deep blue fog, rising bubbles and muffled audio (local only)
+  Music Visualizer  [toggle] - A ring of bars around you bouncing to the audio
+  Starfield  [toggle] - Thousands of stars in the sky
+  Snowfall  [toggle] - Snow falling around you
+  Fireflies  [toggle] - Glowing fireflies drifting around you
+  Disco Lights  [toggle] - Coloured party lights spinning around you
+  Lightning Storm  [toggle] - Dark sky with random lightning flashes
+  Neon Grid Floor  [toggle] - A glowing Tron grid under your feet
+  Giant Moon  [toggle] - A huge glowing moon in the sky
+  Shooting Stars  [toggle] - Shooting stars streak across the sky
+  Aurora Ribbons  [toggle] - Waving aurora curtains in the sky
+  Floating Lanterns  [toggle] - Glowing lanterns slowly rising around you
+
+== RIG (37) ==
+  Wave  [toggle] - Your monke waves its right hand
+  T-Pose  [toggle] - Arms straight out to the sides
+  Hands Up  [toggle] - Both hands raised high
+  Clap  [toggle] - Your monke claps in front of itself
+  Point  [toggle] - Points straight ahead with the right hand
+  Dance  [toggle] - A bouncy arm-pumping dance
+  Floss  [toggle] - The floss dance
+  Headbang  [toggle] - Your monke headbangs
+  Helicopter  [toggle] - Your monke spins like a helicopter
+  Backwards Rig  [toggle] - Your monke's body faces backwards
+  Bow  [toggle] - Your monke bows its head
+  Sit  [toggle] - Your monke sits lower
+  Float Rig  [toggle] - Your monke floats above where you are
+  Upside Down Head  [toggle] - Your monke's head is upside down
+  Look At Nearest  [toggle] - Your monke always stares at the closest player
+  Rig Orbit  [toggle] - Your monke circles around where you really are
+  Zombie  [toggle] - Arms out in front like a zombie
+  Shrug  [toggle] - Your monke shrugs
+  Ghost (A)  [toggle] - Hold A: your monke stays still while you move
+  Invisible (B)  [toggle] - Hold B: your monke is moved far below the map so nobody can see it
+  Weeping Angel  [toggle] - Your monke freezes whenever someone is looking at it
+  Rig Gun  [toggle] - Hold fire to put your monke wherever you aim
+  Grab Rig  [toggle] - Hold right grip to carry your own monke around in your hand
+  Laggy Rig  [toggle] - Your monke only updates a few times a second, like bad internet
+  Update Rig (A)  [toggle] - Your monke stays put until you press A
+  Freeze Rig  [toggle] - Freezes your whole monke where it was
+  Freeze Rig Body  [toggle] - Body stays frozen, hands still follow you
+  Freeze Rig Limbs  [toggle] - Head and hands lock in place on your body
+  Paralyze Rig  [toggle] - Your monke's arms hang limp at its sides
+  Chicken Rig  [toggle] - Your monke flaps its arms like a chicken
+  Amputate Rig  [toggle] - Hides your monke's arms inside its body
+  Spin Head  [toggle] - Spins your monke's head  (options: X / Y / Z)
+  Spaz Head  [toggle] - Your monke's head twitches everywhere
+  Spaz Hands (A)  [toggle] - Hold A: your monke's hands spaz out
+  Spaz Rig (A)  [toggle] - Hold A: your whole monke spazzes out a little
+  Control Rig Rotation  [toggle] - Turn your monke's body with the right stick or arrow keys. B or Enter resets
+  Smooth Rig  [toggle] - Sends your monke's position 3x more often so it looks smoother to others
+
+== FUN (21) ==
+  Throw Ball  [toggle] - Hold left grip (desktop: N) to grab a bouncy ball, let go to throw it
+  Ball Rain  [toggle] - Bouncy balls fall from the sky around you
+  Ball Pit  [button] - Dumps 40 balls on your head
+  Magnet Hands  [toggle] - Hold grip to pull all your toys toward that hand
+  Clear Toys  [button] - Removes every ball, pet and toy
+  Pet Orb  [toggle] - A little glowing orb follows you around
+  Pet Cube  [toggle] - A hopping cube that follows behind you
+  Air Paint  [toggle] - Hold right trigger (desktop: V) to draw lines in the air  (options: Accent / Rainbow / White)
+  Clear Paint  [button] - Erases everything you've drawn
+  Place Blocks  [toggle] - Fire the gun to place solid blocks you can climb (only you see them)  (options: Neon / Wood / Grass / Snow / Random)
+  Remove Block Gun  [toggle] - Fire at one of your blocks to remove it
+  Clear Blocks  [button] - Removes all your blocks
+  Confetti Cannon  [button] - Blasts confetti out of your right hand
+  Bubble Blower  [toggle] - Hold left trigger (desktop: Y) to blow floating bubbles
+  Balloon  [button] - Releases a balloon that floats away
+  Sword  [toggle] - A sword in your right hand
+  Lightsaber  [toggle] - A glowing lightsaber in your right hand
+  Shadow Clone  [toggle] - A dark copy of you copies your moves one second behind
+  Snowman  [button] - Builds a snowman in front of you
+  Dance Floor  [toggle] - A flashing disco dance floor appears under you
+  Fireworks Show  [toggle] - Fireworks keep going off in the sky around you
+
+== SOUNDBOARD (7) ==
+  Play Through Mic  [toggle] - Sounds also go out through your voice chat so others hear them
+  Loop Sound  [toggle] - Repeat the sound until you press Stop Sound
+  Sound Volume  [cycle] - How loud sounds play for you
+  Stop Sound  [button] - Stops the current sound and gives your mic back
+  Random Sound  [button] - Plays a random sound
+  Open Sounds Folder  [button] - Opens the folder: drop .mp3/.wav/.ogg files in it and restart the game to get a button for each
+  Sound: ...  [button] -  sound
+
+== MASTER (17) ==
+  Restart Round *  [button] - Resets the tag/infection round
+  End Round *  [button] - Infects everyone so the round ends
+  Infect Random *  [button] - Makes a random runner it
+  Set It Gun *  [toggle] - Fire at a player to make them it
+  Untag Gun *  [toggle] - Fire at a player to untag them
+  Untag Everyone *  [button] - Clears every infected player
+  Freeze Gun *  [toggle] - Fire at a player to freeze them (the game's freeze-tag effect)
+  Slow Gun *  [toggle] - Fire at a player to slow them (the game's slow effect)
+  Tag Stun Gun *  [toggle] - Fire at a player to give them the tagged stun
+  Freeze Everyone *  [button] - Freezes every other player
+  Slow Everyone *  [button] - Slows every other player
+  Stun Everyone *  [button] - Gives everyone the tagged stun
+  Clear Effects *  [button] - Removes stun/slow effects from everyone
+  Lock Room *  [toggle] - Nobody new can join while this is on
+  Hide Room *  [toggle] - Room is hidden from matchmaking (code still works)
+  Mode: ... *  [button] -  (if the game allows it)
+  Master Info  [toggle] - Shows who the room master is and whether the room is locked/hidden
+
+== EVENTS (19) ==
+  Event Status  [button] - Live event status. Press to show the last event message
+  Start Event  [button] - Starts the Astronomical Event (Forest only)
+  Pause / Resume  [button] - Pauses or resumes the show
+  Restart Event  [button] - Restarts from the start sequence
+  Stop Event  [button] - Stops and cleans up everything the event spawned
+  Previous Sequence  [button] - Jumps back one sequence
+  Next Sequence  [button] - Skips to the next sequence
+  Set Stage Here  [button] - Saves your current spot as the stage location
+  Spectator Mode  [button] - Moves you to the best viewing spot and starts the selected event
+  Skip To Section  [button] - Jumps the running event to the section chosen with 'Skip Section'
+  Skip Section  [button] - Chooses which section 'Skip To Section' jumps to (names come from the selected event)
+  Time Left  [button] - Time left in the running event
+  Skip To Next Hit  [button] - Jumps to just before the next big moment of the running event
+  Event Debug Overlay  [toggle] - Text in front of you with the event time, section, fps and what the show has running (to report problems)
+  Event Viewpoint  [button] - Teleports you to the gazebo floor facing the middle of the selected event (Final Showdown / Rocket Launch / The End) for the best view
+  Teleport To Stage  [button] - Teleports you to the saved stage
+  Clear Saved Stage  [button] - Forgets the saved stage location
+  Use Saved Stage  [button] - Start at the saved stage instead of in front of you
+  Event Countdown Sky  [toggle] - Huge countdown in the sky to the next event sequence
+
+== SETTINGS (33) ==
+  Event Selected  [button] - Which installed event Start runs (more events can be added as folders)
+  Event Tell Others  [button] - Starting/stopping the event also starts/stops it for other mod users in any lobby
+  Event Join Others  [button] - Join events that other mod users start (Forest only)
+  Event Countdown  [button] - Countdown between pressing Start and the event beginning (0 = off). Shown in Event Status and the sky countdown
+  Event Stage  [button] - Show the 3D stage (off = open arena; applies on next start)
+  Event Knockback  [button] - Explosions, meteors, stomps and rings push you
+  Event Swim In Flood  [button] - Use the game's swimming in the underwater sequence
+  Event Quality  [button] - Low / Medium / High: particle amount, light strength and effects together (Low for weaker headsets)
+  Event Volume  [button] - Music volume 0-3 (above 1 = boosted)
+  Event Effects  [button] - Overall effects intensity
+  Event Lighting  [button] - Lights, fog and sky tint strength
+  Event Particles  [button] - Particle amount (applies on next start)
+  Event Camera FX  [button] - Screen tint for underwater/flashes
+  Event Speed  [button] - Timeline playback speed
+  Event Stage Scale  [button] - Size of the stage
+  Event Performer Height  [button] - Height of the performer on stage
+  Event Tree Destruction  [button] - Visual-only exploding trees near the stage
+  Event Cleanup On Finish  [button] - Remove everything when the show ends
+  Event Start Sequence  [button] - Which sequence Start begins at
+  Event Debug Log  [button] - Verbose event logging
+  Show HUD  [toggle] - Watermark, info lines and active mods list on the desktop window
+  VR Floating HUD  [toggle] - In VR, shows the HUD info and enabled mods floating at the top-left of your view
+  Notifications  [toggle] - Pop-ups like 'Fly ON'
+  Menu Sounds  [toggle] - Click sound on button press
+  Menu Haptics  [toggle] - Controller buzz on button press
+  VR Laser Pointer  [toggle] - Point at board buttons and pull trigger (finger poke always works)
+  Menu On Right Hand  [toggle] - Board on the right hand, opened with B; poke with the left hand
+  Gun Aims Forward  [toggle] - VR gun/laser direction. Off = out of the bottom of the hand, On = hand forward
+  Accent  [cycle] - Menu and effect colour
+  ESP Colour  [cycle] - Colour used by ESP, tracers and chams
+  FPS Cap  [toggle] - Caps (or unlocks) your frame rate. In VR the headset usually sets its own rate  (options: 120 / 90 / 72 / 60 / 45 / 30 / 15 / Unlocked)
+  Disable All Mods  [button] - Turns off every enabled module
+  Clear Keybinds  [button] - Removes every keybind

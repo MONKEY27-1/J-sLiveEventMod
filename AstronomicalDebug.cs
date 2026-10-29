@@ -71,6 +71,8 @@ namespace AstronomicalEvent
                 case "tweak": { int i = (int)F(a, 1); if (i >= 0 && i < Tweak.Length) { Tweak[i] = F(a, 2); Say("tweak[" + i + "]=" + Tweak[i]); } break; }
                 case "trace": AstronomicalEventMod.Inst.StartCoroutine(Trace(mgr, a.Length > 1 ? a[1] : "player", a.Length > 2 ? a[2] : "head", F(a, 3, 10f))); break;
                 case "seq": { int cur = AstronomicalEventApi.CurrentSequence; int to = a.Length > 1 ? (int)F(a, 1) : cur + 1; Say("sequence " + cur + " of " + AstronomicalEventApi.SequenceCount + " -> " + to + " (start " + AstronomicalEventApi.GetSequenceStartTime(to) + ")"); AstronomicalEventApi.SeekToSequence(to); break; }
+                case "repo": AstronomicalEventMod.Inst.StartCoroutine(RepoList()); break;
+                case "install": AstronomicalEventMod.Inst.StartCoroutine(RepoInstall(mgr, a.Length > 1 ? a[1] : "")); break;
                 case "shot": AstronomicalEventMod.Inst.StartCoroutine(Shot(a.Length > 1 ? a[1] : "shot")); break;
                 case "state": Say("anchors " + string.Join(" ", Anchors.Select(k => k.Key + "=" + k.Value().ToString("0.0")).ToArray())); Say("state " + mgr.State + " T=" + mgr.T.ToString("0.0") + " forest=" + mgr.CheckForest() + " player=" + HeadPos()); break;
                 default: Say("unknown command"); break;
@@ -82,6 +84,8 @@ namespace AstronomicalEvent
             Func<Vector3> fa, fb; if (!Anchors.TryGetValue(an, out fa) || !Anchors.TryGetValue(bn, out fb)) { Say("unknown anchor"); yield break; }
             float t0 = Time.unscaledTime; while (Time.unscaledTime - t0 < secs) { Vector3 d = fa() - fb(); if (an == "cabloc") d = fa(); Say("trace T=" + mgr.T.ToString("0.00") + " " + an + "-" + bn + " = " + d.ToString("0.00") + " |" + d.magnitude.ToString("0.00") + "|"); yield return new WaitForSeconds(0.25f); }
         }
+        static IEnumerator RepoList() { yield return AstronomicalInstaller.Refresh(); foreach (var kv in AstronomicalInstaller.Remote) Say("repo event " + kv.Key + " " + (AstronomicalInstaller.TotalBytes(kv.Key) / 1048576f).ToString("0.0") + " MB" + (AstronomicalInstaller.Installed(kv.Key) ? " [installed]" : "")); Say(AstronomicalInstaller.Status); }
+        static IEnumerator RepoInstall(AstronomicalEventManager mgr, string id) { if (AstronomicalInstaller.Remote.Count == 0) yield return AstronomicalInstaller.Refresh(); yield return AstronomicalInstaller.Install(id, mgr); Say(AstronomicalInstaller.Status); }
         static IEnumerator Shot(string name) { yield return new WaitForEndOfFrame(); var p = Path.Combine(shotDir, name + ".png"); try { var sc = Type.GetType("UnityEngine.ScreenCapture, UnityEngine.ScreenCaptureModule"); sc.GetMethod("CaptureScreenshot", new[] { typeof(string) }).Invoke(null, new object[] { p }); } catch (Exception e) { Say("screenshot failed: " + e.Message); } Say("shot -> " + p); }
         static IEnumerator StartEvent(AstronomicalEventManager mgr, string id, float t0)
         {

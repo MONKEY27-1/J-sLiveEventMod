@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>10.0</LangVersion>
+    <AssemblyName>JClient</AssemblyName>
+    <RootNamespace>JClient</RootNamespace>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GameDir>C:\Program Files (x86)\Steam\steamapps\common\Gorilla Tag</GameDir>
+    <Managed>$(GameDir)\Gorilla Tag_Data\Managed</Managed>
+    <EventDll>$(GameDir)\BepInEx\plugins\JsLiveEventsMod\JsLiveEventsMod.dll</EventDll>
+    <DeployDir>$(GameDir)\BepInEx\plugins\JClient</DeployDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- The standalone ghost remover is its own project -->
+    <Compile Remove="PurpleGhostRemover\**" />
+    <None Remove="PurpleGhostRemover\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Game + Unity assemblies, never copied to output -->
+    <Reference Include="$(Managed)\Assembly-CSharp.dll;$(Managed)\Assembly-CSharp-firstpass.dll;$(Managed)\Unity*.dll;$(Managed)\Photon*.dll;$(Managed)\Fusion*.dll;$(Managed)\netstandard.dll;$(Managed)\System.Memory.dll" Private="false" />
+    <Reference Include="$(GameDir)\BepInEx\core\BepInEx.dll;$(GameDir)\BepInEx\core\0Harmony.dll" Private="false" />
+    <Reference Include="$(EventDll)" Private="false" />
+  </ItemGroup>
+  <Target Name="Deploy" AfterTargets="Build" Condition="Exists('$(GameDir)\BepInEx\plugins')">
+    <MakeDir Directories="$(DeployDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DeployDir)" />
+    <Message Importance="high" Text="J CLIENT deployed to $(DeployDir)" />
+  </Target>
+</Project>

@@ -126,6 +126,16 @@ namespace AstronomicalEvent
             foreach (var pr in m.Assets.Problems) GUILayout.Label("! " + pr, label);
             if (m.Effects.Destruction != null) GUILayout.Label("Destruction: " + m.Effects.Destruction.GroupCount + " tree groups (" + m.Effects.Destruction.HouseCount + " treehouse), fallen " + m.Effects.Destruction.Fallen, label);
             if (!string.IsNullOrEmpty(m.Message)) GUILayout.Label("! " + m.Message, label);
+            GUILayout.Space(8); GUILayout.Label("INSTALL FROM REPO (" + AstronomicalInstaller.Repo + ")", title);
+            if (GUILayout.Button(AstronomicalInstaller.Remote.Count == 0 ? "Load event list from GitHub" : "Reload list", button, GUILayout.Height(28)) && !AstronomicalInstaller.Busy) AstronomicalEventMod.Inst.StartCoroutine(AstronomicalInstaller.Refresh());
+            foreach (var kv in AstronomicalInstaller.Remote)
+            {
+                GUILayout.BeginHorizontal(); GUILayout.Label(kv.Key + "  (" + (AstronomicalInstaller.TotalBytes(kv.Key) / 1048576f).ToString("0") + " MB)" + (AstronomicalInstaller.Installed(kv.Key) ? "  [installed]" : ""), label);
+                if (GUILayout.Button(AstronomicalInstaller.Installed(kv.Key) ? "Update" : "Install", button, GUILayout.Width(90)) && !AstronomicalInstaller.Busy) AstronomicalEventMod.Inst.StartCoroutine(AstronomicalInstaller.Install(kv.Key, m));
+                GUILayout.EndHorizontal();
+            }
+            if (AstronomicalInstaller.Busy) GUILayout.Label("Downloading " + (AstronomicalInstaller.Progress * 100f).ToString("0") + "%", label);
+            if (!string.IsNullOrEmpty(AstronomicalInstaller.Status)) GUILayout.Label(AstronomicalInstaller.Status, label);
             GUILayout.EndScrollView();
             GUILayout.EndArea();
         }
