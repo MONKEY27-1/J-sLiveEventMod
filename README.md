@@ -6,6 +6,7 @@ Events are data folders (`event.json` + glb models + music) under `BepInEx/plugi
 - `tools/` - Blender / Python generators for the models and animations (not included: the large glb / mp3 assets and `tools/cache`).
 - `AstronomicalDebug.cs` - in-game test console (write commands to `BepInEx/eventtest.txt`; see the file header). `tools/gt_restart.sh` installs and relaunches the game.
 - `PROJECT_STATUS.md` - running log of every change.
+- `tools/compile_check/check.sh` - compiles the event mod and J CLIENT without the game (stubs + Unity reference assemblies; see its README).
 
 ## Everything needed to continue
 - `AstronomicalAssets/` - the installed event folders (copy to `BepInEx/plugins/JsLiveEventsMod/`), `tools/cache/collision` - built Collision models, `sources/` - the original supplied models + music.

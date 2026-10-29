@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Compile check of J CLIENT against Unity 2021.3 refs, Harmony, the stubs in stubs/ and the event mod built by eventmod.csproj. -->
+  <PropertyGroup>
+    <AssemblyName>JClient</AssemblyName><TargetFramework>net472</TargetFramework><LangVersion>10.0</LangVersion><ImplicitUsings>disable</ImplicitUsings><Nullable>disable</Nullable><GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Deterministic>true</Deterministic><DebugType>none</DebugType><EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NoWarn>CS0618;CS0649;CS0414;CS0169;CS0168;CS0219;CS0162;CS0108;CS0114;CS0067</NoWarn>
+    <BaseIntermediateOutputPath>obj/jclient/</BaseIntermediateOutputPath><OutputPath>bin/jclient/</OutputPath><AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="work/jclient/**/*.cs" />
+    <Reference Include="stubs/bin/GameStubs.dll" />
+    <Reference Include="bin/eventmod/JsLiveEventsMod.dll" />
+    <PackageReference Include="UnityEngine.Modules" Version="2021.3.33" IncludeAssets="compile" PrivateAssets="all" />
+    <PackageReference Include="Lib.Harmony" Version="2.3.3" IncludeAssets="compile" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+</Project>
