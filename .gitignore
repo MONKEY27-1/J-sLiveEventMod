@@ -1,0 +1,7 @@
+bin/
+obj/
+tools/cache/
+*.glb
+*.mp3
+*.dll
+__pycache__/
