@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Compile check of the event mod against Unity 2021.3 reference assemblies + the stubs in stubs/ (see README.md). -->
+  <PropertyGroup>
+    <AssemblyName>JsLiveEventsMod</AssemblyName><TargetFramework>net472</TargetFramework><LangVersion>10.0</LangVersion><ImplicitUsings>disable</ImplicitUsings><GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Deterministic>true</Deterministic><DebugType>none</DebugType><EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NoWarn>CS0618;CS0649;CS0414;CS0169;CS0168;CS0219;CS0162;CS0108;CS0114</NoWarn>
+    <BaseIntermediateOutputPath>obj/eventmod/</BaseIntermediateOutputPath><OutputPath>bin/eventmod/</OutputPath><AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="work/eventmod/**/*.cs" />
+    <Reference Include="stubs/bin/GameStubs.dll" />
+    <PackageReference Include="UnityEngine.Modules" Version="2021.3.33" IncludeAssets="compile" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

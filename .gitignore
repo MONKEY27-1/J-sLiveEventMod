@@ -2,3 +2,6 @@ bin/
 obj/
 __pycache__/
 .vs/
+tools/compile_check/work/
+tools/compile_check/**/bin/
+tools/compile_check/**/obj/
