@@ -215,6 +215,7 @@ namespace AstronomicalEvent
             { BuiltinId, "2020-04-23" },
             { "thedevice", "2020-06-07" },
             { "collision", "2022-06-04" },
+            { "end21", "2021-12-04" },
         };
 
         static void SortAll()

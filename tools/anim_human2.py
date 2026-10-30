@@ -51,6 +51,10 @@ def nmre(pat):
 if prof == 'jones':
     B = dict(pelvis=nm('Hips_02'), s1=nm('Spine_03'), s2=nm('Chest_04'), neck=nm('Neck_047'), head=nm('Head_048'), ual=nm('Left arm_06'), lal=nm('Left elbow_07'), hl=nm('Left wrist_08'), uar=nm('Right arm_027'), lar=nm('Right elbow_028'), hr=nm('Right wrist_029'),
              tl=nm('Left leg_0149'), cl=nm('Left knee_0150'), fl=nm('Left ankle_0151'), tr=nm('Right leg_0163'), cr=nm('Right knee_0164'), fr=nm('Right ankle_0165')); SPINE = ['s1', 's2']
+elif prof == 'care':
+    B = dict(pelvis=nm('C_BipedSpine_Main_Pelvis'), s1=nm('C_BipedSpine_Main_Spine1'), s2=nm('C_BipedSpine_Main_Spine2'), s3=nm('C_BipedSpine_Main_Spine3'), s4=nm('C_BipedSpine_Main_Chest'), neck=nm('C_BipedHeadNeck_A_NeckBase'), head=nm('C_BipedHeadNeck_A_Head_Jnt'),
+             ual=nm('L_BipedArm_A_Shoulder_Jnt'), lal=nm('L_BipedArm_A_Elbow_Jnt'), hl=nm('L_BipedArm_A_Wrist_Jnt'), uar=nm('R_BipedArm_A_Shoulder_Jnt'), lar=nm('R_BipedArm_A_Elbow_Jnt'), hr=nm('R_BipedArm_A_Wrist_Jnt'),
+             tl=nm('L_BipedLeg_A_Thigh'), cl=nm('L_BipedLeg_A_Knee'), fl=nm('L_BipedLeg_A_Ankle'), tr=nm('R_BipedLeg_A_Thigh'), cr=nm('R_BipedLeg_A_Knee'), fr=nm('R_BipedLeg_A_Ankle')); SPINE = ['s1', 's2', 's3', 's4']
 else:
     B = dict(pelvis=nm('pelvis_'), s1=nm('spine_01_'), s2=nm('spine_02_'), s3=nm('spine_03_'), s4=nm('spine_04_'), s5=nm('spine_05_'), neck=nm('neck_01_'), head=nmre(r'^head_\d+$'), ual=nm('upperarm_l_'), lal=nm('lowerarm_l_'), hl=nm('hand_l_'), uar=nm('upperarm_r_'), lar=nm('lowerarm_r_'), hr=nm('hand_r_'),
              tl=nm('thigh_l_'), cl=nm('calf_l_'), fl=nm('foot_l_'), tr=nm('thigh_r_'), cr=nm('calf_r_'), fr=nm('foot_r_')); SPINE = ['s1', 's2', 's3', 's4', 's5']
@@ -78,7 +82,7 @@ for s_, sg in (('l', 1), ('r', -1)):                       # how far each foot i
     f = lowv[(lowv[:, 0] * sg) > 0.02]; c = f[:, [0, 2]] - f[:, [0, 2]].mean(0); ax_ = np.linalg.svd(c, full_matrices=False)[2][0]; ax_ = ax_ if ax_[1] > 0 else -ax_; FOOTYAW[s_] = math.atan2(ax_[0], ax_[1])
 print('rest foot yaw', {k: round(math.degrees(v), 1) for k, v in FOOTYAW.items()}, 'mesh bbox', np.round(RV0.min(0), 2), np.round(RV0.max(0), 2))
 A0 = np.stack([left, up, fwd], axis=1); WR0 = fk.wrot(B[TOP]).copy(); RF0 = {'fl': fk.wrot(B['fl']).copy(), 'fr': fk.wrot(B['fr']).copy()}
-HW = abs(float((fk.pos(B['tl']) - fk.pos(B['tr'])) @ left)) / 2; ANK = float(fk.pos(B['fl']) @ up); P0 = fk.pos(B['pelvis']); O = P0 - up * float(P0 @ up) + 0.0; H0 = float(P0 @ up); FX = HW + 0.07
+HW = abs(float((fk.pos(B['tl']) - fk.pos(B['tr'])) @ left)) / 2; ANK = float(fk.pos(B['fl']) @ up); P0 = fk.pos(B['pelvis']); O = P0 - up * float(P0 @ up) + 0.0; H0 = float(P0 @ up); FX = HW + 0.07 * (H0 / 0.934); SCL = H0 / 0.934
 def L(a, c): return float(np.linalg.norm(fk.pos(B[a]) - fk.pos(B[c])))
 LEN = {'ual': (L('ual', 'lal'), L('lal', 'hl')), 'uar': (L('uar', 'lar'), L('lar', 'hr')), 'tl': (L('tl', 'cl'), L('cl', 'fl')), 'tr': (L('tr', 'cr'), L('cr', 'fr'))}; REACH = LEN['ual'][0] + LEN['ual'][1]
 print('frame up', np.round(up, 2), 'left', np.round(left, 2), 'fwd', np.round(fwd, 2), 'hip half', round(HW, 3), 'ankle', round(ANK, 3), 'hip h', round(H0, 3), 'reach', round(REACH, 3))
@@ -119,13 +123,13 @@ def cyc(keys, t, period):  # keys over [0, period] looping (last key should equa
     return kf(keys, t % period)
 # ---- the pose solver
 def solve(p):
-    fk.reset(); o = p['pel']; fk.move(B['pelvis'], left * o[0] + up * o[1] + fwd * o[2]); fk.rot_q(B['pelvis'], axq(up, p['pyaw'])); fk.rot_q(B['pelvis'], axq(left, p['ppitch'])); fk.rot_q(B['pelvis'], axq(fwd, p['proll']))
+    fk.reset(); o = tuple(x * SCL for x in p['pel']); fk.move(B['pelvis'], left * o[0] + up * o[1] + fwd * o[2]); fk.rot_q(B['pelvis'], axq(up, p['pyaw'])); fk.rot_q(B['pelvis'], axq(left, p['ppitch'])); fk.rot_q(B['pelvis'], axq(fwd, p['proll']))
     n = len(SPINE)
     for k in SPINE: fk.rot_q(B[k], axq(left, p['lean'] / n)); fk.rot_q(B[k], axq(fwd, p['roll'] / n)); fk.rot_q(B[k], axq(up, p['twist'] / n))
     for k, f in (('neck', 0.4), ('head', 0.6)): fk.rot_q(B[k], axq(left, p['nod'] * f)); fk.rot_q(B[k], axq(up, p['turn'] * f)); fk.rot_q(B[k], axq(fwd, p['tilt'] * f))
     ax = (fk.wrot(B[TOP]) @ WR0.T) @ A0
     for s_, sg in (('l', 1), ('r', -1)):                                                         # legs
-        f = p['f' + s_]; tgt = O + left * f[0] + up * (ANK + f[1]) + fwd * f[2]; kn = p['k' + s_]; pole = left * sg * kn[0] + up * kn[1] + fwd * kn[2]
+        f = p['f' + s_]; tgt = O + left * f[0] + up * (ANK + f[1] * SCL) + fwd * f[2] * SCL; kn = p['k' + s_]; pole = left * sg * kn[0] + up * kn[1] + fwd * kn[2]
         ik(B['t' + s_], B['c' + s_], B['f' + s_], tgt, pole, 't' + s_)
         Rf = axq(up, p['f' + s_ + 'y'] - FOOTYAW[s_]); Rp = axq(left, p['f' + s_ + 'p']); fk.set_wrot(B['f' + s_], q2m(Rf) @ q2m(Rp) @ RF0['f' + s_])
     SL, SR = fk.pos(B['ual']), fk.pos(B['uar']); SC = (SL + SR) / 2; G = p['gun']; Rl = q2m(axq([1, 0, 0], G[3])) @ q2m(axq([0, 1, 0], G[4])) @ q2m(axq([0, 0, 1], G[5])); Rg = ax @ Rl
@@ -255,6 +259,58 @@ def c_fallbump(side):
 CLIPS = {'Idle': c_idle, 'Ready': c_ready, 'Alert': c_alert, 'Aim': c_aim, 'Fire': c_fire, 'FireK': c_firek, 'Hold': c_hold, 'Crouch': c_crouch, 'Peek': c_peek, 'Kneel': c_kneel, 'Reload': c_reload, 'Walk': c_walk, 'Run': c_run, 'WalkS': c_walks, 'Climb': c_climb,
          'Beckon': c_beckon, 'Point': c_point, 'Look': c_look, 'Wake': c_wake, 'Shove': c_shove, 'Throw': c_throw, 'Talk': c_talk, 'Plead': c_plead, 'Shrug': c_shrug, 'Hit': c_hit, 'Stagger': c_stagger, 'Dodge': c_dodge, 'Cheer': c_cheer, 'Fistbump': c_fistbump,
          'Fall': c_fall, 'Land': c_land, 'Jump': c_jump, 'Brace': c_brace, 'Smug': c_smug, 'STalk': c_stalk, 'Panic': c_panic, 'Crushed': c_crushed, 'Death': c_death, 'FallBumpR': c_fallbump('r'), 'FallBumpL': c_fallbump('l')}
+
+# ================= creature clip sets (CLIPSET=care for the caretaker, CLIPSET=queen for the Cube Queen); arms are free (no rifle)
+FREE = P(IDLE)
+def arms(hl, hr, el=(0.6, -0.5, -0.2), er=(0.6, -0.5, -0.2)): return dict(hl=hl, hr=hr, el=el, er=er)
+def csway(p, t, a=1.0): return sway(p, t, a)
+def cc_idle(t): return csway(add(P(FREE, **arms((0.25 + 0.05 * sn(t, 0.3), -1.0, 0.2 * sn(t, 0.2), 0.97), (0.25 - 0.05 * sn(t, 0.3), -1.0, -0.2 * sn(t, 0.2), 0.97))), lean=0.1, nod=0.12 + 0.05 * sn(t, 0.4), turn=0.35 * sn(t, 0.13)), t, 1.5)
+def cc_walk(t): p = gait_free(t, 1.35, 2.4, 0.62, 0.14, 0.05, 0.14, 0.75); p['nod'] = 0.12 + 0.06 * sn(t, 0.74); p['turn'] = 0.2 * sn(t, 0.37); return p
+def cc_run(t): p = gait_free(t, 0.9, 4.6, 0.42, 0.24, 0.07, 0.34, 1.4, True); p['nod'] = 0.25; return p
+def cc_attack(t):
+    wind = P(FREE, **arms((0.3, 0.85, 0.4, 1.0), (0.3, 0.85, 0.4, 1.0), (0.5, 0.6, -0.5), (0.5, 0.6, -0.5)), lean=-0.35, nod=-0.2, pel=(0, -0.03, -0.05))
+    hit = P(FREE, **arms((0.15, -0.6, 0.85, 1.0), (0.15, -0.6, 0.85, 1.0), (0.4, -0.8, 0.0), (0.4, -0.8, 0.0)), lean=0.7, nod=0.3, pel=(0, -0.1, 0.12), fl=(FX, 0, 0.3), fr=(-FX, 0, -0.2))
+    return kf([(0.0, cc_idle(0)), (0.7, wind), (1.0, wind), (1.25, hit), (1.9, hit), (2.8, cc_idle(0))], t % 3.0 if t < 3.0 else cc_idle(0) and 0.0)
+def cc_slam(t):
+    up = P(FREE, **arms((0.15, 1.0, 0.0, 1.0), (0.15, 1.0, 0.0, 1.0), (0.5, 0.8, -0.3), (0.5, 0.8, -0.3)), lean=-0.5, nod=-0.4, pel=(0, 0.02, -0.08), fl=(FX + 0.1, 0, 0.0), fr=(-FX - 0.1, 0, -0.1))
+    dn = P(FREE, **arms((0.1, -0.7, 0.8, 1.0), (0.1, -0.7, 0.8, 1.0), (0.4, -0.8, 0.0), (0.4, -0.8, 0.0)), lean=0.8, nod=0.4, pel=(0, -0.2, 0.15), fl=(FX, 0, 0.35), fr=(-FX, 0, 0.2))
+    return kf([(0.0, cc_idle(0)), (1.2, up), (1.6, up), (1.85, dn), (3.0, dn), (4.5, cc_idle(0))], t)
+def cc_roar(t):
+    r = P(FREE, **arms((0.9, 0.4, 0.2, 1.0), (0.9, 0.4, 0.2, 1.0), (0.8, 0.0, -0.1), (0.8, 0.0, -0.1)), lean=-0.4, nod=-0.55, tilt=0.0, pel=(0, 0.01, 0), fl=(FX + 0.1, 0, 0.05), fr=(-FX - 0.1, 0, -0.05))
+    return kf([(0.0, cc_idle(0)), (0.8, r), (3.2, add(r, nod=-0.1, lean=0.08)), (4.2, cc_idle(0))], t)
+def cc_stagger(t): return kf([(0.0, cc_idle(0)), (0.15, P(FREE, **arms((0.8, 0.3, 0.2, 0.9), (0.8, 0.3, 0.2, 0.9)), lean=-0.5, nod=-0.4, pel=(0, -0.06, -0.15), fl=(FX, 0, 0.3), fr=(-FX, 0, -0.35))), (1.6, cc_idle(0))], t)
+def cc_death(t):
+    k = P(FREE, **arms((0.9, 0.2, 0.3, 0.95), (0.9, 0.2, 0.3, 0.95)), lean=-0.5, nod=-0.4, pel=(0, -0.3, -0.25), fl=(FX, 0, 0.3), fr=(-FX, 0.1, -0.2))
+    dn = P(FREE, **arms((1.0, -0.2, 0.3, 1.0), (1.0, -0.2, 0.3, 1.0)), lean=0.2, ppitch=-1.4, pel=(0, -0.95, -0.85), fl=(FX, 0.2, 0.5), fr=(-FX, 0.2, 0.4), nod=-0.2)
+    return kf([(0.0, cc_idle(0)), (0.3, k), (1.4, dn), (12.0, dn)], t)
+def cc_cast(t): return kf([(0.0, cc_idle(0)), (0.8, P(FREE, **arms((0.25, -1.0, 0.1, 0.97), (0.1, 0.9, 0.5, 1.0)), lean=-0.15, nod=-0.2, turn=-0.2)), (4.0, P(FREE, **arms((0.25, -1.0, 0.1, 0.97), (0.1, 0.9, 0.5, 1.0)), lean=-0.2, nod=-0.25, turn=-0.2)), (5.0, cc_idle(0))], t)
+CARE = {'Idle': cc_idle, 'Walk': cc_walk, 'Run': cc_run, 'Attack': cc_attack, 'Slam': cc_slam, 'Roar': cc_roar, 'Stagger': cc_stagger, 'Death': cc_death, 'Cast': cc_cast}
+# the Cube Queen hovers: feet hang a little, pelvis floats; everything slow and regal
+def hov(p, t, lift=0.25): return add(p, pel=(0, lift + 0.05 * sn(t, 0.25), 0), fl=(0, 0.2 + 0.05 * sn(t, 0.3), -0.05), fr=(0, 0.1 + 0.05 * sn(t, 0.3, 0.4), -0.1))
+def qq_float(t): return hov(csway(P(FREE, **arms((0.55 + 0.08 * sn(t, 0.2), -0.75, 0.15, 0.97), (0.55 - 0.08 * sn(t, 0.2), -0.75, 0.15, 0.97), (0.9, -0.2, -0.3), (0.9, -0.2, -0.3))), t, 1.0), t)
+def qq_cast(t):
+    up = P(FREE, **arms((0.55, 0.8, 0.35, 1.0), (0.55, 0.8, 0.35, 1.0), (0.9, 0.5, -0.4), (0.9, 0.5, -0.4)), lean=-0.15, nod=-0.35)
+    return hov(kf([(0.0, qq_float(0)), (1.2, up), (5.0, add(up, lean=-0.05)), (6.5, qq_float(0))], t), t)
+def qq_point(t):
+    pt = P(FREE, **arms((0.25, -0.9, 0.2, 0.97), (0.05, 0.1, 1.0, 1.0), (0.9, -0.3, -0.2), (0.3, -0.2, 0.0)), turn=-0.2, twist=-0.15, lean=0.06)
+    return hov(kf([(0.0, qq_float(0)), (0.8, pt), (3.0, pt), (4.0, qq_float(0))], t), t)
+def qq_taunt(t):
+    w = P(FREE, **arms((1.0, 0.1, 0.1, 1.0), (1.0, 0.1, 0.1, 1.0), (0.9, 0.0, 0.0), (0.9, 0.0, 0.0)), nod=-0.3, lean=-0.1, tilt=0.12)
+    return hov(kf([(0.0, qq_float(0)), (1.0, w), (4.0, add(w, tilt=-0.2)), (5.0, qq_float(0))], t), t)
+def qq_rage(t):
+    w = P(FREE, **arms((0.6, 0.9, 0.3, 1.0), (0.6, 0.9, 0.3, 1.0), (0.8, 0.5, -0.3), (0.8, 0.5, -0.3)), lean=-0.5, nod=-0.5, roll=0.1 * sn(t, 1.5))
+    return hov(kf([(0.0, qq_float(0)), (0.5, w), (4.0, w), (5.0, qq_float(0))], t), t, 0.4)
+def qq_hit(t): return hov(kf([(0.0, qq_float(0)), (0.12, P(FREE, **arms((0.9, 0.2, 0.3, 0.9), (0.9, 0.2, 0.3, 0.9)), lean=-0.45, nod=-0.3, roll=0.2)), (1.8, qq_float(0))], t), t)
+def qq_retreat(t):
+    c = P(FREE, **arms((0.2, 0.5, 0.8, 0.9), (0.2, 0.5, 0.8, 0.9), (0.6, 0.3, 0.2), (0.6, 0.3, 0.2)), lean=0.2, nod=0.2, turn=0.5)
+    return hov(kf([(0.0, qq_float(0)), (1.0, c), (3.0, add(c, pel=(0, 0.6, 0)))], t), t)
+def qq_teleport(t):
+    x = P(FREE, **arms((0.15, 0.4, 0.9, 0.9), (0.15, 0.4, 0.9, 0.9), (0.5, 0.1, 0.6), (0.5, 0.1, 0.6)), nod=-0.1)
+    return hov(kf([(0.0, qq_float(0)), (1.5, x), (3.0, add(x, pel=(0, 0.2, 0)))], t), t)
+QUEEN = {'Float': qq_float, 'Cast': qq_cast, 'Point': qq_point, 'Taunt': qq_taunt, 'Rage': qq_rage, 'Hit': qq_hit, 'Retreat': qq_retreat, 'Teleport': qq_teleport}
+_cs = os.environ.get('CLIPSET', '')
+if _cs == 'care': CLIPS = CARE
+elif _cs == 'queen': CLIPS = QUEEN
 CHAN = [('pelvis', 'rotation'), ('pelvis', 'translation')] + [(k, 'rotation') for k in SPINE] + [(k, 'rotation') for k in ('neck', 'head', 'ual', 'lal', 'uar', 'lar', 'tl', 'cl', 'tr', 'cr', 'fl', 'fr')]
 def add_accessor(arr, typ, minmax=False):
     arr = np.ascontiguousarray(arr, np.float32); off = len(b)

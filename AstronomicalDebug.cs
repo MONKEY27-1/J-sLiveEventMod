@@ -245,6 +245,7 @@ namespace AstronomicalEvent
                 case "install":
                     AstronomicalEventMod.Inst.StartCoroutine(RepoInstall(mgr, a.Length > 1 ? a[1] : ""));
                     break;
+                case "find": { string q = a.Length > 1 ? a[1] : "gazebo"; int n = 0; foreach (var t2 in UnityEngine.Object.FindObjectsOfType<Transform>()) { if (t2 != null && t2.name.IndexOf(q, StringComparison.OrdinalIgnoreCase) >= 0 && n++ < 25) Say("found " + t2.name + " at " + t2.position + " active " + t2.gameObject.activeInHierarchy + " parent " + (t2.parent != null ? t2.parent.name : "-")); } Say("find '" + q + "': " + n + " matches"); break; }
                 case "shot":
                     AstronomicalEventMod.Inst.StartCoroutine(Shot(a.Length > 1 ? a[1] : "shot"));
                     break;

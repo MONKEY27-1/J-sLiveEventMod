@@ -1,0 +1,82 @@
+{
+ "id": "end21",
+ "name": "THE END (Chapter 2 Finale, 2021) - part 1",
+ "kind": "end21",
+ "music": "end21.mp3",
+ "lead": 0,
+ "length": 664.0,
+ "bounds": [
+  0,
+  52,
+  105,
+  128,
+  170,
+  225,
+  255,
+  276,
+  281,
+  320,
+  370,
+  415,
+  555,
+  608,
+  622,
+  658,
+  664.0
+ ],
+ "names": [
+  "The blue cube and its force field",
+  "Defend the force field",
+  "The Cube Queen opens the rift",
+  "The Last Reality fleet",
+  "Monsters and caretakers",
+  "The abductors",
+  "The shield",
+  "The cube falls",
+  "The I.O. facility",
+  "The Foundation",
+  "The gyro controls",
+  "The Scientist and the Visitor",
+  "The Zero Point chamber",
+  "The island flips",
+  "The new island",
+  "THE END"
+ ],
+ "props": [
+  {
+   "id": "bluecube",
+   "glb": "bluecube.glb",
+   "lit": false
+  },
+  {
+   "id": "caretaker",
+   "glb": "caretaker.glb",
+   "lit": false
+  },
+  {
+   "id": "cube_queen",
+   "glb": "cube_queen.glb",
+   "lit": false
+  },
+  {
+   "id": "mothership",
+   "glb": "mothership.glb",
+   "lit": false
+  },
+  {
+   "id": "abductor",
+   "glb": "abductor.glb",
+   "lit": false
+  },
+  {
+   "id": "cradle",
+   "glb": "the_cubes_cradle.glb",
+   "lit": false
+  },
+  {
+   "id": "pyramid",
+   "glb": "cube_pyramid.glb",
+   "lit": false
+  }
+ ]
+}

@@ -29,6 +29,7 @@ namespace AstronomicalEvent
         public readonly AstronomicalNewYear NewYearScene = new AstronomicalNewYear();
         public readonly AstronomicalButterfly ButterflyScene = new AstronomicalButterfly();
         public readonly AstronomicalCollision CollisionScene = new AstronomicalCollision();
+        public readonly AstronomicalEnd21 End21Scene = new AstronomicalEnd21();
 
         IEventScene PickScene()
         {
@@ -57,6 +58,8 @@ namespace AstronomicalEvent
                 return ButterflyScene;
             if (k == "collision")
                 return CollisionScene;
+            if (k == "end21")
+                return End21Scene;
             return Effects;
         }
 
@@ -147,6 +150,7 @@ namespace AstronomicalEvent
                         || AstronomicalEvents.Selected.Kind == "newyear"
                         || AstronomicalEvents.Selected.Kind == "butterfly"
                         || AstronomicalEvents.Selected.Kind == "collision"
+                        || AstronomicalEvents.Selected.Kind == "end21"
                     );
             }
         }
@@ -678,6 +682,7 @@ namespace AstronomicalEvent
                     : kind == "icestorm" ? IceScene.TryViewpoint(out pos, out yaw)
                     : kind == "newyear" ? NewYearScene.TryViewpoint(out pos, out yaw)
                     : kind == "butterfly" ? ButterflyScene.TryViewpoint(out pos, out yaw)
+                    : kind == "end21" ? End21Scene.TryViewpoint(out pos, out yaw)
                     : kind == "collision" ? CollisionScene.TryViewpoint(out pos, out yaw)
                     : Showdown.TryViewpoint(out pos, out yaw)
                 )
