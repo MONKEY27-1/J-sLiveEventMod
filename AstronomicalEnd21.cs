@@ -26,7 +26,7 @@ namespace AstronomicalEvent
         Vector3[] skyDirs;
         float skyT = -9f, lastT = -1f, yaw, shake, rumbleT, farSave = -1f;
         Vector3 originW;
-        bool built, paused, ambientSaved;
+        bool built, paused, ambientSaved, fogSave;
         Color ambientSave;
         int floorLayer;
         Texture2D glowTex, lineTex;
@@ -87,7 +87,7 @@ namespace AstronomicalEvent
                     bool alpha = src[i] != null && src[i].name.StartsWith("A_");
                     Material mt = alpha ? kit.Glow(new Color(1f, 1f, 1f, 0.5f), null, 3000) : lit ? kit.Lit(Color.white * Mathf.Min(k, 1.25f), null, 0.28f) : kit.Flat(Color.white * k);
                     try { mt.SetFloat("_Cull", 0f); mt.doubleSidedGI = true; } catch { }
-                    try { if (src[i] != null && src[i].mainTexture != null) mt.mainTexture = src[i].mainTexture; } catch { }
+                    try { if (src[i] != null && src[i].mainTexture != null) mt.mainTexture = src[i].mainTexture; else if (src[i] != null && !alpha) mt.color = src[i].color * k; } catch { }     // untextured models (the pyramid) keep their base colours
                     nw[i] = mt;
                 }
                 r.sharedMaterials = nw;
@@ -129,11 +129,11 @@ namespace AstronomicalEvent
             root = new GameObject("AstronomicalEnd21"); root.transform.position = originW; root.transform.rotation = Quaternion.Euler(0f, yaw, 0f);
             kit = new WorldKit { Layer = floorLayer }; glowTex = kit.GlowTex();
             lineTex = kit.Tex(4, 32, (x, yy) => { float v = Mathf.Abs((yy + 0.5f) / 16f - 1f); return new Color(1, 1, 1, Mathf.Pow(1f - v, 1.6f)); }, TextureWrapMode.Clamp);
-            AstronomicalDebug.L2W = v => W(v); AstronomicalDebug.Anchors.Clear(); AstronomicalDebug.Anchors["cube"] = () => W(new Vector3(0f, 4f, 9f)); AstronomicalDebug.Anchors["queen"] = () => queenGo != null ? queenGo.transform.position : Vector3.zero; AstronomicalDebug.Anchors["ship"] = () => ships.Count > 0 && ships[0] != null ? ships[0].transform.position : Vector3.zero; AstronomicalDebug.Anchors["mon"] = () => { foreach (var m in mons) if (m.Go != null && m.Go.activeSelf) return m.Go.transform.position + Vector3.up * 3f; return W(new Vector3(0f, 3f, 60f)); };
+            AstronomicalDebug.L2W = v => W(v); AstronomicalDebug.Anchors.Clear(); AstronomicalDebug.Anchors["cube"] = () => W(new Vector3(0f, 4f, 9f)); AstronomicalDebug.Anchors["pyr"] = () => pyrM != null && pyrM.Pivot != null ? pyrM.Pivot.transform.position + Vector3.up * 120f : Vector3.zero; AstronomicalDebug.Anchors["queen"] = () => queenGo != null ? queenGo.transform.position : Vector3.zero; AstronomicalDebug.Anchors["ship"] = () => ships.Count > 0 && ships[0] != null ? ships[0].transform.position : Vector3.zero; AstronomicalDebug.Anchors["mon"] = () => { foreach (var m in mons) if (m.Go != null && m.Go.activeSelf) return m.Go.transform.position + Vector3.up * 3f; return W(new Vector3(0f, 3f, 60f)); };
             BuildSky(); BuildEffects(); BuildModels();
             var fg = GameObject.CreatePrimitive(PrimitiveType.Sphere); UnityEngine.Object.Destroy(fg.GetComponent<Collider>()); fg.name = "AstronomicalEnd21Flash"; fg.transform.localScale = Vector3.one * 2.4f;
             flashMat = kit.Glow(new Color(0f, 0f, 0f, 0f), null, 3500); var fr = fg.GetComponent<Renderer>(); fr.sharedMaterial = flashMat; fr.shadowCastingMode = ShadowCastingMode.Off; fr.allowOcclusionWhenDynamic = false; flashGo = fg; flashGo.SetActive(false);
-            ambientSave = RenderSettings.ambientLight; ambientSaved = true;
+            ambientSave = RenderSettings.ambientLight; ambientSaved = true; fogSave = RenderSettings.fog; RenderSettings.fog = false;       // the Forest's green fog hides everything beyond ~100 m (pyramid, fleet)
             try { if (cam != null) { farSave = cam.farClipPlane; cam.farClipPlane = Mathf.Max(farSave, 6000f); } } catch { }
             lastT = -1f; built = true;
             AstronomicalEventMod.Log.LogInfo("End21 built at " + originW + ": cube " + (cubeM != null) +  ", caretaker " + (careM != null) + ", ship " + (shipM != null) + ", abductor " + (abdM != null) + ", cradle " + (cradleM != null) + ", pyramid " + (pyrM != null) + ", queen " + (queenM != null));
@@ -182,6 +182,7 @@ namespace AstronomicalEvent
             if (cubeM != null) { cubeT = cubeM.Pivot.transform; // cyan cube: a procedural digital-circuit texture (the loaded one is deep blue, and tinting a blue texture stays blue)
                 var cy = kit.Tex(64, 64, (x, y) => { float n = Mathf.Abs(Mathf.Sin(x * 0.7f + y * 0.31f)) * Mathf.Abs(Mathf.Cos(y * 0.9f - x * 0.2f)); bool grid = (x % 16 < 1) || (y % 16 < 1); float b = 0.55f + 0.3f * n + (grid ? 0.25f : 0f); return new Color(0.1f * b, Mathf.Min(1f, 0.95f * b), Mathf.Min(1f, 1.05f * b), 1f); });
                 foreach (var r in cubeM.Pivot.GetComponentsInChildren<Renderer>(true)) foreach (var mt in r.sharedMaterials) if (mt != null) { mt.mainTexture = cy; mt.color = new Color(1f, 1f, 1f, 1f); } }
+            if (pyrM != null) foreach (var r in pyrM.Pivot.GetComponentsInChildren<Renderer>(true)) foreach (var mt in r.sharedMaterials) if (mt != null && mt.mainTexture == null) { Color c = mt.color; mt.color = c.g > 0.5f ? new Color(1f, 0.55f, 0.12f, 1f) : new Color(0.38f, 0.06f, 0.12f, 1f); }      // the Queen's pyramid: dark crimson frame, glowing orange cap (the file's colours are flat magenta / yellow)
             if (cradleM != null) foreach (var r in cradleM.Pivot.GetComponentsInChildren<Renderer>(true)) foreach (var mt in r.sharedMaterials) if (mt != null) { mt.mainTexture = null; mt.color = new Color(0.35f, 0.65f, 1f, 1f); }      // the loaded texture is near-black: a lit blue-white structure instead
             if (careM != null)
             {
@@ -274,11 +275,11 @@ namespace AstronomicalEvent
             // you are brought into the force field at 0:00 and kept inside until it breaks
             if (t < T_BREAK && !paused) KeepInside(t);
             // ----- the Cube Queen's pyramid (always in the distance), her energy orb on top, the rift above it
-            Vector3 pyrP = new Vector3(40f, GroundY(40f, 600f), 600f); float pyrS = 1.9f, apex = 150f * pyrS;
+            Vector3 pyrP = new Vector3(40f, GroundY(40f, 650f), 650f); float pyrS = 1.3f, apex = 150f * pyrS;
             PlaceOn(pyrM, pyrP, pyrS, 20f, t < T_CUBE_DIE + 2f);
-            Vector3 orbP = pyrP + Vector3.up * (apex + 20f), riftC = pyrP + new Vector3(0f, 700f, -120f);
+            Vector3 orbP = pyrP + Vector3.up * (apex + 35f), riftC = pyrP + new Vector3(0f, 700f, -120f);
             bool orbOn = t > T_RIFT - 8f && t < T_CUBE_DIE + 2f; if (orb.gameObject.activeSelf != orbOn) orb.gameObject.SetActive(orbOn);
-            if (orbOn) { Face(orb, orbP); float os = 90f * Sm(T_RIFT - 8f, T_RIFT + 4f, t) * (1f + 0.1f * Mathf.Sin(t * 9f)); orb.localScale = new Vector3(os, os, 1f); var om = orb.GetComponent<Renderer>().sharedMaterial; om.color = new Color(1f, 0.6f, 0.25f, Mathf.Clamp01(rift + 0.4f)); }
+            if (orbOn) { Face(orb, orbP); float os = 95f * Sm(T_RIFT - 8f, T_RIFT + 4f, t) * (1f + 0.1f * Mathf.Sin(t * 9f)); orb.localScale = new Vector3(os, os, 1f); var om = orb.GetComponent<Renderer>().sharedMaterial; om.color = new Color(1f, 0.6f, 0.25f, Mathf.Clamp01(rift + 0.4f)); }
             bool riftOn = t > T_RIFT && t < T_CUBE_DIE + 2f; riftRing.enabled = riftRing2.enabled = mainBeam.enabled = riftOn; if (riftDisc.gameObject.activeSelf != riftOn) riftDisc.gameObject.SetActive(riftOn);
             riftLamp.transform.position = W(riftC + new Vector3(0f, -100f, -200f)); riftLamp.intensity = riftOn ? Lit * 6f * rift : 0f;
             if (riftOn)
@@ -291,8 +292,8 @@ namespace AstronomicalEvent
             }
             else bolt.enabled = false;
             // ----- the Cube Queen: floats above her pyramid from the rift opening to the end
-            bool qOn = queenM != null && t > T_RIFT + 6f && t < T_CUBE_DIE + 2f;
-            if (queenM != null) { PlaceGo(queenGo, orbP + Vector3.up * (60f + 4f * Mathf.Sin(t * 0.7f)), 50f / 1.8f * Sm(T_RIFT + 6f, T_RIFT + 16f, t), Quaternion.Euler(0f, yaw * 0f + 180f + 8f * Mathf.Sin(t * 0.3f), 0f), qOn); if (qOn) { float lt; string qc = QueenClip(t, out lt); PlayClip(queenRig, queenM, qc, lt); } }
+            bool qOn = queenM != null && t > T_RIFT - 8f && t < T_CUBE_DIE + 2f;
+            if (queenM != null) { PlaceGo(queenGo, orbP + Vector3.up * (-14f + 1.5f * Mathf.Sin(t * 0.7f)), 28f / 1.8f * Sm(T_RIFT + 6f, T_RIFT + 16f, t), Quaternion.Euler(0f, yaw * 0f + 180f + 8f * Mathf.Sin(t * 0.3f), 0f), qOn); if (qOn) { float lt; string qc = QueenClip(t, out lt); PlayClip(queenRig, queenM, qc, lt); } }
             // ----- the Last Reality fleet: the Cube's Cradle and the motherships
             bool crOn = cradleM != null && t > T_FLEET - 4f && t < T_CUBE_DIE + 2f;
             PlaceOn(cradleM, new Vector3(-60f, 520f, 1500f), 0.12f * Sm(T_FLEET - 4f, T_FLEET + 6f, t), 0f, crOn);
@@ -335,7 +336,7 @@ namespace AstronomicalEvent
 
         public void Cleanup()
         {
-            if (ambientSaved) { RenderSettings.ambientLight = ambientSave; ambientSaved = false; }
+            if (ambientSaved) { RenderSettings.ambientLight = ambientSave; RenderSettings.fog = fogSave; ambientSaved = false; }
             try { if (farSave > 0f && Camera.main != null) Camera.main.farClipPlane = farSave; } catch { }
             farSave = -1f; foreach (var kv in origMats) if (kv.Key != null) kv.Key.sharedMaterials = kv.Value; origMats.Clear();
             foreach (var g in clones) if (g != null) UnityEngine.Object.Destroy(g); clones.Clear(); mons.Clear(); ships.Clear(); abds.Clear(); beams.Clear();
