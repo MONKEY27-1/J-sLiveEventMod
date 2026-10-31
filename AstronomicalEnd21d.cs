@@ -158,7 +158,7 @@ namespace AstronomicalEvent
             if (ch3M != null)
             {
                 var p = ch3M.Pivot; p.SetActive(true); p.transform.SetParent(isle.transform, false); float sc = C3S; p.transform.localScale = Vector3.one * sc; p.transform.localRotation = Quaternion.Euler(0f, 0f, 180f);
-                p.transform.localPosition = new Vector3(0f, -2f - ISLE_D - 27f * C3S, 0f); c3T = p.transform;      // its seabed rests on the slab's bottom face; flipped with the island it ends upright on top      // the island's seabed sits inside the cone's narrow end, its mountains reach 50 m past the tip: after the roll it stands on top, its coast (about 27 m above its seabed) is at sea level when h = -75
+                p.transform.localPosition = new Vector3(0f, -2f - ISLE_D + 1f, 0f); c3T = p.transform;      // the model's pivot is at its LOWEST point (feet-centred loader): that point sits on the slab's bottom face and the island grows away from it (flipped 180 with the island it ends upright)      // the island's seabed sits inside the cone's narrow end, its mountains reach 50 m past the tip: after the roll it stands on top, its coast (about 27 m above its seabed) is at sea level when h = -75
             }
         }
         // the map goes while the ocean scene runs (and comes back if you scrub out of it)
@@ -176,8 +176,8 @@ namespace AstronomicalEvent
         {
             float flash = T_END_VIS + 0.2f; float h, roll;
             if (t < flash) { h = 0.5f; roll = 0f; }
-            else { roll = 90f + 90f * Sm(T_END_VIS + 1.5f, T_END_VIS + 25f, t); h = Mathf.Lerp(ISLE_R * ISLE_S + 12f, 22f - ISLE_S * (2f + ISLE_D + 27f * C3S), Sm(T_END_VIS + 2.5f, T_END_VIS + 50f, t)); }
-            float z = ISLE_Z + 80f * Sm(T_END_VIS + 18f, T_END_VIS + 50f, t);        // after the flip the island drifts towards you: Chapter 3 is what stays on the sea
+            else { roll = 90f + 90f * Sm(T_END_VIS + 1.5f, T_END_VIS + 25f, t); h = Mathf.Lerp(ISLE_R * ISLE_S + 12f, 75f - ISLE_S * (2f + ISLE_D + 27f * C3S), Sm(T_END_VIS + 2.5f, T_END_VIS + 50f, t)); }
+            float z = ISLE_Z + 20f * Sm(T_END_VIS + 18f, T_END_VIS + 50f, t);        // after the flip the island drifts towards you: Chapter 3 is what stays on the sea
             pos = new Vector3(0f, WY + h, z); rollDeg = roll;
         }
         // the Cube Queen falls out of the sky into the sea (9:32 - 9:38), thrashes as the water takes her and sinks, a last flash at 9:58
@@ -204,7 +204,7 @@ namespace AstronomicalEvent
             // the sea follows you (it is a big flat disc); its colour opens up after the flash
             Vector3 cp = cam != null ? cam.transform.position : HeadNow(); SeaFrame(t, cp);
             if (!paused && tp < T_END_VIS + 2.5f && t >= T_END_VIS + 2.5f) AddRipple(0f, ISLE_Z, T_END_VIS + 2.5f, 5.5f, 34f, 85f, 90f, 70f);
-            if (!paused && tp < T_END_VIS + 30f && t >= T_END_VIS + 30f) AddRipple(0f, ISLE_Z + 80f, T_END_VIS + 30f, 4f, 28f, 60f, 80f, 70f);
+            if (!paused && tp < T_END_VIS + 30f && t >= T_END_VIS + 30f) AddRipple(0f, ISLE_Z + 20f, T_END_VIS + 30f, 4f, 28f, 60f, 80f, 70f);
  oceanMat.mainTextureOffset = new Vector2((cp.x + t * 0.8f) / 22f, (cp.z + t * 0.55f) / 22f);
             // the island copy
             if (isle != null)
