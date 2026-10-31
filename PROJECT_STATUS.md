@@ -379,3 +379,4 @@ Replaces every earlier animation clip (the wave is deleted; the 9 retargeted cli
 - Ocean scene reworked after the user's reference image: slender tower out of the sea, big burning ring with saucers, red beam from the left, purple dusk sea, the map slowly rotates, the Cube Queen falls from the sky into the sea, thrashes and sinks (9:32 - 10:00).
 - Cradle (the "big blue ship"): real materials (steel shell + magenta digital interior + gold cube), hidden in the ocean scene. NOT verified that it now looks right at distance. Not tested in VR.
 - Sea tower rebuilt: tools/end21_tower.py makes a 150 m twisting blue/violet crystal spire with lit window rows, shards, floating cubes (loaded as prop 'spire', scaled 6.4x in the ocean scene).
+- Ocean tower is the SAME pyramid as the rest of the event (user: the Queen belongs in it): she floats in its orb at the apex from 9:15, drops into the sea at 9:32. The crystal spire (end21_tower.py) is kept in the repo but unused.

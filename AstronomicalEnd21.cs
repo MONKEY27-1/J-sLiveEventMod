@@ -294,9 +294,9 @@ namespace AstronomicalEvent
             if (t < T_BREAK && !paused) KeepInside(t); else if (sc == Sc.Surface && !paused) { seated = true; KeepInside(t, stageX, stageZ, 16f); }
             if (!paused && tp < 210f && t >= 210f) { flashLamp.transform.position = W(cubeC + Vector3.up * 4f); flashLamp.color = new Color(0.4f, 0.8f, 1f); flashLamp.intensity = Lit * 22f; hitGlow = 1f; shake = Mathf.Max(shake, 1f); for (int k = 0; k < 160; k++) { float a2 = k / 160f * 6.2832f; Emit(fx, W(cubeC), new Vector3(Mathf.Cos(a2), 0.15f * Mathf.Sin(k), Mathf.Sin(a2)) * UnityEngine.Random.Range(14f, 30f), new Color(0.3f, 0.9f, 1f, 1f), UnityEngine.Random.Range(0.6f, 1.6f), UnityEngine.Random.Range(1.2f, 2.4f)); } }      // 3:30: a bright blue energy burst round the cube
             // ----- the Cube Queen's pyramid (always in the distance), her energy orb on top, the rift above it
-            bool oc = sc == Sc.Ocean; Vector3 pyrP = oc ? new Vector3(-240f, WY - 12f, 1450f) : new Vector3(40f, GroundY(40f, 650f), 650f); float pyrS = oc ? 6.4f : 1.3f, apex = 150f * pyrS;      // in the ocean the Queen's tower rises straight out of the sea (the reference: a huge spire under a burning ring)
-            PlaceOn(pyrM, pyrP, pyrS, 20f, t < T_END_VIS && !oc); PlaceOn(spireM, pyrP, pyrS, t * 2f, t < T_END_VIS && oc);      // in the sea: the crystal spire (tools/end21_tower.py) instead of the pyramid
-            Vector3 orbP = pyrP + Vector3.up * (apex + 35f), riftC = pyrP + (oc ? new Vector3(30f, 1020f, -120f) : new Vector3(0f, 700f, -120f));
+            bool oc = sc == Sc.Ocean; Vector3 pyrP = oc ? new Vector3(OC_PX, OC_PY, OC_PZ) : new Vector3(40f, GroundY(40f, 650f), 650f); float pyrS = oc ? OC_S : 1.3f, apex = 150f * pyrS;      // in the ocean the Queen's tower rises straight out of the sea (the reference: a huge spire under a burning ring)
+            PlaceOn(pyrM, pyrP, pyrS, 20f, t < T_END_VIS); PlaceOn(spireM, pyrP, pyrS, 0f, false);      // the same pyramid in the sea (the Queen's tower, she stands in its orb the whole event)
+            Vector3 orbP = pyrP + Vector3.up * (apex + 35f), riftC = pyrP + (oc ? new Vector3(0f, apex + 90f, -120f) : new Vector3(0f, 700f, -120f));
             bool orbOn = t > T_RIFT - 8f && t < T_END_VIS; if (orb.gameObject.activeSelf != orbOn) orb.gameObject.SetActive(orbOn);
             if (orbOn) { Face(orb, orbP); float os = (oc ? 260f : 95f) * Sm(T_RIFT - 8f, T_RIFT + 4f, t) * (1f + 0.1f * Mathf.Sin(t * 9f)); orb.localScale = new Vector3(os, os, 1f); var om = orb.GetComponent<Renderer>().sharedMaterial; om.color = new Color(1f, 0.6f, 0.25f, Mathf.Clamp01(rift + 0.4f)); }
             bool riftOn = t > T_RIFT && t < T_END_VIS; bool beamPre = t > 90f && t <= T_RIFT && sc == Sc.Island; riftRing.enabled = riftRing2.enabled = riftOn; mainBeam.enabled = riftOn || beamPre; if (riftDisc.gameObject.activeSelf != riftOn) riftDisc.gameObject.SetActive(riftOn);
@@ -324,7 +324,7 @@ namespace AstronomicalEvent
             {
                 float arrive = T_FLEET + i * 1.6f; float k = Sm(arrive, arrive + 9f, t); bool on = t > arrive && t < T_END_VIS && !IsRoom(sc); float ang = (i / (float)ships.Count) * Mathf.PI * 1.1f - 0.55f * Mathf.PI * 1.1f + 0.1f * Mathf.Sin(t * 0.2f + i);
                 Vector3 hover = new Vector3(Mathf.Sin(ang) * 760f, 430f + 80f * (i % 3) + 12f * Mathf.Sin(t * 0.4f + i), 520f + Mathf.Cos(ang) * 420f - 150f + (i % 2) * 120f);
-                if (oc) { float aa = i / (float)ships.Count * 6.2832f + 0.4f; hover = riftC + new Vector3(Mathf.Cos(aa) * 520f, Mathf.Sin(aa) * 150f + 40f, -60f + Mathf.Sin(aa) * 60f); }      // the saucers hang in and around the burning ring
+                if (oc) { float aa = i / (float)ships.Count * 6.2832f + 0.4f; hover = riftC + new Vector3(Mathf.Cos(aa) * 520f, Mathf.Sin(aa) * 140f + 230f, -60f + Mathf.Sin(aa) * 60f); }      // the saucers hang in and around the burning ring
                 Vector3 pos = Vector3.Lerp(riftC, hover, oc ? 1f : k) + (i == 0 ? Vector3.up * 1500f * Mathf.Pow(Sm(424f, 430f, t), 2f) : Vector3.zero);
                 PlaceGo(ships[i], pos, (oc ? 0.5f : 0.62f) * k, Quaternion.Euler(Mathf.Sin(t * 0.5f + i) * 3f, t * 2.5f + i * 40f, Mathf.Cos(t * 0.45f + i) * 3f), on);
             }
