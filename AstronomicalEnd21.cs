@@ -146,7 +146,7 @@ namespace AstronomicalEvent
             for (int i = 0; i < lat; i++) for (int j = 0; j < lon; j++) { int a = i * (lon + 1) + j, b = a + 1, c = a + lon + 1, d = c + 1; tris.AddRange(new[] { a, b, c, b, d, c }); }
             skyMesh = new Mesh(); skyMesh.SetVertices(verts); skyMesh.SetColors(cols); skyMesh.SetTriangles(tris, 0); skyMesh.RecalculateBounds(); owned.Add(skyMesh); skyCols = cols.ToArray(); skyDirs = dirs.ToArray();
             skyGo = new GameObject("AstronomicalEnd21Sky"); skyGo.AddComponent<MeshFilter>().sharedMesh = skyMesh; var mr = skyGo.AddComponent<MeshRenderer>();
-            var dm = new Material(kit.Glow(Color.white, glowTex, 2501)); dm.mainTexture = null; dm.renderQueue = 2501; owned.Add(dm); mr.sharedMaterial = dm; mr.allowOcclusionWhenDynamic = false; mr.shadowCastingMode = ShadowCastingMode.Off;
+            var dm = new Material(kit.Glow(Color.white, glowTex, 1500)); dm.mainTexture = null; dm.renderQueue = 1500; owned.Add(dm); mr.sharedMaterial = dm; mr.allowOcclusionWhenDynamic = false; mr.shadowCastingMode = ShadowCastingMode.Off;
         }
         // sunset over the island that darkens to dusk from 0:50; from the ring (1:35) the sky bleeds red and purple; black inside the rooms; twilight and then a bright blue day (after the 10:03 flash) in the ocean
         void UpdateSky(float t)
@@ -156,7 +156,7 @@ namespace AstronomicalEvent
             Color top = Color.Lerp(new Color(0.22f, 0.12f, 0.38f), new Color(0.1f, 0.06f, 0.22f), dusk), mid = Color.Lerp(new Color(0.85f, 0.4f, 0.33f), new Color(0.4f, 0.16f, 0.3f), dusk), hor = Color.Lerp(new Color(1f, 0.62f, 0.3f), new Color(0.72f, 0.3f, 0.22f), dusk);
             top = Color.Lerp(top, new Color(0.25f, 0.04f, 0.14f), rift); mid = Color.Lerp(mid, new Color(0.75f, 0.2f, 0.14f), rift); hor = Color.Lerp(hor, new Color(1f, 0.38f, 0.1f), rift);
             float black = IsRoom(sc) ? 1f : 0f; if (t < T_FAC) black = Sm(T_CUBE_DIE, T_BLACK, t); if (sc == Sc.Base && t >= T_CHAM - 3f) black = 0.05f;      // the chamber's glass roof shows the red sky
-            if (sc == Sc.Ocean) { float blue = Sm(T_END_VIS - 0.2f, T_END_VIS + 1.5f, t); top = Color.Lerp(new Color(0.07f, 0.05f, 0.18f), new Color(0.2f, 0.45f, 0.95f), blue); mid = Color.Lerp(new Color(0.3f, 0.16f, 0.35f), new Color(0.5f, 0.75f, 1f), blue); hor = Color.Lerp(new Color(0.62f, 0.3f, 0.3f), new Color(0.86f, 0.94f, 1f), blue); dark = 0f; }
+            if (sc == Sc.Ocean) { float blue = Sm(T_END_VIS - 0.2f, T_END_VIS + 1.5f, t), tw = Sm(T_OCEAN, T_OCEAN + 40f, t); top = SkyAtB(1f, blue, tw); mid = SkyAtB(0.3f, blue, tw); hor = SkyAtB(0f, blue, tw); dark = 0f; }
             for (int k = 0; k < skyDirs.Length; k++)
             {
                 var d = skyDirs[k]; float up = Mathf.Clamp01(d.y); var c = up < 0.3f ? Color.Lerp(hor, mid, up / 0.3f) : Color.Lerp(mid, top, (up - 0.3f) / 0.7f);
@@ -173,7 +173,7 @@ namespace AstronomicalEvent
             riftLamp = new GameObject("ERiftLight").AddComponent<Light>(); riftLamp.transform.SetParent(root.transform, false); riftLamp.type = LightType.Point; riftLamp.range = 700f; riftLamp.color = new Color(1f, 0.45f, 0.15f); riftLamp.intensity = 0f; riftLamp.shadows = LightShadows.None;
             var add = kit.Glow(new Color(1f, 0.55f, 0.2f, 1f), lineTex, 3001); riftRing = MakeLine("ERift", add, 90, 14f); riftRing2 = MakeLine("ERift2", kit.Glow(new Color(1f, 0.9f, 0.7f, 1f), lineTex, 3002), 90, 5f);
             mainBeam = MakeLine("EBeam", kit.Glow(new Color(1f, 0.75f, 0.4f, 1f), lineTex, 3001), 2, 30f); bolt = MakeLine("EBolt", kit.Glow(new Color(1f, 0.85f, 0.6f, 1f), lineTex, 3002), 12, 4f);
-            riftDisc = Quad("ERiftDisc", kit.Glow(new Color(1f, 0.4f, 0.1f, 0.0f), glowTex, 3000)); riftDisc.gameObject.SetActive(false);
+            SkyFxBuild(); riftDisc = Quad("ERiftDisc", kit.Glow(new Color(1f, 0.4f, 0.1f, 0.0f), glowTex, 3000)); riftDisc.gameObject.SetActive(false);
             var orbTex = kit.Tex(128, 128, (x, y) => { float dx = (x - 63.5f) / 63.5f, dy = (y - 63.5f) / 63.5f, r = Mathf.Sqrt(dx * dx + dy * dy); float rim = Mathf.Exp(-Mathf.Pow((r - 0.86f) / 0.06f, 2f)), inner = r < 0.88f ? 0.3f * (1f - r * 0.45f) : 0f, halo = r > 0.88f ? Mathf.Exp(-(r - 0.88f) * 8f) * 0.55f : 0f; float a = Mathf.Clamp01(rim + inner + halo); Color c = Color.Lerp(new Color(1f, 0.55f, 0.12f), new Color(1f, 0.96f, 0.75f), Mathf.Clamp01(rim * 1.2f)); return new Color(c.r, c.g, c.b, r > 1f ? 0f : a); }, TextureWrapMode.Clamp);      // the Queen's orb: a bright golden ring round a translucent glowing sphere (reference screenshot)
             orb = Quad("EOrb", kit.Glow(new Color(1f, 1f, 1f, 0f), orbTex, 3003)); orb.gameObject.SetActive(false);
             shield = GameObject.CreatePrimitive(PrimitiveType.Sphere).transform; UnityEngine.Object.Destroy(shield.GetComponent<Collider>()); shield.name = "EShield"; shield.SetParent(root.transform, false);
@@ -304,15 +304,15 @@ namespace AstronomicalEvent
             riftLamp.transform.position = W(riftC + new Vector3(0f, -100f, -200f)); riftLamp.intensity = riftOn ? Lit * 6f * rift : 0f;
             if (riftOn)
             {
-                riftRing.widthMultiplier = (oc ? 120f : 22f) * rift; riftRing2.widthMultiplier = (oc ? 40f : 7f) * rift; float R = (oc ? 900f : 330f) * rift * (1f + 0.03f * Mathf.Sin(t * 2f)); Vector3 cp = W(riftC); Vector3 right = root.transform.right, tilt = Quaternion.AngleAxis(oc ? -78f : -35f, right) * Vector3.up;
+                riftRing.widthMultiplier = (oc ? 40f : 12f) * rift; riftRing2.widthMultiplier = (oc ? 14f : 4f) * rift; float R = (oc ? 900f : 650f) * rift * (1f + 0.03f * Mathf.Sin(t * 2f)); Vector3 cp = W(riftC); Vector3 right = root.transform.right, tilt = Quaternion.AngleAxis(oc ? -78f : -35f, right) * Vector3.up;
                 for (int k = 0; k < 90; k++) { float a = k / 89f * Mathf.PI * 2f + t * 0.3f; var ofs = right * Mathf.Cos(a) * R + Vector3.Cross(right, tilt).normalized * Mathf.Sin(a) * R * 0.5f + tilt * Mathf.Sin(a * 3f + t * 2f) * 6f; riftRing.SetPosition(k, cp + ofs); riftRing2.SetPosition(k, cp + ofs * 0.96f); }
                 Face(riftDisc, cp); riftDisc.localScale = new Vector3(R * 2f, R * 1.1f, 1f); riftDisc.GetComponent<Renderer>().sharedMaterial.color = new Color(1f, 0.42f, 0.12f, 0.42f * rift);
                 mainBeam.SetPosition(0, W(orbP)); mainBeam.SetPosition(1, cp); mainBeam.widthMultiplier = 26f * rift * (1f + 0.12f * Mathf.Sin(t * 14f));
                 if (oc) { mainBeam.SetPosition(0, W(orbP)); mainBeam.SetPosition(1, W(orbP + Vector3.up * 2600f)); mainBeam.widthMultiplier = 70f * (1f + 0.1f * Mathf.Sin(t * 11f)); }      // the golden beam straight up from her orb through the burning ring
-                if (t - lastBolt > 0.18f && !paused) { lastBolt = t; bolt.enabled = true; Vector3 a0 = cp + UnityEngine.Random.insideUnitSphere * R * 0.6f, b0 = a0 + new Vector3(UnityEngine.Random.Range(-300f, 300f), -UnityEngine.Random.Range(250f, 520f), UnityEngine.Random.Range(-300f, 300f)); for (int k = 0; k < 12; k++) bolt.SetPosition(k, Vector3.Lerp(a0, b0, k / 11f) + (k > 0 && k < 11 ? UnityEngine.Random.insideUnitSphere * 22f : Vector3.zero)); }
+                SkyFxFrame(t, dt, !IsRoom(sc), oc, cp, right, Vector3.Cross(right, tilt).normalized, tilt, R, rift); bolt.enabled = false;
             }
-            else if (beamPre) { mainBeam.SetPosition(0, W(orbP)); mainBeam.SetPosition(1, W(orbP + Vector3.up * 1800f)); mainBeam.widthMultiplier = 22f * Sm(90f, 94f, t) * (1f + 0.1f * Mathf.Sin(t * 14f)); bolt.enabled = false; }
-            else bolt.enabled = false;
+            else if (beamPre) { SkyFxFrame(t, dt, false, oc, Vector3.zero, Vector3.right, Vector3.forward, Vector3.up, 1f, 0f); mainBeam.SetPosition(0, W(orbP)); mainBeam.SetPosition(1, W(orbP + Vector3.up * 1800f)); mainBeam.widthMultiplier = 22f * Sm(90f, 94f, t) * (1f + 0.1f * Mathf.Sin(t * 14f)); bolt.enabled = false; }
+            else { bolt.enabled = false; SkyFxFrame(t, dt, false, oc, Vector3.zero, Vector3.right, Vector3.forward, Vector3.up, 1f, 0f); }
             if (t > 85f && t < T_RIFT && sc == Sc.Island && !paused && t - lastBolt > 0.55f + 0.5f * Hash((int)(t * 3f), 4)) { lastBolt = t; bolt.enabled = true; Vector3 a0 = pyrP + new Vector3(UnityEngine.Random.Range(-260f, 260f), 1100f, UnityEngine.Random.Range(-260f, 260f)), b0 = pyrP + new Vector3(UnityEngine.Random.Range(-120f, 120f), 0f, UnityEngine.Random.Range(-120f, 120f)); for (int k = 0; k < 12; k++) bolt.SetPosition(k, W(Vector3.Lerp(a0, b0, k / 11f) + (k > 0 && k < 11 ? UnityEngine.Random.insideUnitSphere * 40f : Vector3.zero))); flashLamp.transform.position = W(b0 + Vector3.up * 40f); flashLamp.color = new Color(0.8f, 0.85f, 1f); flashLamp.intensity = Lit * 14f; }
             // ----- the Cube Queen: floats above her pyramid from the rift opening to the end
             bool qOn = queenM != null && t > T_RIFT - 8f && t < T_END_VIS && sc != Sc.Ocean;

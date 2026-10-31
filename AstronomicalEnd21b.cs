@@ -154,7 +154,12 @@ namespace AstronomicalEvent
             AstronomicalEventMod.Log.LogInfo("End21: base path " + bPts.Count + " points, " + bTotal.ToString("0") + " m");
         }
         static Vector3 Flat(Vector3 v) { return new Vector3(v.x, 0f, v.z); }
+        // the walking line: the polyline's arc-length position smoothed with a +-3 m window so every corner becomes a curve (nobody clips a wall or cuts a plaza corner)
         Vector3 PathAt(float s, out float yawDeg)
+        {
+            float y0, y1, y2; Vector3 a = PathRaw(s - 3f, out y0), b = PathRaw(s, out y1), c = PathRaw(s + 3f, out y2); Vector3 a2 = PathRaw(s - 1.5f, out y0), c2 = PathRaw(s + 1.5f, out y0); Vector3 p = (a + c) * 0.2f + (a2 + c2) * 0.2f + b * 0.2f; Vector3 d = Flat(PathRaw(s + 0.8f, out y0) - PathRaw(s - 0.8f, out y0)); yawDeg = d.sqrMagnitude > 1e-6f ? Mathf.Atan2(d.x, d.z) * Mathf.Rad2Deg : y1; p.y = b.y; return p;
+        }
+        Vector3 PathRaw(float s, out float yawDeg)
         {
             yawDeg = 0f; if (bPts.Count < 2) return Vector3.zero; s = Mathf.Clamp(s, 0f, bTotal); int i = 0; while (i < bCum.Length - 2 && s > bCum[i + 1]) i++;
             Vector3 a = bPts[i], b = bPts[i + 1]; float seg = Mathf.Max(0.001f, bCum[i + 1] - bCum[i]), u = (s - bCum[i]) / seg; Vector3 d = Flat(b - a); yawDeg = Mathf.Atan2(d.x, d.z) * Mathf.Rad2Deg;

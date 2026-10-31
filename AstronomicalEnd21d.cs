@@ -19,7 +19,7 @@ namespace AstronomicalEvent
         Vector3 floodC;
 
         // the player's head height in the ocean scene: deep under the water at first, rising to float at the surface by 9:25
-        float OceanHeadY(float t) { float rise = Sm(T_OCEAN + 1.5f, T_OCEAN + 11f, t); return Mathf.Lerp(WY - 7.5f, WY + 1.3f, rise) + 0.05f * Mathf.Sin(t * 0.9f); }
+        float OceanHeadY(float t) { float rise = Sm(T_OCEAN + 1.5f, T_OCEAN + 11f, t); float gx, gz; float heave = SeaSample(0f, 0f, t, 0f, out gx, out gz); return Mathf.Lerp(WY - 7.5f, WY + 1.3f, rise) + heave * rise; }      // you float: the head rides the wave height
 
         Mesh MakeDisc(float r, int seg, float uvScale)
         {
@@ -47,6 +47,7 @@ namespace AstronomicalEvent
             waveTex = kit.Tex(64, 64, (x, y) => { float a = Mathf.Sin(x * 0.4f + y * 0.15f) * 0.5f + 0.5f, b = Mathf.Sin(y * 0.55f - x * 0.2f) * 0.5f + 0.5f, c = Mathf.Sin((x + y) * 0.9f) * 0.5f + 0.5f, w = (a + b + c) / 3f; return new Color(0.82f + 0.18f * w, 0.86f + 0.14f * w, 0.9f + 0.1f * w, 1f); });
             oceanMat = new Material(kit.Flat(new Color(0.03f, 0.09f, 0.2f))); oceanMat.mainTexture = waveTex; try { oceanMat.SetFloat("_Cull", 0f); } catch { } owned.Add(oceanMat);
             oceanGo = new GameObject("EOcean"); oceanGo.transform.SetParent(root.transform, false); oceanGo.AddComponent<MeshFilter>().sharedMesh = MakeDisc(4200f, 72, 22f); var mr = oceanGo.AddComponent<MeshRenderer>(); mr.sharedMaterial = oceanMat; mr.shadowCastingMode = ShadowCastingMode.Off; mr.receiveShadows = false; oceanGo.SetActive(false);
+            SeaBuild();
             var bc = oceanGo.AddComponent<BoxCollider>(); bc.size = new Vector3(260f, 1f, 260f); bc.center = new Vector3(0f, -0.5f, 0f); oceanGo.layer = floorLayer;
             rockTex = kit.Tex(32, 32, (x, y) => { float n = Mathf.PerlinNoise(x * 0.23f, y * 0.23f) * 0.6f + Mathf.PerlinNoise(x * 0.7f, y * 0.7f) * 0.4f; return new Color(0.55f + 0.3f * n, 0.5f + 0.28f * n, 0.45f + 0.25f * n, 1f); });
             coneMat = new Material(kit.Flat(new Color(0.46f, 0.37f, 0.28f))); coneMat.mainTexture = rockTex; try { coneMat.SetFloat("_Cull", 0f); } catch { } owned.Add(coneMat);
@@ -133,13 +134,13 @@ namespace AstronomicalEvent
         void QueenInWater(float t, float tp, float dt)
         {
             if (queenM == null || queenGo == null) return; bool on = t > T_OCEAN - 0.5f && t < QT2 + 0.5f; if (!on) { if (queenGo.activeSelf && SceneAt(t) == Sc.Ocean) queenGo.SetActive(false); return; }
-            float fall = Mathf.Clamp01((t - QT0) / (QT1 - QT0)), sink = Sm(QT1 + 2f, QT2 - 2f, t); float y = WY + Mathf.Lerp(230f, 0f, fall * fall) - 18f * sink * sink + 0.8f * Mathf.Sin(t * 2.2f) * (1f - sink);
+            float fall = Mathf.Clamp01((t - QT0) / (QT1 - QT0)), sink = Sm(QT1 + 2f, QT2 - 2f, t); float sgx, sgz; float y = WY + Mathf.Lerp(230f, 0f, fall * fall) - 18f * sink * sink + SeaSample(22f, 85f, t, 60f, out sgx, out sgz) * (1f - sink) + 0.8f * Mathf.Sin(t * 2.2f) * (1f - sink);
             float tilt = Mathf.Lerp(0f, 55f, sink) + 6f * Mathf.Sin(t * 3f) * (1f - fall), scale = Mathf.Lerp(140f / 1.8f, 10f, Sm(QT0, QT1, t)); Vector3 pos = new Vector3(22f, y, 85f);
             Vector3 orbQ = new Vector3(OC_PX, OC_PY + 150f * OC_S, OC_PZ); if (t < QT1) { float u = Mathf.Clamp01((t - QT0) / (QT1 - QT0)); pos = new Vector3(Mathf.Lerp(orbQ.x, 22f, u), Mathf.Lerp(orbQ.y, WY, u * u) , Mathf.Lerp(orbQ.z, 85f, u)); tilt = 0f; }      // she starts in the tower's orb, as in the rest of the event
             PlaceGo(queenGo, pos, scale, Quaternion.Euler(tilt, 180f + 12f * Mathf.Sin(t * 0.8f), 8f * Mathf.Sin(t * 1.7f) * sink), true);
             string qc = t < QT0 ? "H_Float" : t < QT1 ? "H_Retreat" : (t < QT1 + 8f ? "H_Hit" : "H_Rage"); float lt = t < QT0 ? t : t < QT1 ? Mathf.Min(t - QT0, 3.9f) : (t < QT1 + 8f ? (t - QT1) % 1.6f : (t - QT1 - 8f) % 3f); PlayClip(queenRig, queenM, qc, lt);
             if (paused || dt <= 0f) return; Vector3 wp = W(new Vector3(pos.x, WY, pos.z));
-            if (tp < QT1 && t >= QT1) { flashLamp.transform.position = wp + Vector3.up * 6f; flashLamp.color = new Color(0.7f, 0.85f, 1f); flashLamp.intensity = Lit * 18f; shake = Mathf.Max(shake, 1.5f); for (int k = 0; k < 260; k++) { float a = UnityEngine.Random.value * 6.2832f, r = UnityEngine.Random.Range(0f, 14f); Emit(fx, wp + new Vector3(Mathf.Cos(a) * r, 0.3f, Mathf.Sin(a) * r), new Vector3(Mathf.Cos(a) * r * 0.5f, UnityEngine.Random.Range(8f, 34f), Mathf.Sin(a) * r * 0.5f), new Color(0.8f, 0.95f, 1f, 0.9f), UnityEngine.Random.Range(0.6f, 2.2f), UnityEngine.Random.Range(1.2f, 2.6f)); } }
+            if (tp < QT1 && t >= QT1) { AddRipple(22f, 85f, QT1, 2.4f, 16f, 22f, 24f, 45f); AddRipple(22f, 85f, QT1 + 0.4f, 1.1f, 11f, 11f, 14f, 30f); flashLamp.transform.position = wp + Vector3.up * 6f; flashLamp.color = new Color(0.7f, 0.85f, 1f); flashLamp.intensity = Lit * 18f; shake = Mathf.Max(shake, 1.5f); for (int k = 0; k < 260; k++) { float a = UnityEngine.Random.value * 6.2832f, r = UnityEngine.Random.Range(0f, 14f); Emit(fx, wp + new Vector3(Mathf.Cos(a) * r, 0.3f, Mathf.Sin(a) * r), new Vector3(Mathf.Cos(a) * r * 0.5f, UnityEngine.Random.Range(8f, 34f), Mathf.Sin(a) * r * 0.5f), new Color(0.8f, 0.95f, 1f, 0.9f), UnityEngine.Random.Range(0.6f, 2.2f), UnityEngine.Random.Range(1.2f, 2.6f)); } }
             if (t > QT1 && t < QT2 - 2f && UnityEngine.Random.value < dt * 40f) { float a = UnityEngine.Random.value * 6.2832f, r = UnityEngine.Random.Range(2f, 11f); Emit(fx, wp + new Vector3(Mathf.Cos(a) * r, 0.2f, Mathf.Sin(a) * r), new Vector3(0f, UnityEngine.Random.Range(3f, 12f), 0f), new Color(0.6f, 0.9f, 1f, 0.8f), UnityEngine.Random.Range(0.3f, 1.2f), UnityEngine.Random.Range(0.6f, 1.4f)); if (UnityEngine.Random.value < 0.4f) Emit(fx, wp + Vector3.up * 3f, UnityEngine.Random.onUnitSphere * 8f, new Color(1f, 0.6f, 0.95f, 1f), UnityEngine.Random.Range(0.3f, 0.9f), 0.8f); }
             if (tp < QT2 - 1f && t >= QT2 - 1f) { flashLamp.transform.position = wp + Vector3.up * 2f; flashLamp.color = new Color(1f, 0.7f, 0.95f); flashLamp.intensity = Lit * 25f; shake = Mathf.Max(shake, 1.8f); for (int k = 0; k < 300; k++) { var v = UnityEngine.Random.onUnitSphere; v.y = Mathf.Abs(v.y); Emit(fx, wp + Vector3.up * 1.5f, v * UnityEngine.Random.Range(6f, 36f), new Color(1f, UnityEngine.Random.Range(0.5f, 0.9f), 1f, 1f), UnityEngine.Random.Range(0.5f, 1.8f), UnityEngine.Random.Range(1f, 2.4f)); } }
         }
@@ -150,8 +151,10 @@ namespace AstronomicalEvent
             if (!on) return;
             float flashK = Sm(T_END_VIS - 0.3f, T_END_VIS + 1.2f, t);
             // the sea follows you (it is a big flat disc); its colour opens up after the flash
-            Vector3 cp = cam != null ? cam.transform.position : HeadNow(); oceanGo.transform.position = new Vector3(cp.x, W(new Vector3(0f, WY, 0f)).y, cp.z); oceanGo.transform.rotation = Quaternion.identity;
-            oceanMat.color = Color.Lerp(new Color(0.26f, 0.17f, 0.34f), new Color(0.07f, 0.45f, 0.82f), flashK);      // dusk sea: purple, reflecting the sky oceanMat.mainTextureOffset = new Vector2((cp.x + t * 0.8f) / 22f, (cp.z + t * 0.55f) / 22f);
+            Vector3 cp = cam != null ? cam.transform.position : HeadNow(); SeaFrame(t, cp);
+            if (!paused && tp < T_END_VIS + 2.5f && t >= T_END_VIS + 2.5f) AddRipple(0f, ISLE_Z, T_END_VIS + 2.5f, 5.5f, 34f, 85f, 90f, 70f);
+            if (!paused && tp < T_END_VIS + 30f && t >= T_END_VIS + 30f) AddRipple(0f, ISLE_Z - 330f, T_END_VIS + 30f, 4f, 28f, 60f, 80f, 70f);
+ oceanMat.mainTextureOffset = new Vector2((cp.x + t * 0.8f) / 22f, (cp.z + t * 0.55f) / 22f);
             // the island copy
             if (isle != null)
             {

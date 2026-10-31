@@ -48,7 +48,7 @@ def walls_z(x, z0, z1, y0, h, m, gaps=(), th=0.3, oh=3.0):
         if h > oh: bx(x, y0 + (oh + h) / 2, (a0 + a1) / 2, th, h - oh, a1 - a0, m)
         cur = a1
     if cur < z1: bx(x, y0 + h / 2, (cur + z1) / 2, th, h, z1 - cur, m)
-NOCEIL = bool(os.environ.get('NOCEIL'))
+NOCEIL = bool(os.environ.get('NOCEIL')); DETAIL = not os.environ.get('NODETAIL')
 def room(cx, cz, w, d, h, wm, openings=(), y0=0.0, strip=LC, floor=MF, ceil=MC, strips=True):
     """a closed box room: centre (cx, cz), footprint w (x) by d (z), floor top at y0.  openings: (side, offset along the wall, width, height) with side in xm xp zm zp"""
     bx(cx, y0 - 0.15, cz, w + 0.6, 0.3, d + 0.6, floor)
@@ -61,9 +61,31 @@ def room(cx, cz, w, d, h, wm, openings=(), y0=0.0, strip=LC, floor=MF, ceil=MC, 
         if s == 'zm': walls_x(cz - d / 2, cx - w / 2, cx + w / 2, y0, h, wm, [(cx + c, ww) for c, ww in gp], oh=oh)
         if s == 'xp': walls_z(cx + w / 2, cz - d / 2, cz + d / 2, y0, h, wm, [(cz + c, ww) for c, ww in gp], oh=oh)
         if s == 'xm': walls_z(cx - w / 2, cz - d / 2, cz + d / 2, y0, h, wm, [(cz + c, ww) for c, ww in gp], oh=oh)
+    if DETAIL: detail(cx, cz, w, d, h, y0, openings, strip, wm)
     if strips and not NOCEIL:      # ceiling light strips along the long sides
         if w >= d: bx(cx, y0 + h - 0.1, cz - d / 2 + 0.5, w - 1, 0.12, 0.25, strip, 1.0); bx(cx, y0 + h - 0.1, cz + d / 2 - 0.5, w - 1, 0.12, 0.25, strip, 1.0)
         else: bx(cx - w / 2 + 0.5, y0 + h - 0.1, cz, 0.25, 0.12, d - 1, strip, 1.0); bx(cx + w / 2 - 0.5, y0 + h - 0.1, cz, 0.25, 0.12, d - 1, strip, 1.0)
+
+def detail(cx, cz, w, d, h, y0, openings, strip, wm):
+    """wall detail that never enters the middle lane (everything within 0.9 m of a long wall): floor light trim, two pipe runs, ribs every 3 m, panel screens, ceiling cable tray, wall lamps"""
+    sides = [o[0] for o in openings]; alongx = w >= d; L = (w if alongx else d)
+    for sg in (-1, 1):
+        sd = ('zp' if sg > 0 else 'zm') if alongx else ('xp' if sg > 0 else 'xm')
+        if sd in sides: continue
+        wall = (cz + sg * d / 2) if alongx else (cx + sg * w / 2); face = wall - sg * 0.15
+        def P3(u, y, off): return (cx + u, y, face - sg * off) if alongx else (face - sg * off, y, cz + u)
+        def box(u, y, off, du, dy, doff, m, t=1.0):
+            p = P3(u, y, off); (bx(p[0], p[1], p[2], du, dy, doff, m, t) if alongx else bx(p[0], p[1], p[2], doff, dy, du, m, t))
+        box(0, y0 + 0.1, 0.1, L - 0.6, 0.16, 0.14, strip)                                                  # floor light trim
+        for hh, rad in ((h * 0.8, 0.13), (h * 0.62, 0.09)):
+            p = P3(0, y0 + hh, 0.3); b.cyl(Bz(*p), rad, L - 0.8, MS, 8, axis='x' if alongx else 'y')              # pipe runs
+            for k in range(int(L // 5)): box(-L / 2 + 2.5 + k * 5.0, y0 + hh, 0.3, 0.22, rad * 2.6, rad * 2.6, MD)  # clamps
+        for k in range(int(L // 3)): box(-L / 2 + 1.5 + k * 3.0, y0 + h / 2, 0.15, 0.32, h, 0.3, MD)             # ribs
+        for k in range(int(L // 6)):
+            u = -L / 2 + 3.0 + k * 6.0; mat = (XG, XB, XO, XR)[(k + (1 if sg > 0 else 0)) % 4]
+            box(u, y0 + 1.7, 0.1, 1.5, 0.9, 0.05, MD); box(u, y0 + 1.7, 0.14, 1.3, 0.7, 0.04, mat)             # a screen in a dark frame
+            box(u + 2.0, y0 + 1.5, 0.12, 0.5, 0.5, 0.1, LA, 1.0)                                               # a wall lamp
+        box(0, y0 + h - 0.3, 0.45, L - 0.6, 0.12, 0.8, MS)                                                       # ceiling cable tray
 WPS = []
 def wp(x, y, z): WPS.append((x, y, z))
 def ring_obj(name, radius, tube, mat, loc, axis='z', seg=48, tseg=8, rot=None):
@@ -141,7 +163,7 @@ elif kind == 'base':
     # ---------------- the path: a staircase of pieces, each (name, length, width, height, heading); a 6 x 6 plaza sits at every corner
     PIECES = [('blue_corr', 26, 4.0, 3.4, 'z'), ('device', 28, 18.0, 6.0, 'x'), ('red_hall', 16, 4.0, 3.4, 'z'), ('window', 12, 10.0, 5.0, 'x'), ('machinery', 24, 24.0, 12.0, 'z'), ('blue_corr2', 22, 4.0, 3.4, 'x'),
               ('red_orange', 8, 4.0, 3.4, 'z'), ('control', 14, 14.0, 5.0, 'x'), ('hazy', 10, 4.0, 3.4, 'z')]
-    PL = 6.0; SH = 14.0
+    PL = 8.0; SH = 14.0
     room(0, 0, 6, 6, SH, MWB, [('zp', 0, 4.0, 3.0)], y0=0.0)                                                                  # the shaft: 6 x 6, 14 m tall, open at the bottom towards +z
     for k in range(7): bx(2.7, 1.5 + k * 2.0, 0, 0.1, 0.1, 1.0, MS, 1.0); bx(2.7, 1.5 + k * 2.0, -2.5, 0.1, 0.1, 0.1, LC, 1.0)
     for k in range(14): bx(-2.7, 0.5 + k, 1.0, 0.1, 0.1, 1.0, MS, 1.0)                                                          # ladder rungs
@@ -170,10 +192,11 @@ elif kind == 'base':
         if name == 'red_hall':
             for k in range(4): along(-ln / 2 + 2 + k * 3.8, -w / 2 + 0.1, 1.9, 0.08, 1.0, 1.5, XR if k % 2 == 0 else XO)       # wall displays (7:45)
         if name == 'device':
-            cylv(cx, 0.1, cz, 5.2, 0.2, MS, 32); cylv(cx, 0.25, cz, 4.0, 0.1, LP, 32); cylv(cx, 0.32, cz, 2.6, 0.1, LR, 32)
-            for k in range(6): a = k * math.pi / 3; cylv(cx + math.cos(a) * 4.6, 1.8, cz + math.sin(a) * 4.6, 0.25, 3.6, MS, 8); cylv(cx + math.cos(a) * 4.6, 3.7, cz + math.sin(a) * 4.6, 0.35, 0.3, LP, 8)
-            ring_obj('DevRing', 3.4, 0.28, LP, (cx, 3.4, cz), hd, 48, 8); ring_obj('DevRing2', 2.4, 0.2, LR, (cx, 3.4, cz), hd, 48, 8)
-            cylv(cx, 1.6, cz, 0.7, 2.6, LR, 14); cylv(cx, 3.4, cz, 0.9, 0.9, LP, 14)
+            dz0 = 5.6 if hd == 'x' else 0.0; dx0 = 0.0 if hd == 'x' else 5.6; dcx, dcz = cx + dx0, cz + dz0      # the device stands to one side of the walking lane
+            cylv(dcx, 0.1, dcz, 3.3, 0.2, MS, 32); cylv(dcx, 0.25, dcz, 2.6, 0.1, LP, 32); cylv(dcx, 0.32, dcz, 1.7, 0.1, LR, 32)
+            for k in range(6): a = k * math.pi / 3; cylv(dcx + math.cos(a) * 3.0, 1.8, dcz + math.sin(a) * 3.0, 0.2, 3.6, MS, 8); cylv(dcx + math.cos(a) * 3.0, 3.7, dcz + math.sin(a) * 3.0, 0.3, 0.3, LP, 8)
+            ring_obj('DevRing', 2.4, 0.2, LP, (dcx, 3.4, dcz), hd, 48, 8); ring_obj('DevRing2', 1.7, 0.14, LR, (dcx, 3.4, dcz), hd, 48, 8)
+            cylv(dcx, 1.6, dcz, 0.5, 2.6, LR, 14); cylv(dcx, 3.4, dcz, 0.7, 0.9, LP, 14)
             for sgn in (-1, 1): along(sgn * 6.0, sgn * 6.8, 0.8, 2.0, 1.6, 2.0, MD); along(sgn * 6.0, sgn * 6.8, 1.7, 2.1, 0.1, 2.1, LA)
         if name == 'window':
             along(0, w / 2 - 0.1, 2.4, 7.0, 3.0, 0.1, XB); along(0, w / 2 - 0.14, 2.4, 7.3, 3.3, 0.1, MD)                                   # the big window (7:50): blue-lit
@@ -188,7 +211,7 @@ elif kind == 'base':
         if name == 'control':
             for s_ in (-1, 1):
                 for k in range(3): along(-4 + k * 4.0, s_ * (w / 2 - 1.0), 0.55, 2.4, 1.1, 1.2, MD); along(-4 + k * 4.0, s_ * (w / 2 - 1.5), 1.5, 2.2, 0.8, 0.1, [XG, XR, XO][k])
-            along(0, 0, 0.5, 3.0, 1.0, 1.6, MS); along(0, 0, 1.1, 2.6, 0.1, 1.2, LR)
+            along(0, 4.6, 0.5, 3.0, 1.0, 1.6, MS); along(0, 4.6, 1.1, 2.6, 0.1, 1.2, LR)
             along(0, w / 2 - 0.1, 2.6, 10.0, 1.4, 0.1, XB)
         if name == 'hazy':
             pass
