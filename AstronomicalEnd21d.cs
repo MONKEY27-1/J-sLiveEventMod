@@ -11,7 +11,7 @@ namespace AstronomicalEvent
     // its underside (a rock cone) carries the Chapter 3 island, which is what is left on the sea (10:30). 11:00 the title card, 11:04 the end.
     internal sealed partial class AstronomicalEnd21
     {
-        const float OC_PX = -240f, OC_PY = -12.3f, OC_PZ = 1450f, OC_S = 5.2f;
+        const float OC_PX = -150f, OC_PY = -12.3f, OC_PZ = 1150f, OC_S = 5.2f;
         const float WY = -0.3f, ISLE_Z = 760f, ISLE_R = 258f, ISLE_D = 70f;
         GameObject oceanGo, isle, isleCone, isleDisc, waterGo, titleGo; Material oceanMat, waterMat, coneMat, discMat; Texture2D waveTex, rockTex; TextMesh[] titleTx; Transform c3T;
         struct IsleDraw { public Mesh Mesh; public int Sub; public Material Mat; public Matrix4x4 Rel; }
@@ -135,7 +135,7 @@ namespace AstronomicalEvent
             if (queenM == null || queenGo == null) return; bool on = t > T_OCEAN - 0.5f && t < QT2 + 0.5f; if (!on) { if (queenGo.activeSelf && SceneAt(t) == Sc.Ocean) queenGo.SetActive(false); return; }
             float fall = Mathf.Clamp01((t - QT0) / (QT1 - QT0)), sink = Sm(QT1 + 2f, QT2 - 2f, t); float y = WY + Mathf.Lerp(230f, 0f, fall * fall) - 18f * sink * sink + 0.8f * Mathf.Sin(t * 2.2f) * (1f - sink);
             float tilt = Mathf.Lerp(0f, 55f, sink) + 6f * Mathf.Sin(t * 3f) * (1f - fall), scale = Mathf.Lerp(140f / 1.8f, 10f, Sm(QT0, QT1, t)); Vector3 pos = new Vector3(22f, y, 85f);
-            Vector3 orbQ = new Vector3(OC_PX, OC_PY + 150f * OC_S + 35f + 12f, OC_PZ); if (t < QT1) { float u = Mathf.Clamp01((t - QT0) / (QT1 - QT0)); pos = new Vector3(Mathf.Lerp(orbQ.x, 22f, u), Mathf.Lerp(orbQ.y, WY, u * u) , Mathf.Lerp(orbQ.z, 85f, u)); tilt = 0f; }      // she starts in the tower's orb, as in the rest of the event
+            Vector3 orbQ = new Vector3(OC_PX, OC_PY + 150f * OC_S, OC_PZ); if (t < QT1) { float u = Mathf.Clamp01((t - QT0) / (QT1 - QT0)); pos = new Vector3(Mathf.Lerp(orbQ.x, 22f, u), Mathf.Lerp(orbQ.y, WY, u * u) , Mathf.Lerp(orbQ.z, 85f, u)); tilt = 0f; }      // she starts in the tower's orb, as in the rest of the event
             PlaceGo(queenGo, pos, scale, Quaternion.Euler(tilt, 180f + 12f * Mathf.Sin(t * 0.8f), 8f * Mathf.Sin(t * 1.7f) * sink), true);
             string qc = t < QT0 ? "H_Float" : t < QT1 ? "H_Retreat" : (t < QT1 + 8f ? "H_Hit" : "H_Rage"); float lt = t < QT0 ? t : t < QT1 ? Mathf.Min(t - QT0, 3.9f) : (t < QT1 + 8f ? (t - QT1) % 1.6f : (t - QT1 - 8f) % 3f); PlayClip(queenRig, queenM, qc, lt);
             if (paused || dt <= 0f) return; Vector3 wp = W(new Vector3(pos.x, WY, pos.z));

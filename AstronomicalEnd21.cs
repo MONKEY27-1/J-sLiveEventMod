@@ -174,7 +174,8 @@ namespace AstronomicalEvent
             var add = kit.Glow(new Color(1f, 0.55f, 0.2f, 1f), lineTex, 3001); riftRing = MakeLine("ERift", add, 90, 14f); riftRing2 = MakeLine("ERift2", kit.Glow(new Color(1f, 0.9f, 0.7f, 1f), lineTex, 3002), 90, 5f);
             mainBeam = MakeLine("EBeam", kit.Glow(new Color(1f, 0.75f, 0.4f, 1f), lineTex, 3001), 2, 30f); bolt = MakeLine("EBolt", kit.Glow(new Color(1f, 0.85f, 0.6f, 1f), lineTex, 3002), 12, 4f);
             riftDisc = Quad("ERiftDisc", kit.Glow(new Color(1f, 0.4f, 0.1f, 0.0f), glowTex, 3000)); riftDisc.gameObject.SetActive(false);
-            orb = Quad("EOrb", kit.Glow(new Color(1f, 0.6f, 0.2f, 0f), glowTex, 3003)); orb.gameObject.SetActive(false);
+            var orbTex = kit.Tex(128, 128, (x, y) => { float dx = (x - 63.5f) / 63.5f, dy = (y - 63.5f) / 63.5f, r = Mathf.Sqrt(dx * dx + dy * dy); float rim = Mathf.Exp(-Mathf.Pow((r - 0.86f) / 0.06f, 2f)), inner = r < 0.88f ? 0.3f * (1f - r * 0.45f) : 0f, halo = r > 0.88f ? Mathf.Exp(-(r - 0.88f) * 8f) * 0.55f : 0f; float a = Mathf.Clamp01(rim + inner + halo); Color c = Color.Lerp(new Color(1f, 0.55f, 0.12f), new Color(1f, 0.96f, 0.75f), Mathf.Clamp01(rim * 1.2f)); return new Color(c.r, c.g, c.b, r > 1f ? 0f : a); }, TextureWrapMode.Clamp);      // the Queen's orb: a bright golden ring round a translucent glowing sphere (reference screenshot)
+            orb = Quad("EOrb", kit.Glow(new Color(1f, 1f, 1f, 0f), orbTex, 3003)); orb.gameObject.SetActive(false);
             shield = GameObject.CreatePrimitive(PrimitiveType.Sphere).transform; UnityEngine.Object.Destroy(shield.GetComponent<Collider>()); shield.name = "EShield"; shield.SetParent(root.transform, false);
             var sr = shield.GetComponent<Renderer>(); sr.sharedMaterial = kit.Glow(new Color(0.35f, 0.75f, 1f, 0.22f), null, 3002); sr.shadowCastingMode = ShadowCastingMode.Off; shield.gameObject.SetActive(false);
         }
@@ -296,18 +297,18 @@ namespace AstronomicalEvent
             // ----- the Cube Queen's pyramid (always in the distance), her energy orb on top, the rift above it
             bool oc = sc == Sc.Ocean; Vector3 pyrP = oc ? new Vector3(OC_PX, OC_PY, OC_PZ) : new Vector3(40f, GroundY(40f, 650f), 650f); float pyrS = oc ? OC_S : 1.3f, apex = 150f * pyrS;      // in the ocean the Queen's tower rises straight out of the sea (the reference: a huge spire under a burning ring)
             PlaceOn(pyrM, pyrP, pyrS, 20f, t < T_END_VIS); PlaceOn(spireM, pyrP, pyrS, 0f, false);      // the same pyramid in the sea (the Queen's tower, she stands in its orb the whole event)
-            Vector3 orbP = pyrP + Vector3.up * (apex + 35f), riftC = pyrP + (oc ? new Vector3(0f, apex + 90f, -120f) : new Vector3(0f, 700f, -120f));
+            Vector3 orbP = pyrP + Vector3.up * (apex + 35f), riftC = pyrP + (oc ? new Vector3(0f, apex + 260f, -120f) : new Vector3(0f, 700f, -120f));
             bool orbOn = t > T_RIFT - 8f && t < T_END_VIS; if (orb.gameObject.activeSelf != orbOn) orb.gameObject.SetActive(orbOn);
-            if (orbOn) { Face(orb, orbP); float os = (oc ? 260f : 95f) * Sm(T_RIFT - 8f, T_RIFT + 4f, t) * (1f + 0.1f * Mathf.Sin(t * 9f)); orb.localScale = new Vector3(os, os, 1f); var om = orb.GetComponent<Renderer>().sharedMaterial; om.color = new Color(1f, 0.6f, 0.25f, Mathf.Clamp01(rift + 0.4f)); }
+            if (orbOn) { Face(orb, W(oc ? orbP + Vector3.up * 35f : orbP)); float os = (oc ? 420f : 130f) * Sm(T_RIFT - 8f, T_RIFT + 4f, t) * (1f + 0.1f * Mathf.Sin(t * 9f)); orb.localScale = new Vector3(os, os, 1f); var om = orb.GetComponent<Renderer>().sharedMaterial; om.color = new Color(1f, 1f, 1f, Mathf.Clamp01(rift + 0.4f)); }
             bool riftOn = t > T_RIFT && t < T_END_VIS; bool beamPre = t > 90f && t <= T_RIFT && sc == Sc.Island; riftRing.enabled = riftRing2.enabled = riftOn; mainBeam.enabled = riftOn || beamPre; if (riftDisc.gameObject.activeSelf != riftOn) riftDisc.gameObject.SetActive(riftOn);
             riftLamp.transform.position = W(riftC + new Vector3(0f, -100f, -200f)); riftLamp.intensity = riftOn ? Lit * 6f * rift : 0f;
             if (riftOn)
             {
-                float R = (oc ? 640f : 330f) * rift * (1f + 0.03f * Mathf.Sin(t * 2f)); Vector3 cp = W(riftC); Vector3 right = root.transform.right, tilt = Quaternion.AngleAxis(oc ? -78f : -35f, right) * Vector3.up;
+                riftRing.widthMultiplier = (oc ? 120f : 22f) * rift; riftRing2.widthMultiplier = (oc ? 40f : 7f) * rift; float R = (oc ? 900f : 330f) * rift * (1f + 0.03f * Mathf.Sin(t * 2f)); Vector3 cp = W(riftC); Vector3 right = root.transform.right, tilt = Quaternion.AngleAxis(oc ? -78f : -35f, right) * Vector3.up;
                 for (int k = 0; k < 90; k++) { float a = k / 89f * Mathf.PI * 2f + t * 0.3f; var ofs = right * Mathf.Cos(a) * R + Vector3.Cross(right, tilt).normalized * Mathf.Sin(a) * R * 0.5f + tilt * Mathf.Sin(a * 3f + t * 2f) * 6f; riftRing.SetPosition(k, cp + ofs); riftRing2.SetPosition(k, cp + ofs * 0.96f); }
                 Face(riftDisc, cp); riftDisc.localScale = new Vector3(R * 2f, R * 1.1f, 1f); riftDisc.GetComponent<Renderer>().sharedMaterial.color = new Color(1f, 0.42f, 0.12f, 0.42f * rift);
                 mainBeam.SetPosition(0, W(orbP)); mainBeam.SetPosition(1, cp); mainBeam.widthMultiplier = 26f * rift * (1f + 0.12f * Mathf.Sin(t * 14f));
-                if (oc) { mainBeam.SetPosition(0, W(new Vector3(-1500f, WY + 70f, 600f))); mainBeam.SetPosition(1, W(pyrP + Vector3.up * (apex * 0.42f))); mainBeam.widthMultiplier = 14f * (1f + 0.15f * Mathf.Sin(t * 11f)); }      // the red beam streaking in from the left
+                if (oc) { mainBeam.SetPosition(0, W(orbP)); mainBeam.SetPosition(1, W(orbP + Vector3.up * 2600f)); mainBeam.widthMultiplier = 70f * (1f + 0.1f * Mathf.Sin(t * 11f)); }      // the golden beam straight up from her orb through the burning ring
                 if (t - lastBolt > 0.18f && !paused) { lastBolt = t; bolt.enabled = true; Vector3 a0 = cp + UnityEngine.Random.insideUnitSphere * R * 0.6f, b0 = a0 + new Vector3(UnityEngine.Random.Range(-300f, 300f), -UnityEngine.Random.Range(250f, 520f), UnityEngine.Random.Range(-300f, 300f)); for (int k = 0; k < 12; k++) bolt.SetPosition(k, Vector3.Lerp(a0, b0, k / 11f) + (k > 0 && k < 11 ? UnityEngine.Random.insideUnitSphere * 22f : Vector3.zero)); }
             }
             else if (beamPre) { mainBeam.SetPosition(0, W(orbP)); mainBeam.SetPosition(1, W(orbP + Vector3.up * 1800f)); mainBeam.widthMultiplier = 22f * Sm(90f, 94f, t) * (1f + 0.1f * Mathf.Sin(t * 14f)); bolt.enabled = false; }
@@ -324,7 +325,7 @@ namespace AstronomicalEvent
             {
                 float arrive = T_FLEET + i * 1.6f; float k = Sm(arrive, arrive + 9f, t); bool on = t > arrive && t < T_END_VIS && !IsRoom(sc); float ang = (i / (float)ships.Count) * Mathf.PI * 1.1f - 0.55f * Mathf.PI * 1.1f + 0.1f * Mathf.Sin(t * 0.2f + i);
                 Vector3 hover = new Vector3(Mathf.Sin(ang) * 760f, 430f + 80f * (i % 3) + 12f * Mathf.Sin(t * 0.4f + i), 520f + Mathf.Cos(ang) * 420f - 150f + (i % 2) * 120f);
-                if (oc) { float aa = i / (float)ships.Count * 6.2832f + 0.4f; hover = riftC + new Vector3(Mathf.Cos(aa) * 520f, Mathf.Sin(aa) * 140f + 230f, -60f + Mathf.Sin(aa) * 60f); }      // the saucers hang in and around the burning ring
+                if (oc) { float aa = i / (float)ships.Count * 6.2832f + 0.4f; hover = riftC + new Vector3(Mathf.Cos(aa) * 640f, 70f + 40f * Mathf.Sin(aa * 2f), Mathf.Sin(aa) * 400f); }      // the saucers hang in and around the burning ring
                 Vector3 pos = Vector3.Lerp(riftC, hover, oc ? 1f : k) + (i == 0 ? Vector3.up * 1500f * Mathf.Pow(Sm(424f, 430f, t), 2f) : Vector3.zero);
                 PlaceGo(ships[i], pos, (oc ? 0.5f : 0.62f) * k, Quaternion.Euler(Mathf.Sin(t * 0.5f + i) * 3f, t * 2.5f + i * 40f, Mathf.Cos(t * 0.45f + i) * 3f), on);
             }
