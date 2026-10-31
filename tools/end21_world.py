@@ -209,7 +209,7 @@ elif kind == 'base':
                 pass
     # ---------------- the Zero Point chamber (a round hall) attached to the end of the hazy corridor (heading z)
     CR = 38.0; ccx, ccz = px, pz + CR
-    b.cyl(Bz(ccx, -0.2, ccz), CR + 0.5, 0.4, MF, 48); b.cyl(Bz(ccx, 31.2, ccz), CR + 0.5, 0.4, MC, 48)
+    b.cyl(Bz(ccx, -0.2, ccz), CR + 0.5, 0.4, MF, 48)
     for k in range(48):
         a = (k + 0.5) * 2 * math.pi / 48; x, z = ccx + math.cos(a) * CR, ccz + math.sin(a) * CR
         if abs(math.degrees(a) - 270) < 5.2: continue                                                                           # the entrance (south, the -z pole)
@@ -223,13 +223,13 @@ elif kind == 'base':
     ring_obj('Ring', 15.0, 1.1, LPU, (ccx, 17.0, ccz + 6.0), 'z', 72, 10); ring_obj('Ring2', 12.5, 0.5, LC, (ccx, 17.0, ccz + 5.9), 'z', 72, 6); ring_obj('Ring3', 17.5, 0.35, LW, (ccx, 17.0, ccz + 6.2), 'z', 72, 6)
     for sgn in (-1, 1): bx(ccx + sgn * 16.0, 8.0, ccz + 6.0, 2.4, 16.0, 2.4, MD, 2.0); bx(ccx + sgn * 16.0, 8.0, ccz + 4.7, 0.3, 14.0, 0.2, LPU, 1.0)    # the pylons the ring hangs from
     for k in range(10): a = k * 2 * math.pi / 10; bx(ccx + math.cos(a) * 11.0, 17.0 + math.sin(a) * 11.0, ccz + 6.0, 1.0, 1.0, 1.2, MS, 1.0)
-    cylv(ccx, 17.0, ccz + 6.0, 3.0, 22.0, LC, 16, r2=0.5)                                                                       # the energy column the Zero Point lives in
     wp(ccx, 0, ccz - CR); wp(ccx, 0, ccz - CR + 14)
     b.build('Base')
     # the glass dome (alpha, separate so the scene can shatter it) and the swirl disc inside the ring
-    GL = material('A_Glass', tex_glass(0.22)); gm = sphere(CR + 0.2, 40, 16); go = bpy.data.objects.new('Glass', gm); bpy.context.collection.objects.link(go); go.data.materials.append(GL); go.location = Bz(ccx, 31.0, ccz); go.scale = (1, 1, 0.55)
-    SW = material('A_Swirl', swirl((0.4, 0.2, 0.9), (0.7, 0.5, 1.0), (1, 1, 1), 0.3, 0.55)); sw = bpy.data.objects.new('Swirl', sphere(1.0, 24, 12)); bpy.context.collection.objects.link(sw); sw.data.materials.append(SW); sw.location = Bz(ccx, 17.0, ccz + 6.0); sw.scale = (10.5, 10.5, 0.3)
-    keys(sw, 'rotation_euler', lambda t: (math.pi / 2, 0, 2 * math.pi * t / 8), 24, 8, 2)
+    GL = material('A_Glass', tex_glass(0.22)); gm = sphere(CR + 0.2, 40, 16)
+    import bmesh
+    bm = bmesh.new(); bm.from_mesh(gm); bmesh.ops.delete(bm, geom=[f for f in bm.faces if f.calc_center_median().z < -0.5], context='FACES'); bm.to_mesh(gm); bm.free()
+    go = bpy.data.objects.new('Glass', gm); bpy.context.collection.objects.link(go); go.data.materials.append(GL); go.location = Bz(ccx, 31.0, ccz); go.scale = (1, 1, 0.37)
     for nm, r_, spd in (('Ring', 0, 1), ('Ring2', 0, -1.5), ('Ring3', 0, 0.7)):
         o = bpy.data.objects[nm]; keys(o, 'rotation_euler', lambda t, spd=spd: (math.pi / 2, spd * 2 * math.pi * t / 8, 0), 24, 8, 2)
     for o in bpy.data.objects:

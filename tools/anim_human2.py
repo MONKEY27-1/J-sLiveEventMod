@@ -252,9 +252,10 @@ def c_panic(t):
 def c_crushed(t):
     k = ramp(t, 0.1, 1.2); return lerp_pose(c_panic(t), P(IDLE, hl=(0.3, -0.6, 0.6, 0.7), hr=(0.3, -0.6, 0.6, 0.7), el=(1.0, -0.2, 0.0), er=(1.0, -0.2, 0.0), lean=1.0, pel=(0, -0.65, 0.2), fl=(FX, 0, 0.3), fr=(-FX, -0.3, -0.3), frp=0.7, nod=0.5, ppitch=0.3), k)
 def c_death(t):
+    # shot: arms fly out as the body is hit, he drops to his knees (arms go slack) and ends on his back: one arm along the side, the other across the belly, one knee up, head turned
     ko = P(READY, gun=BACK, gl=0.0, gr=0.0, lean=-0.4, nod=-0.3, pel=(0, -0.08, -0.12), fl=(FX, 0, 0.3), fr=(-FX, 0, -0.25), hl=(0.9, 0.3, 0.2, 0.95), hr=(0.9, 0.3, 0.2, 0.95), el=(1, 0, 0), er=(1, 0, 0))
-    kn = P(ko, pel=(0, -0.5, -0.3), lean=-0.6, ppitch=-0.5, fl=(FX, 0.0, 0.25), fr=(-FX, 0.15, -0.1), hl=(0.8, 0.2, 0.5, 0.9), hr=(0.8, 0.2, 0.5, 0.9), nod=-0.4)
-    dn = P(ko, pel=(0, -0.8, -0.9), ppitch=-1.4, lean=-0.1, fl=(FX, 0.1, 0.5), fr=(-FX, 0.1, 0.4), hl=(1.0, -0.2, 0.2, 0.95), hr=(1.0, -0.2, 0.2, 0.95), nod=-0.2, roll=0.0)
+    kn = P(ko, pel=(0, -0.5, -0.3), lean=-0.6, ppitch=-0.5, fl=(FX, 0.0, 0.25), fr=(-FX, 0.15, -0.1), hl=(0.45, -0.7, 0.35, 0.9), hr=(0.4, -0.75, 0.3, 0.9), el=(0.6, -0.6, -0.4), er=(0.6, -0.6, -0.4), nod=-0.4)
+    dn = P(ko, pel=(0, -0.8, -0.9), ppitch=-1.4, lean=-0.1, fl=(FX, 0.03, -0.06), fr=(-FX + 0.05, 0.03, -0.5), kr=(0.2, 1.0, 0.1), hl=(0.4, -0.9, -0.12, 0.97), hr=(-0.37, -0.88, 0.3, 0.62), el=(0.8, -0.3, -0.5), er=(0.9, -0.4, 0.0), nod=-0.1, turn=0.45, tilt=0.12, roll=0.0)
     return kf([(0.0, c_ready(0)), (0.18, ko), (1.0, kn), (2.0, dn), (12.0, dn)], t)
 def c_fallbump(side):
     def f(t):

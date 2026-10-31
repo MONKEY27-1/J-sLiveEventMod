@@ -127,6 +127,20 @@ namespace AstronomicalEvent
             float z = ISLE_Z - 330f * Sm(T_END_VIS + 18f, T_END_VIS + 50f, t);        // after the flip the island drifts towards you: Chapter 3 is what stays on the sea
             pos = new Vector3(0f, WY + h, z); rollDeg = roll;
         }
+        // the Cube Queen falls out of the sky into the sea (9:32 - 9:38), thrashes as the water takes her and sinks, a last flash at 9:58
+        const float QT0 = 572f, QT1 = 578f, QT2 = 600f;
+        void QueenInWater(float t, float tp, float dt)
+        {
+            if (queenM == null || queenGo == null) return; bool on = t > QT0 - 0.2f && t < QT2 + 0.5f; if (!on) { if (queenGo.activeSelf && SceneAt(t) == Sc.Ocean) queenGo.SetActive(false); return; }
+            float fall = Mathf.Clamp01((t - QT0) / (QT1 - QT0)), sink = Sm(QT1 + 2f, QT2 - 2f, t); float y = WY + Mathf.Lerp(230f, 0f, fall * fall) - 18f * sink * sink + 0.8f * Mathf.Sin(t * 2.2f) * (1f - sink);
+            float tilt = Mathf.Lerp(0f, 55f, sink) + 6f * Mathf.Sin(t * 3f) * (1f - fall), scale = 10f; Vector3 pos = new Vector3(22f, y, 85f);
+            PlaceGo(queenGo, pos, scale, Quaternion.Euler(tilt, 180f + 12f * Mathf.Sin(t * 0.8f), 8f * Mathf.Sin(t * 1.7f) * sink), true);
+            string qc = t < QT1 ? "H_Retreat" : (t < QT1 + 8f ? "H_Hit" : "H_Rage"); float lt = t < QT1 ? Mathf.Min(t - QT0, 3.9f) : (t < QT1 + 8f ? (t - QT1) % 1.6f : (t - QT1 - 8f) % 3f); PlayClip(queenRig, queenM, qc, lt);
+            if (paused || dt <= 0f) return; Vector3 wp = W(new Vector3(pos.x, WY, pos.z));
+            if (tp < QT1 && t >= QT1) { flashLamp.transform.position = wp + Vector3.up * 6f; flashLamp.color = new Color(0.7f, 0.85f, 1f); flashLamp.intensity = Lit * 18f; shake = Mathf.Max(shake, 1.5f); for (int k = 0; k < 260; k++) { float a = UnityEngine.Random.value * 6.2832f, r = UnityEngine.Random.Range(0f, 14f); Emit(fx, wp + new Vector3(Mathf.Cos(a) * r, 0.3f, Mathf.Sin(a) * r), new Vector3(Mathf.Cos(a) * r * 0.5f, UnityEngine.Random.Range(8f, 34f), Mathf.Sin(a) * r * 0.5f), new Color(0.8f, 0.95f, 1f, 0.9f), UnityEngine.Random.Range(0.6f, 2.2f), UnityEngine.Random.Range(1.2f, 2.6f)); } }
+            if (t > QT1 && t < QT2 - 2f && UnityEngine.Random.value < dt * 40f) { float a = UnityEngine.Random.value * 6.2832f, r = UnityEngine.Random.Range(2f, 11f); Emit(fx, wp + new Vector3(Mathf.Cos(a) * r, 0.2f, Mathf.Sin(a) * r), new Vector3(0f, UnityEngine.Random.Range(3f, 12f), 0f), new Color(0.6f, 0.9f, 1f, 0.8f), UnityEngine.Random.Range(0.3f, 1.2f), UnityEngine.Random.Range(0.6f, 1.4f)); if (UnityEngine.Random.value < 0.4f) Emit(fx, wp + Vector3.up * 3f, UnityEngine.Random.onUnitSphere * 8f, new Color(1f, 0.6f, 0.95f, 1f), UnityEngine.Random.Range(0.3f, 0.9f), 0.8f); }
+            if (tp < QT2 - 1f && t >= QT2 - 1f) { flashLamp.transform.position = wp + Vector3.up * 2f; flashLamp.color = new Color(1f, 0.7f, 0.95f); flashLamp.intensity = Lit * 25f; shake = Mathf.Max(shake, 1.8f); for (int k = 0; k < 300; k++) { var v = UnityEngine.Random.onUnitSphere; v.y = Mathf.Abs(v.y); Emit(fx, wp + Vector3.up * 1.5f, v * UnityEngine.Random.Range(6f, 36f), new Color(1f, UnityEngine.Random.Range(0.5f, 0.9f), 1f, 1f), UnityEngine.Random.Range(0.5f, 1.8f), UnityEngine.Random.Range(1f, 2.4f)); } }
+        }
         void OceanFx(float t, float tp, float dt, Sc sc, Camera cam)
         {
             bool on = sc == Sc.Ocean; if (oceanGo == null) return; if (oceanGo.activeSelf != on) oceanGo.SetActive(on);
@@ -135,14 +149,15 @@ namespace AstronomicalEvent
             float flashK = Sm(T_END_VIS - 0.3f, T_END_VIS + 1.2f, t);
             // the sea follows you (it is a big flat disc); its colour opens up after the flash
             Vector3 cp = cam != null ? cam.transform.position : HeadNow(); oceanGo.transform.position = new Vector3(cp.x, W(new Vector3(0f, WY, 0f)).y, cp.z); oceanGo.transform.rotation = Quaternion.identity;
-            oceanMat.color = Color.Lerp(new Color(0.03f, 0.1f, 0.22f), new Color(0.07f, 0.45f, 0.82f), flashK); oceanMat.mainTextureOffset = new Vector2((cp.x + t * 0.8f) / 22f, (cp.z + t * 0.55f) / 22f);
+            oceanMat.color = Color.Lerp(new Color(0.26f, 0.17f, 0.34f), new Color(0.07f, 0.45f, 0.82f), flashK);      // dusk sea: purple, reflecting the sky oceanMat.mainTextureOffset = new Vector2((cp.x + t * 0.8f) / 22f, (cp.z + t * 0.55f) / 22f);
             // the island copy
             if (isle != null)
             {
                 Vector3 p; float roll; IslePose(t, out p, out roll); bool vis = t < 661f; isle.SetActive(vis);
-                isle.transform.position = W(p); isle.transform.rotation = root.transform.rotation * Quaternion.Euler(0f, 0f, -roll);
+                isle.transform.position = W(p); isle.transform.rotation = root.transform.rotation * Quaternion.Euler(0f, 0f, -roll) * Quaternion.Euler(0f, (t - T_OCEAN) * 2.5f, 0f);      // the map turns slowly the whole time
                 if (vis) { Matrix4x4 hm = isle.transform.localToWorldMatrix; for (int i = 0; i < isleDraws.Count; i++) { var d = isleDraws[i]; Graphics.DrawMesh(d.Mesh, hm * d.Rel, d.Mat, 0, null, d.Sub); } }
             }
+            QueenInWater(t, tp, dt);
             // underwater: bubbles round you until you break the surface (9:25)
             if (t < T_OCEAN + 11f && UnityEngine.Random.value < dt * 80f) { Vector3 hp = HeadNow(); Emit(dust, hp + UnityEngine.Random.insideUnitSphere * 3f, new Vector3(0f, UnityEngine.Random.Range(1.5f, 3.5f), 0f), new Color(0.6f, 0.85f, 1f, 0.5f), UnityEngine.Random.Range(0.06f, 0.2f), UnityEngine.Random.Range(2f, 4f)); }
             if (!paused && tp < T_END_VIS && t >= T_END_VIS) { flashLamp.transform.position = W(new Vector3(0f, 30f, 0f)); flashLamp.color = Color.white; flashLamp.intensity = Lit * 25f; shake = Mathf.Max(shake, 1.5f); }

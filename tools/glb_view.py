@@ -8,7 +8,7 @@ sc.render.resolution_x = int(os.environ.get('RX', '1000')); sc.render.resolution
 w = bpy.data.worlds.new('w'); w.color = (0.04, 0.04, 0.07); sc.world = w
 for o in bpy.data.objects:                                  # the importer keeps the animation; pose at the middle of the first clip so rings are visible
     if os.environ.get('HIDE') and o.name in os.environ['HIDE'].split(','): o.hide_render = True
-c = bpy.data.cameras.new('c'); c.clip_end = 4000; c.clip_start = 0.05; c.lens = float(os.environ.get('LENS', '22')); co = bpy.data.objects.new('c', c); bpy.context.collection.objects.link(co); sc.camera = co
+c = bpy.data.cameras.new('c'); c.clip_end = 60000; c.clip_start = 0.05; c.lens = float(os.environ.get('LENS', '22')); co = bpy.data.objects.new('c', c); bpy.context.collection.objects.link(co); sc.camera = co
 def U(x, y, z): return mathutils.Vector((x, -z, y))
 for v in views:
     name, rest = v.split('='); n = [float(x) for x in rest.split(',')]; loc = U(*n[:3]); tgt = U(*n[3:6])

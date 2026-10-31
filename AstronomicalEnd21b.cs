@@ -27,13 +27,13 @@ namespace AstronomicalEvent
         sealed class Act
         {
             public string Name; public GltfModel M; public GameObject Go; public CRig Rig; public List<WP> W = new List<WP>(); public float[] Vis = new float[0]; public Transform Gun; public Transform RMod; public GameObject Rifle;
-            public int Shot = -1; public float Scale = 1f, Mir = -1f, Ox, Oz; public bool Armed, Ground, Creature; public Func<Vector3> Aim; public Func<float, bool> PathOn; public Func<float, Vector3> Pos; public Func<float, float> YawF; public List<WP> PClips = new List<WP>();
+            public int Shot = -1; public float Scale = 1f, Mir = -1f, Ox, Oz, KX, KZ, VX, VZ, HitT = -9f; public bool Armed, Ground, Creature; public Func<Vector3> Aim; public Func<float, bool> PathOn; public Func<float, Vector3> Pos; public Func<float, float> YawF; public List<WP> PClips = new List<WP>();
             public float[] cum, seg; public string Cur, Prev; public float CurT, PrevT, Blend = 1f, LastT = -9f;
         }
         GltfModel facM, hallM, gyroM, hatchM, baseM, ch3M, jonM, fouM, slnM, gunM, sciM, visM, grdM, rifM, zpM2;
         readonly List<Act> acts = new List<Act>(); readonly List<GameObject> p2Clones = new List<GameObject>();
         Light facLight, facLight2; Transform doorL, doorR, doorS, hatchCover, baseGlass, baseSwirl; float doorLBase, doorRBase, doorSBase, doorSgnL, doorSgnR, doorSgnS; Vector3 coverBase0; bool coverInit; CRig facR, gyroR, baseR, zpR2;
-        bool p2Dead, p2Ready, doorsInit, glassGone; float noclipT2 = -9f, lastReseat2 = -9f, reseatHoldT = -9f, dbgT = -9f; bool carryErr; Vector3 reseatHoldPos; int reseatTries2; Sc curSc = Sc.Island;
+        bool p2Dead, p2Ready, doorsInit, glassGone; Light giantLight; float noclipT2 = -9f, lastReseat2 = -9f, reseatHoldT = -9f, dbgT = -9f; bool carryErr; Vector3 reseatHoldPos; int reseatTries2; Sc curSc = Sc.Island;
         readonly List<Collider> noclipped2 = new List<Collider>(); Vector3 homeHead; bool haveHome; Act giant; GameObject giantGo;
 
         static readonly string[] RIFLE_CLIPS = { "Fire", "FireK", "Aim", "Ready", "Alert", "Hold", "Walk", "Run", "RunAim", "Sneak", "Crouch", "Peek", "Kneel", "Reload", "Climb" };
@@ -291,9 +291,10 @@ namespace AstronomicalEvent
             if (sc == Sc.Base)
             {
                 if (baseR != null) baseR.Pose(FindClip(baseM, "Animation"), t * 1.0f);
-                if (baseGlass != null) { bool gl = false; /* the dome is left out: the Glow shader turns it into a solid cyan sky; the shattering is particles */ if (baseGlass.gameObject.activeSelf != gl) baseGlass.gameObject.SetActive(gl); }
-                bool zpOn = zpM2 != null && t >= T_CHAM - 6f && t < T_FLOOD + 1.5f; if (zpM2 != null && zpM2.Pivot.activeSelf != zpOn) zpM2.Pivot.SetActive(zpOn);
-                if (zpOn) { var zt = zpM2.Pivot.transform; zt.localScale = Vector3.one * 5.5f * (1f + 0.05f * Mathf.Sin(t * 6f)); zt.localRotation = Quaternion.Euler(0f, t * 25f, 0f); PlaceByFile(zpM2, bZpc); if (zpR2 != null) zpR2.Pose(FindClip(zpM2, "Animation"), t); }
+                if (giantLight != null) { bool gv = giantGo != null && giantGo.activeSelf; giantLight.intensity = gv ? Lit * 6f : 0f; if (gv) giantLight.transform.position = giantGo.transform.position + new Vector3(0f, 6f, -26f); }
+                if (baseGlass != null) { bool gl = t < T_FLOOD && !glassGone; if (baseGlass.gameObject.activeSelf != gl) baseGlass.gameObject.SetActive(gl); }
+                bool zpOn = zpM2 != null && t >= T_CHAM - 16f && t < T_FLOOD + 1.5f; if (zpM2 != null && zpM2.Pivot.activeSelf != zpOn) zpM2.Pivot.SetActive(zpOn);
+                if (zpOn) { var zt = zpM2.Pivot.transform; zt.localScale = Vector3.one * 6.2f * Sm(T_CHAM - 16f, T_CHAM - 12f, t) * (1f + 0.05f * Mathf.Sin(t * 6f)); zt.localRotation = Quaternion.Euler(0f, t * 25f, 0f); PlaceByFile(zpM2, bZpc); if (zpR2 != null) zpR2.Pose(FindClip(zpM2, "Animation"), t); }
             }
             else if (zpM2 != null && zpM2.Pivot.activeSelf) zpM2.Pivot.SetActive(false);
         }
@@ -351,6 +352,7 @@ namespace AstronomicalEvent
                 else ct = t - w0.T;
                 pos = new Vector3(x, y, z);
             }
+            if (a.Creature) { if (dt > 0f && !paused && (a.KX != 0f || a.KZ != 0f || a.VX != 0f || a.VZ != 0f)) { a.KX += a.VX * dt; a.KZ += a.VZ * dt; float dm = Mathf.Exp(-3f * dt), sp = Mathf.Exp(-0.7f * dt); a.VX *= dm; a.VZ *= dm; a.KX *= sp; a.KZ *= sp; } pos.x += a.KX; pos.z += a.KZ; if (a.HitT >= 0f && t - a.HitT >= 0f && t - a.HitT < 0.5f && clip != "Death") { clip = "Stagger"; ct = t - a.HitT; } }
             if (!loco && oneShot.Contains(clip)) { var cc = FindClip(a.M, "H_" + clip); if (cc != null) ct = Mathf.Min(Mathf.Max(ct, 0f), cc.Duration - 0.05f); }
             // crossfade: when the clip changes, blend from the old clip (kept running) to the new one over 0.28 s (not while scrubbing)
             bool scrub = Mathf.Abs(t - a.LastT) > 0.5f || dt <= 0f || a.LastT < -8f;
@@ -376,7 +378,7 @@ namespace AstronomicalEvent
         {
             p2Dead = true; foreach (var g in p2Clones) if (g != null) UnityEngine.Object.Destroy(g); p2Clones.Clear(); acts.Clear();
             if (curSc != Sc.Island && curSc != Sc.Surface) { try { Reseat2(haveHome ? homeHead : originW + Vector3.up * 1.9f); } catch { } } curSc = Sc.Island; NoClip2(false); OceanCleanup();
-            facM = hallM = gyroM = hatchM = baseM = ch3M = jonM = fouM = slnM = gunM = sciM = visM = grdM = rifM = zpM2 = null; doorL = doorR = doorS = hatchCover = baseGlass = baseSwirl = null; giant = null; giantGo = null; p2Ready = false; glassGone = false; doorsInit = false; coverInit = false; haveHome = false;
+            facM = hallM = gyroM = hatchM = baseM = ch3M = jonM = fouM = slnM = gunM = sciM = visM = grdM = rifM = zpM2 = null; doorL = doorR = doorS = hatchCover = baseGlass = baseSwirl = null; giant = null; giantGo = null; giantLight = null; p2Ready = false; glassGone = false; doorsInit = false; coverInit = false; haveHome = false;
         }
     }
 }

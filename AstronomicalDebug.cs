@@ -22,6 +22,7 @@ namespace AstronomicalEvent
         public static readonly float[] Tweak = { 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f };
         public static bool NoMusic;
         static Func<Vector3> follow, followAt;
+        public static Action<Vector3, Vector3> FireHook;
         static Vector3 followOff;
         public static Func<Vector3, Vector3> L2W = v => v;
         static string cmdPath,
@@ -231,6 +232,13 @@ namespace AstronomicalEvent
                     follow = () => f1() + off; followAt = f2; cam.fieldOfView = F(a, 3, 70f);
                     break;
                 }
+                case "shoot": // shoot <anchor> [count] [gap]: fires the player's weapon from your head at an anchor (a test for the trigger)
+                {
+                    Func<Vector3> fa2;
+                    if (a.Length < 2 || !Anchors.TryGetValue(a[1], out fa2) || FireHook == null) { Say("shoot <anchor> [count] [gap]  (anchors: " + string.Join(", ", Anchors.Keys.ToArray()) + ")"); break; }
+                    AstronomicalEventMod.Inst.StartCoroutine(ShootBurst(fa2, (int)F(a, 2, 1f), F(a, 3, 0.2f)));
+                    break;
+                }
                 case "tweak":
                 {
                     int i = (int)F(a, 1);
@@ -281,6 +289,15 @@ namespace AstronomicalEvent
                 default:
                     Say("unknown command");
                     break;
+            }
+        }
+
+        static System.Collections.IEnumerator ShootBurst(Func<Vector3> at, int n, float gap)
+        {
+            for (int i = 0; i < n; i++)
+            {
+                try { Vector3 o = GorillaLocomotion.GTPlayer.Instance.headCollider.transform.position + Vector3.down * 0.2f, tg = at(); if (FireHook != null) FireHook(o, (tg - o).normalized); } catch { }
+                yield return new WaitForSeconds(gap);
             }
         }
 
