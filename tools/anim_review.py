@@ -59,10 +59,10 @@ if __name__ == '__main__':
         SP = 0.6 * 5.0
         c = Char(path, 'cache/collision/rifle.glb'); c.clip(clip); c.tracks, tr0 = [], c.tracks; V0 = c.mesh(0, gs, np.zeros(3))[0]; hh = float(V0[:, 1].max() - V0[:, 1].min()); k = 1.0 if hh < 12.0 else 5.0 / hh; print(name, 'rest height', round(hh, 2)); c.tracks = tr0; cv = []; cf = []; gv = []; gf = []
         for i, fr in enumerate(frames):
-            V, F, G = c.mesh(fr, gs, np.array([i * SP, 0, 0]), k); cf.append(F + sum(len(x) for x in cv)); cv.append(V); gf.append(c.RF + sum(len(x) for x in gv)); gv.append(G)
+            V, F, G = c.mesh(fr, gs, (np.array([0, 0, i * SP]) if view == 'side' else np.array([i * SP, 0, 0])), k); cf.append(F + sum(len(x) for x in cv)); cv.append(V); gf.append(c.RF + sum(len(x) for x in gv)); gv.append(G)
         po = '%s_%s' % (out, name)
         with open(po + '.obj', 'w') as f:
             f.write('o char\n'); [f.write('v %.4f %.4f %.4f\n' % tuple(v)) for v in np.concatenate(cv)]; [f.write('f %d %d %d\n' % tuple(t + 1)) for t in np.concatenate(cf)]
             n0 = sum(len(x) for x in cv); f.write('o gun\n'); [f.write('v %.4f %.4f %.4f\n' % tuple(v)) for v in np.concatenate(gv)]; [f.write('f %d %d %d\n' % tuple(t + 1 + n0)) for t in np.concatenate(gf)]
-        subprocess.run([BL, '-b', '-P', os.path.join(HERE, 'review_render.py'), '--', os.path.abspath(po + '.obj'), os.path.abspath(po), str(5.3 * k), str(SP * len(frames))], capture_output=True); rows.append(os.path.abspath('%s_%s.png' % (po, view))); print('row', name)
+        subprocess.run([BL, '-b', '-P', os.path.join(HERE, 'review_render.py'), '--', os.path.abspath(po + '.obj'), os.path.abspath(po), str(5.3 * k), str(SP * len(frames)), view], capture_output=True); rows.append(os.path.abspath('%s_%s.png' % (po, view))); print('row', name)
     subprocess.run([BL, '-b', '-P', os.path.join(HERE, 'prev_sheet.py'), '--', os.path.abspath(out + '_sheet.png'), '1'] + rows, capture_output=True); print('sheet', out + '_sheet.png')
