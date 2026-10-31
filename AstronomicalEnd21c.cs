@@ -27,7 +27,7 @@ namespace AstronomicalEvent
 
         void P2Setup()
         {
-            facM = Take2("facility", 1.5f, false); hallM = Take2("hall", 1.5f, false); gyroM = Take2("gyro", 1.5f, false); hatchM = Take2("hatch", 1.4f, false); baseM = Take2("base", 1.5f, false); ch3M = Take2("chapter3", 1.25f, false);
+            facM = Take2("facility", 1.5f, false); hallM = Take2("hall", 1.5f, false); gyroM = Take2("gyro", 1.5f, false); hatchM = Take2("hatch", 1.4f, false); baseM = Take2("base", 1.5f, false); ch3M = Take2("chapter3", 1.25f, false); spireM = Take2("spire", 1.5f, false);
             jonM = Take2("jones", 1.15f, true); fouM = Take2("foundation", 1.15f, true); slnM = Take2("slone", 1.15f, true); gunM = Take2("gunnar", 1.2f, true); sciM = Take2("scientist", 1.2f, true); visM = Take2("visitor", 1.2f, true);
             grdM = Take2("guard", 1.3f, true); rifM = Take2("rifle", 1.2f, true); zpM2 = Take2("zeropoint", 1.3f, false);
             if (rifM != null) rifM.Pivot.SetActive(false);

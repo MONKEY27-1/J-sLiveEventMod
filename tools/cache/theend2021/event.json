@@ -127,6 +127,12 @@
    "lazy": true
   },
   {
+   "id": "spire",
+   "glb": "spire.glb",
+   "lit": false,
+   "lazy": true
+  },
+  {
    "id": "jones",
    "glb": "jones.glb",
    "lit": false,

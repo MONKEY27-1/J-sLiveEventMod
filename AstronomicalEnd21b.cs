@@ -30,7 +30,7 @@ namespace AstronomicalEvent
             public int Shot = -1; public float Scale = 1f, Mir = -1f, Ox, Oz, KX, KZ, VX, VZ, HitT = -9f; public bool Armed, Ground, Creature; public Func<Vector3> Aim; public Func<float, bool> PathOn; public Func<float, Vector3> Pos; public Func<float, float> YawF; public List<WP> PClips = new List<WP>();
             public float[] cum, seg; public string Cur, Prev; public float CurT, PrevT, Blend = 1f, LastT = -9f;
         }
-        GltfModel facM, hallM, gyroM, hatchM, baseM, ch3M, jonM, fouM, slnM, gunM, sciM, visM, grdM, rifM, zpM2;
+        GltfModel spireM, facM, hallM, gyroM, hatchM, baseM, ch3M, jonM, fouM, slnM, gunM, sciM, visM, grdM, rifM, zpM2;
         readonly List<Act> acts = new List<Act>(); readonly List<GameObject> p2Clones = new List<GameObject>();
         Light facLight, facLight2; Transform doorL, doorR, doorS, hatchCover, baseGlass, baseSwirl; float doorLBase, doorRBase, doorSBase, doorSgnL, doorSgnR, doorSgnS; Vector3 coverBase0; bool coverInit; CRig facR, gyroR, baseR, zpR2;
         bool p2Dead, p2Ready, doorsInit, glassGone; Light giantLight; float noclipT2 = -9f, lastReseat2 = -9f, reseatHoldT = -9f, dbgT = -9f; bool carryErr; Vector3 reseatHoldPos; int reseatTries2; Sc curSc = Sc.Island;
@@ -56,7 +56,7 @@ namespace AstronomicalEvent
         void P2Start() { p2Dead = false; p2Ready = false; curSc = Sc.Island; if (AstronomicalEventMod.Inst != null) AstronomicalEventMod.Inst.StartCoroutine(LoadP2()); }
         IEnumerator LoadP2()
         {
-            var ld = AstronomicalEventMod.Inst.Loader; var steps = new[] { new[] { "facility", "hall", "gyro" }, new[] { "jones", "rifle" }, new[] { "foundation" }, new[] { "slone" }, new[] { "guard" }, new[] { "gunnar" }, new[] { "hatch", "base" }, new[] { "scientist", "visitor", "zeropoint" }, new[] { "chapter3" } };
+            var ld = AstronomicalEventMod.Inst.Loader; var steps = new[] { new[] { "facility", "hall", "gyro" }, new[] { "jones", "rifle" }, new[] { "foundation" }, new[] { "slone" }, new[] { "guard" }, new[] { "gunnar" }, new[] { "hatch", "base" }, new[] { "scientist", "visitor", "zeropoint" }, new[] { "chapter3", "spire" } };
             yield return new WaitForSeconds(AstronomicalDebug.NoMusic ? 0.5f : 6f);
             foreach (var st in steps)
             {
@@ -378,7 +378,7 @@ namespace AstronomicalEvent
         {
             p2Dead = true; foreach (var g in p2Clones) if (g != null) UnityEngine.Object.Destroy(g); p2Clones.Clear(); acts.Clear();
             if (curSc != Sc.Island && curSc != Sc.Surface) { try { Reseat2(haveHome ? homeHead : originW + Vector3.up * 1.9f); } catch { } } curSc = Sc.Island; NoClip2(false); OceanCleanup();
-            facM = hallM = gyroM = hatchM = baseM = ch3M = jonM = fouM = slnM = gunM = sciM = visM = grdM = rifM = zpM2 = null; doorL = doorR = doorS = hatchCover = baseGlass = baseSwirl = null; giant = null; giantGo = null; giantLight = null; p2Ready = false; glassGone = false; doorsInit = false; coverInit = false; haveHome = false;
+            spireM = facM = hallM = gyroM = hatchM = baseM = ch3M = jonM = fouM = slnM = gunM = sciM = visM = grdM = rifM = zpM2 = null; doorL = doorR = doorS = hatchCover = baseGlass = baseSwirl = null; giant = null; giantGo = null; giantLight = null; p2Ready = false; glassGone = false; doorsInit = false; coverInit = false; haveHome = false;
         }
     }
 }
