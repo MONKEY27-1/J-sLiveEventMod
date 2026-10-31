@@ -50,7 +50,7 @@ namespace AstronomicalEvent
             var pts = new Vector3[rings + 1, segs]; float so = seed * 3.7f;
             for (int i = 0; i <= rings; i++)
             {
-                float f = i / (float)rings, baseR = R * (1f + 0.05f * Mathf.Sin(Mathf.PI * f) - 0.1f * f * f * f);
+                float f = i / (float)rings, baseR = R * (1f + 0.05f * Mathf.Sin(Mathf.PI * f) - 0.02f * f * f * f);
                 for (int j = 0; j < segs; j++)
                 {
                     float a = j * Mathf.PI * 2f / segs; float n1 = Mathf.PerlinNoise(Mathf.Cos(a) * 1.6f + so, Mathf.Sin(a) * 1.6f + f * 2.2f) * 2f - 1f, n2 = Mathf.PerlinNoise(Mathf.Cos(a) * 4.2f + 9f + so, Mathf.Sin(a) * 4.2f + f * 5.5f) * 2f - 1f;
@@ -158,7 +158,7 @@ namespace AstronomicalEvent
             if (ch3M != null)
             {
                 var p = ch3M.Pivot; p.SetActive(true); p.transform.SetParent(isle.transform, false); float sc = C3S; p.transform.localScale = Vector3.one * sc; p.transform.localRotation = Quaternion.Euler(0f, 0f, 180f);
-                p.transform.localPosition = new Vector3(0f, -2f - ISLE_D + 1f, 0f); c3T = p.transform;      // the model's pivot is at its LOWEST point (feet-centred loader): that point sits on the slab's bottom face and the island grows away from it (flipped 180 with the island it ends upright)      // the island's seabed sits inside the cone's narrow end, its mountains reach 50 m past the tip: after the roll it stands on top, its coast (about 27 m above its seabed) is at sea level when h = -75
+                p.transform.localPosition = new Vector3(0f, -2f - ISLE_D + 14f * C3S, 0f); c3T = p.transform;      // Chapter 3 is a relief SHEET (0 - 27 m above its lowest vertex, median 14 m): sink it 14 m into the slab so the low half is buried in the rock and the land grows out of the bottom face      // the model's pivot is at its LOWEST point (feet-centred loader): that point sits on the slab's bottom face and the island grows away from it (flipped 180 with the island it ends upright)      // the island's seabed sits inside the cone's narrow end, its mountains reach 50 m past the tip: after the roll it stands on top, its coast (about 27 m above its seabed) is at sea level when h = -75
             }
         }
         // the map goes while the ocean scene runs (and comes back if you scrub out of it)
@@ -176,7 +176,7 @@ namespace AstronomicalEvent
         {
             float flash = T_END_VIS + 0.2f; float h, roll;
             if (t < flash) { h = 0.5f; roll = 0f; }
-            else { roll = 90f + 90f * Sm(T_END_VIS + 1.5f, T_END_VIS + 25f, t); h = Mathf.Lerp(ISLE_R * ISLE_S + 12f, 75f - ISLE_S * (2f + ISLE_D + 27f * C3S), Sm(T_END_VIS + 2.5f, T_END_VIS + 50f, t)); }
+            else { roll = 90f + 90f * Sm(T_END_VIS + 1.5f, T_END_VIS + 25f, t); h = Mathf.Lerp(ISLE_R * ISLE_S + 12f, ISLE_S * (3f * C3S - 2f - ISLE_D), Sm(T_END_VIS + 2.5f, T_END_VIS + 50f, t)); }
             float z = ISLE_Z + 20f * Sm(T_END_VIS + 18f, T_END_VIS + 50f, t);        // after the flip the island drifts towards you: Chapter 3 is what stays on the sea
             pos = new Vector3(0f, WY + h, z); rollDeg = roll;
         }
