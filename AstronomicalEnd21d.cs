@@ -12,6 +12,7 @@ namespace AstronomicalEvent
     internal sealed partial class AstronomicalEnd21
     {
         const float OC_PX = -150f, OC_PY = -12.3f, OC_PZ = 1150f, OC_S = 5.2f;
+        const float C3S = 2.58f; // Chapter 3 (prepared to 200 m across) scaled to the old island's 516 m diameter
         const float WY = -0.3f, ISLE_Z = 520f, ISLE_R = 258f, ISLE_D = 150f, ISLE_S = 1.45f;      // the old island: radius 258 m, a 150 m crystal rock slab under it, shown 1.45x bigger and 520 m away so it towers over you (reference screenshot)
         GameObject oceanGo, isle, isleCone, isleDisc, waterGo, titleGo; Material oceanMat, waterMat, coneMat, discMat; Texture2D waveTex, rockTex; TextMesh[] titleTx; Transform c3T;
         struct IsleDraw { public Mesh Mesh; public int Sub; public Material Mat; public Matrix4x4 Rel; }
@@ -49,7 +50,7 @@ namespace AstronomicalEvent
             var pts = new Vector3[rings + 1, segs]; float so = seed * 3.7f;
             for (int i = 0; i <= rings; i++)
             {
-                float f = i / (float)rings, baseR = R * Mathf.Sqrt(Mathf.Max(0.04f, 1f - 0.9f * f * f));
+                float f = i / (float)rings, baseR = R * (1f + 0.05f * Mathf.Sin(Mathf.PI * f) - 0.1f * f * f * f);
                 for (int j = 0; j < segs; j++)
                 {
                     float a = j * Mathf.PI * 2f / segs; float n1 = Mathf.PerlinNoise(Mathf.Cos(a) * 1.6f + so, Mathf.Sin(a) * 1.6f + f * 2.2f) * 2f - 1f, n2 = Mathf.PerlinNoise(Mathf.Cos(a) * 4.2f + 9f + so, Mathf.Sin(a) * 4.2f + f * 5.5f) * 2f - 1f;
@@ -69,7 +70,8 @@ namespace AstronomicalEvent
                 if (((i * 7 + j * 3) & 1) == 0) { tri(a, c, b, new Vector2(u0, v0), new Vector2(u0, v1), new Vector2(u1, v0)); tri(b, c, e, new Vector2(u1, v0), new Vector2(u0, v1), new Vector2(u1, v1)); }
                 else { tri(a, c, e, new Vector2(u0, v0), new Vector2(u0, v1), new Vector2(u1, v1)); tri(a, e, b, new Vector2(u0, v0), new Vector2(u1, v1), new Vector2(u1, v0)); }
             }
-            Vector3 tip = new Vector3(0f, -2f - D - 10f, 0f); for (int j = 0; j < segs; j++) tri(pts[rings, j], pts[rings, (j + 1) % segs], tip, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0.5f, 1f));
+            Vector3 tip = new Vector3(0f, -2f - D, 0f);      // flat bottom face (Chapter 3 sits on it)
+             for (int j = 0; j < segs; j++) tri(pts[rings, j], pts[rings, (j + 1) % segs], tip, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0.5f, 1f));
             var m = new Mesh(); m.SetVertices(v); m.SetUVs(0, uv); m.SetTriangles(tr, 0); m.RecalculateNormals(); m.RecalculateBounds(); owned.Add(m);
             // glowing crystal spikes jutting from the face
             var sv = new List<Vector3>(); var sc = new List<Color>(); var st = new List<int>(); var rnd = new System.Random(seed + 5);
@@ -155,8 +157,8 @@ namespace AstronomicalEvent
             isleDisc = new GameObject("EIsleDisc"); isleDisc.transform.SetParent(isle.transform, false); isleDisc.transform.localPosition = new Vector3(0f, -0.9f, 0f); isleDisc.AddComponent<MeshFilter>().sharedMesh = MakeDisc(ISLE_R, 48, 40f); var dr = isleDisc.AddComponent<MeshRenderer>(); dr.sharedMaterial = discMat; dr.shadowCastingMode = ShadowCastingMode.Off;
             if (ch3M != null)
             {
-                var p = ch3M.Pivot; p.SetActive(true); p.transform.SetParent(isle.transform, false); float sc = 1.9f / ISLE_S; p.transform.localScale = Vector3.one * sc; p.transform.localRotation = Quaternion.Euler(0f, 0f, 180f);
-                p.transform.localPosition = new Vector3(0f, -ISLE_D + 14f, 0f); c3T = p.transform;      // the island's seabed sits inside the cone's narrow end, its mountains reach 50 m past the tip: after the roll it stands on top, its coast (about 27 m above its seabed) is at sea level when h = -75
+                var p = ch3M.Pivot; p.SetActive(true); p.transform.SetParent(isle.transform, false); float sc = C3S; p.transform.localScale = Vector3.one * sc; p.transform.localRotation = Quaternion.Euler(0f, 0f, 180f);
+                p.transform.localPosition = new Vector3(0f, -2f - ISLE_D - 27f * C3S, 0f); c3T = p.transform;      // its seabed rests on the slab's bottom face; flipped with the island it ends upright on top      // the island's seabed sits inside the cone's narrow end, its mountains reach 50 m past the tip: after the roll it stands on top, its coast (about 27 m above its seabed) is at sea level when h = -75
             }
         }
         // the map goes while the ocean scene runs (and comes back if you scrub out of it)
@@ -174,8 +176,8 @@ namespace AstronomicalEvent
         {
             float flash = T_END_VIS + 0.2f; float h, roll;
             if (t < flash) { h = 0.5f; roll = 0f; }
-            else { roll = 90f + 90f * Sm(T_END_VIS + 1.5f, T_END_VIS + 25f, t); h = Mathf.Lerp(ISLE_R * ISLE_S + 12f, 38f - ISLE_S * ISLE_D, Sm(T_END_VIS + 2.5f, T_END_VIS + 52f, t)); }
-            float z = ISLE_Z - 300f * Sm(T_END_VIS + 18f, T_END_VIS + 50f, t);        // after the flip the island drifts towards you: Chapter 3 is what stays on the sea
+            else { roll = 90f + 90f * Sm(T_END_VIS + 1.5f, T_END_VIS + 25f, t); h = Mathf.Lerp(ISLE_R * ISLE_S + 12f, 22f - ISLE_S * (2f + ISLE_D + 27f * C3S), Sm(T_END_VIS + 2.5f, T_END_VIS + 50f, t)); }
+            float z = ISLE_Z + 80f * Sm(T_END_VIS + 18f, T_END_VIS + 50f, t);        // after the flip the island drifts towards you: Chapter 3 is what stays on the sea
             pos = new Vector3(0f, WY + h, z); rollDeg = roll;
         }
         // the Cube Queen falls out of the sky into the sea (9:32 - 9:38), thrashes as the water takes her and sinks, a last flash at 9:58
@@ -202,7 +204,7 @@ namespace AstronomicalEvent
             // the sea follows you (it is a big flat disc); its colour opens up after the flash
             Vector3 cp = cam != null ? cam.transform.position : HeadNow(); SeaFrame(t, cp);
             if (!paused && tp < T_END_VIS + 2.5f && t >= T_END_VIS + 2.5f) AddRipple(0f, ISLE_Z, T_END_VIS + 2.5f, 5.5f, 34f, 85f, 90f, 70f);
-            if (!paused && tp < T_END_VIS + 30f && t >= T_END_VIS + 30f) AddRipple(0f, ISLE_Z - 300f, T_END_VIS + 30f, 4f, 28f, 60f, 80f, 70f);
+            if (!paused && tp < T_END_VIS + 30f && t >= T_END_VIS + 30f) AddRipple(0f, ISLE_Z + 80f, T_END_VIS + 30f, 4f, 28f, 60f, 80f, 70f);
  oceanMat.mainTextureOffset = new Vector2((cp.x + t * 0.8f) / 22f, (cp.z + t * 0.55f) / 22f);
             // the island copy
             if (isle != null)
