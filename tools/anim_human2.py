@@ -55,6 +55,9 @@ elif prof == 'care':
     B = dict(pelvis=nm('C_BipedSpine_Main_Pelvis'), s1=nm('C_BipedSpine_Main_Spine1'), s2=nm('C_BipedSpine_Main_Spine2'), s3=nm('C_BipedSpine_Main_Spine3'), s4=nm('C_BipedSpine_Main_Chest'), neck=nm('C_BipedHeadNeck_A_NeckBase'), head=nm('C_BipedHeadNeck_A_Head_Jnt'),
              ual=nm('L_BipedArm_A_Shoulder_Jnt'), lal=nm('L_BipedArm_A_Elbow_Jnt'), hl=nm('L_BipedArm_A_Wrist_Jnt'), uar=nm('R_BipedArm_A_Shoulder_Jnt'), lar=nm('R_BipedArm_A_Elbow_Jnt'), hr=nm('R_BipedArm_A_Wrist_Jnt'),
              tl=nm('L_BipedLeg_A_Thigh'), cl=nm('L_BipedLeg_A_Knee'), fl=nm('L_BipedLeg_A_Ankle'), tr=nm('R_BipedLeg_A_Thigh'), cr=nm('R_BipedLeg_A_Knee'), fr=nm('R_BipedLeg_A_Ankle')); SPINE = ['s1', 's2', 's3', 's4']
+elif prof == 'gunnar':
+    B = dict(pelvis=nm('pelvis_'), s1=nm('spine_01_'), s2=nm('spine_02_'), s3=nm('spine_03_'), s4=nm('spine_04_'), s5=nm('spine_05_'), neck=nm('Helmet_neck_01'), head=nm('Helmet_Head'), ual=nm('upperarm_l_'), lal=nm('lowerarm_l_'), hl=nm('hand_l_'), uar=nm('upperarm_r_'), lar=nm('lowerarm_r_'), hr=nm('hand_r_'),
+             tl=nm('thigh_l_'), cl=nm('calf_l_'), fl=nm('foot_l_'), tr=nm('thigh_r_'), cr=nm('calf_r_'), fr=nm('foot_r_')); SPINE = ['s1', 's2', 's3', 's4', 's5']
 else:
     B = dict(pelvis=nm('pelvis_'), s1=nm('spine_01_'), s2=nm('spine_02_'), s3=nm('spine_03_'), s4=nm('spine_04_'), s5=nm('spine_05_'), neck=nm('neck_01_'), head=nmre(r'^head_\d+$'), ual=nm('upperarm_l_'), lal=nm('lowerarm_l_'), hl=nm('hand_l_'), uar=nm('upperarm_r_'), lar=nm('lowerarm_r_'), hr=nm('hand_r_'),
              tl=nm('thigh_l_'), cl=nm('calf_l_'), fl=nm('foot_l_'), tr=nm('thigh_r_'), cr=nm('calf_r_'), fr=nm('foot_r_')); SPINE = ['s1', 's2', 's3', 's4', 's5']
@@ -77,9 +80,11 @@ def rest_mesh():                                          # the skinned mesh in 
             for k in range(4): o += WT[:, k:k + 1] * np.einsum('vij,vj->vi', M[JI[:, k]], Ph)[:, :3]
             vs.append(o)
     return np.concatenate(vs)
-RV0 = rest_mesh(); lowv = RV0[RV0[:, 1] < RV0[:, 1].min() + 0.1]; FOOTYAW = {}
+RV0 = rest_mesh(); lowv = RV0[RV0[:, 1] < RV0[:, 1].min() + 0.1 * max(1.0, float(RV0[:, 1].max() - RV0[:, 1].min()) / 1.8)]; FOOTYAW = {}
 for s_, sg in (('l', 1), ('r', -1)):                       # how far each foot is turned from +Z in the rest pose (the clips set the foot world rotation, so this is taken out)
-    f = lowv[(lowv[:, 0] * sg) > 0.02]; c = f[:, [0, 2]] - f[:, [0, 2]].mean(0); ax_ = np.linalg.svd(c, full_matrices=False)[2][0]; ax_ = ax_ if ax_[1] > 0 else -ax_; FOOTYAW[s_] = math.atan2(ax_[0], ax_[1])
+    f = lowv[(lowv[:, 0] * sg) > 0.02]
+    if len(f) < 5: FOOTYAW[s_] = 0.0; continue
+    c = f[:, [0, 2]] - f[:, [0, 2]].mean(0); ax_ = np.linalg.svd(c, full_matrices=False)[2][0]; ax_ = ax_ if ax_[1] > 0 else -ax_; FOOTYAW[s_] = math.atan2(ax_[0], ax_[1])
 print('rest foot yaw', {k: round(math.degrees(v), 1) for k, v in FOOTYAW.items()}, 'mesh bbox', np.round(RV0.min(0), 2), np.round(RV0.max(0), 2))
 A0 = np.stack([left, up, fwd], axis=1); WR0 = fk.wrot(B[TOP]).copy(); RF0 = {'fl': fk.wrot(B['fl']).copy(), 'fr': fk.wrot(B['fr']).copy()}
 HW = abs(float((fk.pos(B['tl']) - fk.pos(B['tr'])) @ left)) / 2; ANK = float(fk.pos(B['fl']) @ up); P0 = fk.pos(B['pelvis']); O = P0 - up * float(P0 @ up) + 0.0; H0 = float(P0 @ up); FX = HW + 0.07 * (H0 / 0.934); SCL = H0 / 0.934
@@ -256,9 +261,43 @@ def c_fallbump(side):
         k = ramp(t, 0.3, 3.0); p = c_fall(t); h_in = (1.0, 0.0, 0.0, 1.0); h_out = (0.5, -0.3, -0.9, 0.9)
         return lerp_pose(p, dict(p, **{('hr' if side == 'r' else 'hl'): h_in, ('hl' if side == 'r' else 'hr'): h_out, ('er' if side == 'r' else 'el'): (0.6, -0.2, -0.5)}), k)
     return f
+
+# ---- scene clips for the I.O. facility (THE END part 2)
+def c_sit(t):   # captive in a chair: hands behind the back, head down, slumped
+    return P(IDLE, pel=(0, -0.43, -0.14), fl=(FX, 0, 0.34), fr=(-FX, 0, 0.34), flp=0.0, frp=0.0, lean=0.12 + 0.01 * sn(t, 0.3), nod=0.35 + 0.05 * sn(t, 0.2), turn=0.1 * sn(t, 0.1), hl=(0.35, -0.7, -0.6, 0.9), hr=(0.35, -0.7, -0.6, 0.9), el=(0.8, 0.3, -0.5), er=(0.8, 0.3, -0.5), gun=BACK)
+def c_sitlook(t): return add(c_sit(t), nod=-0.5, turn=0.5 * ramp(t, 0.2, 1.0), lean=-0.1)
+def c_console(t):   # working a console: both hands out front, small tapping, looking at the screen
+    tap = 0.04 * sn(t, 2.2); return P(IDLE, gun=BACK, hl=(0.2, 0.45, 0.8 + tap, 0.8), hr=(0.2, 0.45, 0.8 - tap, 0.8), el=(0.7, -0.4, 0.2), er=(0.7, -0.4, 0.2), lean=0.12, nod=0.15, pel=(0, -0.015, 0.05), fl=(FX, 0, 0.05), fr=(-FX, 0, -0.05), turn=0.1 * sn(t, 0.15))
+def c_lever(t):   # pulls a big lever: reach up-forward, then haul down and back
+    k = ramp(t, 0.4, 1.0) * (1 - ramp(t, 1.6, 2.6)); up = P(IDLE, gun=BACK, hl=(0.3, 0.6, 0.7, 1.0), hr=(0.3, 0.6, 0.7, 1.0), el=(0.7, 0.2, 0.0), er=(0.7, 0.2, 0.0), lean=0.1, pel=(0, -0.02, 0.1), fl=(FX, 0, 0.25), fr=(-FX, 0, -0.2))
+    dn = P(IDLE, gun=BACK, hl=(0.25, -0.2, 0.8, 0.9), hr=(0.25, -0.2, 0.8, 0.9), el=(0.7, -0.6, 0.0), er=(0.7, -0.6, 0.0), lean=0.55, pel=(0, -0.14, 0.0), fl=(FX, 0, 0.3), fr=(-FX, 0, -0.3), nod=0.2)
+    return kf([(0.0, c_idle(0)), (0.6, up), (1.2, up), (2.0, dn), (3.0, dn), (4.0, c_idle(0))], t)
+def c_unmask(t):   # both hands to the head, pull the mask away, then straighten and look up
+    h = P(IDLE, gun=BACK, hl=(0.1, 0.5, 0.9, 0.8), hr=(0.1, 0.5, 0.9, 0.8), el=(0.8, 0.5, 0.0), er=(0.8, 0.5, 0.0), nod=0.1)
+    off = P(IDLE, gun=BACK, hl=(0.9, 0.4, 0.2, 1.0), hr=(0.9, 0.4, 0.2, 1.0), el=(0.8, 0.0, 0.0), er=(0.8, 0.0, 0.0), nod=-0.25, lean=-0.1)
+    return kf([(0.0, c_idle(0)), (0.8, h), (1.6, h), (2.4, off), (5.0, add(off, nod=-0.05))], t)
+def c_punch(t):
+    wind = P(IDLE, gun=BACK, hr=(0.2, -0.3, -0.9, 0.9), hl=(0.3, 0.6, 0.5, 0.8), er=(0.6, -0.8, -0.4), el=(0.6, 0.0, 0.0), twist=0.5, lean=-0.1, fl=(FX, 0, 0.3), fr=(-FX, 0, -0.25))
+    hit = P(IDLE, gun=BACK, hr=(0.05, 0.1, 1.0, 1.0), hl=(0.5, 0.2, -0.3, 0.8), er=(0.5, -0.5, 0.0), el=(0.6, -0.5, 0.0), twist=-0.5, lean=0.4, pel=(0, -0.05, 0.12), fl=(FX, 0, 0.4), fr=(-FX, 0, -0.35))
+    return kf([(0.0, c_ready(0)), (0.35, wind), (0.55, hit), (1.1, hit), (2.0, c_ready(0))], t)
+def c_shield(t): return P(IDLE, gun=BACK, hl=(0.3, 0.6, 0.6, 1.0), hr=(0.3, 0.6, 0.6, 1.0), el=(0.5, 0.4, -0.3), er=(0.5, 0.4, -0.3), lean=-0.15, nod=-0.1, fl=(FX + 0.1, 0, 0.1), fr=(-FX - 0.1, 0, -0.1))
+
+# ---- THE END part 2 additions: a reclined captive (the scanner chair), a crouched sneak-walk with the rifle low, a held pose for pushing / pinning, and a two-handed shove
+def c_recline(t):
+    return P(IDLE, gun=BACK, pel=(0, -0.46, -0.24), fl=(FX, 0, 0.19), fr=(-FX, 0, 0.19), lean=-0.3 + 0.012 * sn(t, 0.25), nod=-0.12 + 0.04 * sn(t, 0.18), turn=0.14 * sn(t, 0.07), tilt=0.05 * sn(t, 0.11),
+             hl=(0.55, -0.55, 0.45, 0.85), hr=(0.55, -0.55, 0.45, 0.85), el=(0.8, -0.2, 0.3), er=(0.8, -0.2, 0.3))
+def c_sneak(t):
+    p = gait(t, 1.35, 1.0, 0.66, 0.08, 0.018, 0.34, 0.0, LOW); p['pel'] = (p['pel'][0], p['pel'][1] - 0.30, p['pel'][2] + 0.03); p['nod'] = 0.1 + 0.03 * sn(t, 0.74); p['turn'] = 0.25 * sn(t, 0.37); return p
+def c_pin(t):   # holds someone against a wall: both arms forward and up, weight leaning in
+    return P(IDLE, gun=BACK, hl=(0.3, 0.55, 0.6, 1.0), hr=(0.3, 0.55, 0.6, 1.0), el=(0.7, 0.2, 0.0), er=(0.7, 0.2, 0.0), lean=0.3, pel=(0, -0.06, 0.1), fl=(FX, 0, 0.3), fr=(-FX, 0, -0.3), nod=0.1)
+def c_run_aim(t):   # running with the rifle up at the shoulder (the Seven's rescue, the underground evacuation)
+    p = gait(t, 0.75, 3.0, 0.40, 0.16, 0.05, 0.22, 0.0, HIGH, True); return p
+
+def c_jog(t): return gait(t, 0.85, 2.3, 0.46, 0.14, 0.045, 0.14, 0.0, HIP, True)
+def c_jog_aim(t): return gait(t, 0.85, 2.3, 0.46, 0.15, 0.045, 0.16, 0.0, HIGH, True)
 CLIPS = {'Idle': c_idle, 'Ready': c_ready, 'Alert': c_alert, 'Aim': c_aim, 'Fire': c_fire, 'FireK': c_firek, 'Hold': c_hold, 'Crouch': c_crouch, 'Peek': c_peek, 'Kneel': c_kneel, 'Reload': c_reload, 'Walk': c_walk, 'Run': c_run, 'WalkS': c_walks, 'Climb': c_climb,
          'Beckon': c_beckon, 'Point': c_point, 'Look': c_look, 'Wake': c_wake, 'Shove': c_shove, 'Throw': c_throw, 'Talk': c_talk, 'Plead': c_plead, 'Shrug': c_shrug, 'Hit': c_hit, 'Stagger': c_stagger, 'Dodge': c_dodge, 'Cheer': c_cheer, 'Fistbump': c_fistbump,
-         'Fall': c_fall, 'Land': c_land, 'Jump': c_jump, 'Brace': c_brace, 'Smug': c_smug, 'STalk': c_stalk, 'Panic': c_panic, 'Crushed': c_crushed, 'Death': c_death, 'FallBumpR': c_fallbump('r'), 'FallBumpL': c_fallbump('l')}
+         'Fall': c_fall, 'Land': c_land, 'Jump': c_jump, 'Brace': c_brace, 'Smug': c_smug, 'STalk': c_stalk, 'Panic': c_panic, 'Crushed': c_crushed, 'Recline': c_recline, 'Sneak': c_sneak, 'Pin': c_pin, 'RunAim': c_run_aim, 'Jog': c_jog, 'JogAim': c_jog_aim, 'Sit': c_sit, 'SitLook': c_sitlook, 'Console': c_console, 'Lever': c_lever, 'Unmask': c_unmask, 'Punch': c_punch, 'Shield': c_shield, 'Death': c_death, 'FallBumpR': c_fallbump('r'), 'FallBumpL': c_fallbump('l')}
 
 # ================= creature clip sets (CLIPSET=care for the caretaker, CLIPSET=queen for the Cube Queen); arms are free (no rifle)
 FREE = P(IDLE)

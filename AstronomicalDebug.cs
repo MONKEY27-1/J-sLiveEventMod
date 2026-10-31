@@ -21,7 +21,7 @@ namespace AstronomicalEvent
             new System.Collections.Generic.Dictionary<string, Func<Vector3>>();
         public static readonly float[] Tweak = { 1f, 1f, 0f, 0f, 0f, 0f, 0f, 0f };
         public static bool NoMusic;
-        static Func<Vector3> follow;
+        static Func<Vector3> follow, followAt;
         static Vector3 followOff;
         public static Func<Vector3, Vector3> L2W = v => v;
         static string cmdPath,
@@ -64,9 +64,16 @@ namespace AstronomicalEvent
                 return;
             if (follow != null && cam != null)
             {
-                var tg = follow();
-                cam.transform.position = tg + followOff;
-                cam.transform.rotation = Quaternion.LookRotation((tg - cam.transform.position).normalized);
+                try
+                {
+                    var tg = follow();
+                    if (followAt != null) { cam.transform.position = tg; var at = followAt(); cam.transform.rotation = Quaternion.LookRotation((at - tg).sqrMagnitude < 1e-4f ? Vector3.forward : (at - tg).normalized); }
+                    else { cam.transform.position = tg + followOff; cam.transform.rotation = Quaternion.LookRotation((tg - cam.transform.position).normalized); }
+                }
+                catch
+                {
+                    follow = null; /* the anchor's event is gone */
+                }
             }
             if (Time.unscaledTime >= nextPoll)
             {
@@ -147,7 +154,7 @@ namespace AstronomicalEvent
                 case "camg":
                     if (a.Length > 1 && a[1] == "off")
                     {
-                        follow = null;
+                        follow = null; followAt = null;
                         if (cam != null)
                             UnityEngine.Object.Destroy(cam.gameObject);
                         cam = null;
@@ -201,9 +208,27 @@ namespace AstronomicalEvent
                         cam.farClipPlane = 3000f;
                         cam.nearClipPlane = 0.05f;
                     }
-                    follow = fa;
+                    follow = fa; followAt = null;
                     followOff = new Vector3(F(a, 2), F(a, 3), F(a, 4));
                     cam.fieldOfView = F(a, 5, 60f);
+                    break;
+                }
+                case "camb": // camb <fromAnchor> <atAnchor> [fov] [dx dy dz]: the camera sits at the first anchor (+ offset) and looks at the second
+                {
+                    Func<Vector3> f1, f2;
+                    if (a.Length < 3 || !Anchors.TryGetValue(a[1], out f1) || !Anchors.TryGetValue(a[2], out f2)) { Say("anchors: " + string.Join(", ", Anchors.Keys.ToArray())); break; }
+                    if (cam == null)
+                    {
+                        var go = new GameObject("EvtTestCam");
+                        cam = go.AddComponent<Camera>();
+                        cam.depth = 100;
+                        cam.clearFlags = CameraClearFlags.SolidColor;
+                        cam.backgroundColor = Color.black;
+                        cam.farClipPlane = 3000f;
+                        cam.nearClipPlane = 0.05f;
+                    }
+                    Vector3 off = new Vector3(F(a, 4), F(a, 5), F(a, 6));
+                    follow = () => f1() + off; followAt = f2; cam.fieldOfView = F(a, 3, 70f);
                     break;
                 }
                 case "tweak":

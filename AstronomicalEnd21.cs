@@ -10,9 +10,9 @@ namespace AstronomicalEvent
     // 0:04 the blue cube at Guava Fort, 0:52 the loopers defend it, 1:45 the Cube Queen's beam opens the rift over her pyramid, 2:08 the Last Reality fleet (motherships + the Cube's Cradle) arrives,
     // 2:00-3:40 cube monsters and caretakers march on the fort (explosions + knockback), 3:45 abductors, 4:15 they attack the cube's shield, 4:36 the cube is destroyed, then black (the I.O. facility scenes come in milestone 2).
     // Everything is a pure function of the music time t; one-shots (explosions) fire when t passes them and are reset when you scrub back.
-    internal sealed class AstronomicalEnd21 : IEventScene, IDebug
+    internal sealed partial class AstronomicalEnd21 : IEventScene, IDebug
     {
-        const float T_RIFT = 105f, T_FLEET = 128f, T_MON = 120f, T_CARE = 170f, T_ABD = 225f, T_SHIELD = 255f, T_BREAK = 270f, T_CUBE_DIE = 276f, T_BLACK = 281f;
+        const float T_RIFT = 95f, T_FLEET = 125f, T_MON = 138f, T_CARE = 195f, T_ABD = 225f, T_SHIELD = 255f, T_BREAK = 260f, T_CUBE_DIE = 265f, T_BLACK = 270f;
         static float Sm(float a, float b, float x) { return AstronomicalCube.Sm(a, b, x); }
         struct Mon { public float T0, X0, Z0, Tx, Tz, Speed, T1, Seed, Scale, Die; public bool Big; public GameObject Go; public CRig Rig; public bool Boomed; }
         const float SHIELD_R = 32f;
@@ -130,7 +130,7 @@ namespace AstronomicalEvent
             kit = new WorldKit { Layer = floorLayer }; glowTex = kit.GlowTex();
             lineTex = kit.Tex(4, 32, (x, yy) => { float v = Mathf.Abs((yy + 0.5f) / 16f - 1f); return new Color(1, 1, 1, Mathf.Pow(1f - v, 1.6f)); }, TextureWrapMode.Clamp);
             AstronomicalDebug.L2W = v => W(v); AstronomicalDebug.Anchors.Clear(); AstronomicalDebug.Anchors["cube"] = () => W(new Vector3(0f, 4f, 9f)); AstronomicalDebug.Anchors["pyr"] = () => pyrM != null && pyrM.Pivot != null ? pyrM.Pivot.transform.position + Vector3.up * 120f : Vector3.zero; AstronomicalDebug.Anchors["queen"] = () => queenGo != null ? queenGo.transform.position : Vector3.zero; AstronomicalDebug.Anchors["ship"] = () => ships.Count > 0 && ships[0] != null ? ships[0].transform.position : Vector3.zero; AstronomicalDebug.Anchors["mon"] = () => { foreach (var m in mons) if (m.Go != null && m.Go.activeSelf) return m.Go.transform.position + Vector3.up * 3f; return W(new Vector3(0f, 3f, 60f)); };
-            BuildSky(); BuildEffects(); BuildModels();
+            BuildSky(); BuildEffects(); BuildModels(); P2Start();
             var fg = GameObject.CreatePrimitive(PrimitiveType.Sphere); UnityEngine.Object.Destroy(fg.GetComponent<Collider>()); fg.name = "AstronomicalEnd21Flash"; fg.transform.localScale = Vector3.one * 2.4f;
             flashMat = kit.Glow(new Color(0f, 0f, 0f, 0f), null, 3500); var fr = fg.GetComponent<Renderer>(); fr.sharedMaterial = flashMat; fr.shadowCastingMode = ShadowCastingMode.Off; fr.allowOcclusionWhenDynamic = false; flashGo = fg; flashGo.SetActive(false);
             ambientSave = RenderSettings.ambientLight; ambientSaved = true; fogSave = RenderSettings.fog; RenderSettings.fog = false;       // the Forest's green fog hides everything beyond ~100 m (pyramid, fleet)
@@ -148,12 +148,15 @@ namespace AstronomicalEvent
             skyGo = new GameObject("AstronomicalEnd21Sky"); skyGo.AddComponent<MeshFilter>().sharedMesh = skyMesh; var mr = skyGo.AddComponent<MeshRenderer>();
             var dm = new Material(kit.Glow(Color.white, glowTex, 2501)); dm.mainTexture = null; dm.renderQueue = 2501; owned.Add(dm); mr.sharedMaterial = dm; mr.allowOcclusionWhenDynamic = false; mr.shadowCastingMode = ShadowCastingMode.Off;
         }
-        // sunset over the island; from the rift (1:45) the sky bleeds red and purple; black after the cube dies
+        // sunset over the island that darkens to dusk from 0:50; from the ring (1:35) the sky bleeds red and purple; black inside the rooms; twilight and then a bright blue day (after the 10:03 flash) in the ocean
         void UpdateSky(float t)
         {
-            if (skyMesh == null) return;
-            float rift = Sm(T_RIFT, T_RIFT + 40f, t), dark = Sm(T_ABD - 20f, T_CUBE_DIE, t) * 0.5f, black = Sm(T_CUBE_DIE, T_BLACK, t);
-            Color top = Color.Lerp(new Color(0.22f, 0.12f, 0.38f), new Color(0.25f, 0.04f, 0.14f), rift), mid = Color.Lerp(new Color(0.85f, 0.4f, 0.33f), new Color(0.75f, 0.2f, 0.14f), rift), hor = Color.Lerp(new Color(1f, 0.62f, 0.3f), new Color(1f, 0.38f, 0.1f), rift);
+            if (skyMesh == null) return; Sc sc = SceneAt(t);
+            float dusk = Sm(50f, 95f, t), rift = Sm(T_RIFT, T_RIFT + 40f, t), dark = Sm(T_ABD - 20f, T_CUBE_DIE, t) * 0.5f;
+            Color top = Color.Lerp(new Color(0.22f, 0.12f, 0.38f), new Color(0.1f, 0.06f, 0.22f), dusk), mid = Color.Lerp(new Color(0.85f, 0.4f, 0.33f), new Color(0.4f, 0.16f, 0.3f), dusk), hor = Color.Lerp(new Color(1f, 0.62f, 0.3f), new Color(0.72f, 0.3f, 0.22f), dusk);
+            top = Color.Lerp(top, new Color(0.25f, 0.04f, 0.14f), rift); mid = Color.Lerp(mid, new Color(0.75f, 0.2f, 0.14f), rift); hor = Color.Lerp(hor, new Color(1f, 0.38f, 0.1f), rift);
+            float black = IsRoom(sc) ? 1f : 0f; if (t < T_FAC) black = Sm(T_CUBE_DIE, T_BLACK, t);
+            if (sc == Sc.Ocean) { float blue = Sm(T_END_VIS - 0.2f, T_END_VIS + 1.5f, t); top = Color.Lerp(new Color(0.07f, 0.05f, 0.18f), new Color(0.2f, 0.45f, 0.95f), blue); mid = Color.Lerp(new Color(0.3f, 0.16f, 0.35f), new Color(0.5f, 0.75f, 1f), blue); hor = Color.Lerp(new Color(0.62f, 0.3f, 0.3f), new Color(0.86f, 0.94f, 1f), blue); dark = 0f; }
             for (int k = 0; k < skyDirs.Length; k++)
             {
                 var d = skyDirs[k]; float up = Mathf.Clamp01(d.y); var c = up < 0.3f ? Color.Lerp(hor, mid, up / 0.3f) : Color.Lerp(mid, top, (up - 0.3f) / 0.7f);
@@ -186,12 +189,12 @@ namespace AstronomicalEvent
             if (cradleM != null) foreach (var r in cradleM.Pivot.GetComponentsInChildren<Renderer>(true)) foreach (var mt in r.sharedMaterials) if (mt != null) { mt.mainTexture = null; mt.color = new Color(0.35f, 0.65f, 1f, 1f); }      // the loaded texture is near-black: a lit blue-white structure instead
             if (careM != null)
             {
-                // the waves: 26 small caretakers (6 m) from 2:00 on, 6 big ones (10 m) from 2:50; they walk to the force field, hit it, then die
+                // the waves: 26 small caretakers arrive from 2:46 on, 6 big ones (10 m) from 3:15; they walk / run to the force field, hit it, then die
                 for (int i = 0; i < 32; i++)
                 {
-                    bool big = i >= 26; int k = big ? i - 26 : i; float t0 = big ? T_CARE + k * 7f : T_MON + k * 4.4f + Hash(i, 1) * 2f; float a0 = (Hash(i, 2) - 0.5f) * 2.4f; float r0 = 230f + Hash(i, 3) * 90f;
-                    float x0 = Mathf.Sin(a0 * 0.9f) * r0, z0 = Mathf.Cos(a0 * 0.9f) * r0, ta = a0 * 0.45f, tx = Mathf.Sin(ta) * (SHIELD_R + 3f), tz = Mathf.Cos(ta) * (SHIELD_R + 3f); float sp = big ? 3.8f : 5.8f + Hash(i, 6) * 2.2f; float dist = Mathf.Sqrt((x0 - tx) * (x0 - tx) + (z0 - tz) * (z0 - tz));
-                    float t1 = t0 + dist / sp, die = t1 + (big ? 6f : 3f + Hash(i, 9) * 2f);
+                    bool big = i >= 26; int k = big ? i - 26 : i; float arrive = big ? 195f + k * 7.5f : 166f + k * 3.3f + Hash(i, 1) * 1.6f; float a0 = (Hash(i, 2) - 0.5f) * 2.4f; float r0 = 120f + Hash(i, 3) * 90f;
+                    float x0 = Mathf.Sin(a0 * 0.9f) * r0, z0 = Mathf.Cos(a0 * 0.9f) * r0, ta = a0 * 0.45f, tx = Mathf.Sin(ta) * (SHIELD_R + 3f), tz = Mathf.Cos(ta) * (SHIELD_R + 3f); float sp = big ? 4.8f : 6.0f + Hash(i, 6) * 2.0f; float dist = Mathf.Sqrt((x0 - tx) * (x0 - tx) + (z0 - tz) * (z0 - tz));
+                    float t1 = arrive, t0 = t1 - dist / sp, die = t1 + (big ? 6f : 3f + Hash(i, 9) * 2f);
                     var g = Clone(careM, "ECare" + i); mons.Add(new Mon { T0 = t0, X0 = x0, Z0 = z0, Tx = tx, Tz = tz, Speed = sp, T1 = t1, Die = die, Big = big, Scale = (big ? 10f : 6f) / 1.8f, Seed = Hash(i, 8) * 9f, Go = g, Rig = CRig.Of(careM, g) });
                 }
             }
@@ -210,17 +213,18 @@ namespace AstronomicalEvent
         string QueenClip(float t, out float lt)
         {
             lt = t;
-            if (t < 112f) return "H_Float"; if (t < 126f) { lt = t - 112f; return "H_Cast"; } if (t < 150f) return "H_Float"; if (t < 162f) { lt = t - 150f; return "H_Taunt"; } if (t < 200f) return "H_Float"; if (t < 210f) { lt = t - 200f; return "H_Point"; }
-            if (t < 232f) return "H_Float"; if (t < 242f) { lt = t - 232f; return "H_Rage"; } if (t < 266f) return "H_Float"; if (t < 272f) { lt = t - 266f; return "H_Cast"; } lt = t - 272f; return "H_Retreat";
+            if (t < 88f) return "H_Float"; if (t < 104f) { lt = t - 88f; return "H_Cast"; } if (t < 126f) return "H_Float"; if (t < 138f) { lt = t - 126f; return "H_Taunt"; } if (t < 195f) return "H_Float"; if (t < 205f) { lt = t - 195f; return "H_Point"; }
+            if (t < 209f) return "H_Float"; if (t < 219f) { lt = t - 209f; return "H_Rage"; } if (t < 252f) return "H_Float"; if (t < 258f) { lt = t - 252f; return "H_Cast"; } if (t < 266f) { lt = t - 258f; return "H_Retreat"; }
+            if (t > 405f && t < 415f) { lt = t - 405f; return "H_Taunt"; } return "H_Float";
         }
         // teleports you into the force field (once), and pushes you back whenever you reach its wall
-        void KeepInside(float t)
+        void KeepInside(float t, float cx = 0f, float cz = 0f, float rad = -1f)
         {
             try
             {
                 var pl = GTPlayer.Instance; var rb = pl.playerRigidBody; Vector3 head = pl.headCollider.transform.position;
                 if (!seated) { if (Vector3.Distance(head, originW) < 3f) { seated = true; return; } Vector3 target = originW + Vector3.up * 1.2f; rb.position += target - head; rb.linearVelocity = Vector3.zero; seated = true;  AstronomicalEventMod.Log.LogInfo("End21: you are inside the force field at " + target); return; }
-                Vector3 flat = head - originW; flat.y = 0f; float lim = SHIELD_R - 1.6f;
+                Vector3 cen = root.transform.TransformPoint(new Vector3(cx, 0f, cz)); Vector3 flat = head - cen; flat.y = 0f; float lim = (rad > 0f ? rad : SHIELD_R) - 1.6f;
                 if (flat.magnitude > lim) { Vector3 inward = -flat.normalized; rb.position += inward * (flat.magnitude - lim); Vector3 v = rb.linearVelocity; float outv = Vector3.Dot(v, -inward); if (outv > 0f) rb.linearVelocity = v + inward * outv; hitGlow = Mathf.Max(hitGlow, 0.5f); }
             }
             catch { }
@@ -235,7 +239,8 @@ namespace AstronomicalEvent
             flashLamp.transform.position = wp; flashLamp.color = Color.Lerp(a, Color.white, 0.3f); flashLamp.intensity = Lit * 8f * power;
             AstronomicalHazards.Blast(wp, 70f, 5f * power, 8f * power); shake = Mathf.Max(shake, 0.2f * power);
         }
-        void Black(float a, Camera cam) { if (flashGo.activeSelf != a > 0.003f) flashGo.SetActive(a > 0.003f); if (a > 0.003f) { flashMat.color = new Color(0f, 0f, 0f, a); flashGo.transform.position = cam != null ? cam.transform.position : originW; } }
+        Vector3 HeadNow() { try { return GTPlayer.Instance.headCollider.transform.position; } catch { } return originW + Vector3.up * 1.2f; }
+        void Black(float a, Camera cam, Color c) { if (flashGo.activeSelf != a > 0.003f) flashGo.SetActive(a > 0.003f); if (a > 0.003f) { flashMat.color = new Color(c.r, c.g, c.b, a); flashGo.transform.position = cam != null ? cam.transform.position : originW; } }
 
         static void PlaceOn(GltfModel m, Vector3 pos, float scale, float yawDeg, bool on)
         {
@@ -251,12 +256,14 @@ namespace AstronomicalEvent
         {
             if (!built || root == null) return;
             var cam = Camera.main; float dt = Mathf.Clamp(Time.unscaledDeltaTime, 0f, 0.1f); bool back = t < lastT - 0.4f; float tp = lastT < 0f ? t : lastT; lastT = t;
-            if (back) { seated = false; cubeBoom = shieldBoom = false; for (int i = 0; i < mons.Count; i++) { var m = mons[i]; m.Boomed = false; mons[i] = m; } }
+            Sc sc = SceneAt(t); if (back) { seated = false; glassGone = false; cubeBoom = shieldBoom = false; for (int i = 0; i < mons.Count; i++) { var m = mons[i]; m.Boomed = false; mons[i] = m; } }
             if (cam != null) skyGo.transform.position = cam.transform.position;
             if (t - skyT > 0.15f || t < skyT) { skyT = t; UpdateSky(t); if (!skyLogged) { skyLogged = true; var smr = skyGo.GetComponent<MeshRenderer>(); AstronomicalEventMod.Log.LogInfo("End21 sky: active " + skyGo.activeInHierarchy + " renderer " + smr.enabled + " pos " + skyGo.transform.position + " col " + skyCols[skyCols.Length / 2] + " shader " + smr.sharedMaterial.shader.name + " queue " + smr.sharedMaterial.renderQueue + " far " + (cam != null ? cam.farClipPlane : 0f)); } }
             float rift = Sm(T_RIFT, T_RIFT + 14f, t), fleetK = Sm(T_FLEET, T_FLEET + 8f, t), alive = 1f - Sm(T_CUBE_DIE, T_CUBE_DIE + 0.5f, t), black = Sm(T_CUBE_DIE + 1.5f, T_BLACK, t);
-            RenderSettings.ambientLight = Color.Lerp(new Color(0.75f, 0.55f, 0.5f), new Color(0.45f, 0.2f, 0.25f), rift) * Mathf.Max(0.05f, 1f - black);
-            sun.color = Color.Lerp(new Color(1f, 0.7f, 0.45f), new Color(1f, 0.4f, 0.25f), rift); sun.intensity = 1f - black;
+            float ambK = t < T_FAC ? Mathf.Max(0.05f, 1f - black) : 0.55f, sunK = t < T_FAC ? 1f - black : 0.55f;
+            if (sc == Sc.Ocean) { float bl = Sm(T_END_VIS - 0.2f, T_END_VIS + 1.5f, t); ambK = Mathf.Lerp(0.4f, 1.15f, bl); sunK = Mathf.Lerp(0.3f, 1.15f, bl); }
+            RenderSettings.ambientLight = Color.Lerp(new Color(0.75f, 0.55f, 0.5f), new Color(0.45f, 0.2f, 0.25f), rift) * ambK; if (sc == Sc.Ocean && t >= T_END_VIS) RenderSettings.ambientLight = new Color(0.7f, 0.8f, 0.95f) * ambK;
+            sun.color = Color.Lerp(new Color(1f, 0.7f, 0.45f), new Color(1f, 0.4f, 0.25f), rift); if (sc == Sc.Ocean && t >= T_END_VIS) sun.color = new Color(1f, 0.96f, 0.88f); sun.intensity = sunK;
             // ----- the cube (0:04) in the middle of the force field that covers the gazebo
             Vector3 cubeP = new Vector3(0f, GroundY(0f, 9f), 9f);
             if (cubeM != null && cubeM.Pivot != null)
@@ -269,18 +276,19 @@ namespace AstronomicalEvent
             bool shOn = t > 0.5f && t < T_BREAK + 0.2f;
             if (shield.gameObject.activeSelf != shOn) shield.gameObject.SetActive(shOn);
             hitGlow = Mathf.Max(0f, hitGlow - dt * 2.5f);
-            if (shOn) { float hit = Sm(T_SHIELD, T_BREAK, t); shield.localPosition = new Vector3(0f, 0f, 0f); shield.localScale = Vector3.one * (SHIELD_R * 2f * (1f + 0.004f * Mathf.Sin(t * 3f))); var smat = shield.GetComponent<Renderer>().sharedMaterial; float g = Mathf.Clamp01(hit * (0.6f + 0.4f * Mathf.Sin(t * 30f)) + hitGlow); smat.color = new Color(Mathf.Lerp(0.2f, 1f, g), Mathf.Lerp(0.9f, 0.35f, g), 1f - 0.4f * g, 0.08f + 0.3f * g); }
+            if (shOn) { float hit = Sm(T_SHIELD, T_BREAK, t); shield.localPosition = new Vector3(0f, 0f, 0f); shield.localScale = Vector3.one * (SHIELD_R * 2f * (1f + 0.004f * Mathf.Sin(t * 3f))); var smat = shield.GetComponent<Renderer>().sharedMaterial; float g = Mathf.Clamp01(hit * (0.6f + 0.4f * Mathf.Sin(t * 30f)) + hitGlow); smat.color = new Color(Mathf.Lerp(0.2f, 1f, g), Mathf.Lerp(0.9f, 0.35f, g), 1f - 0.4f * g, 0.08f + 0.06f * Sm(228f, 236f, t) + 0.3f * g); }
             if (!shieldBoom && t >= T_BREAK && !paused) { shieldBoom = true; Boom(W(cubeC + Vector3.up * 14f), 22f, 1.6f, new Color(0.4f, 0.9f, 1f)); }
             if (!cubeBoom && t >= T_CUBE_DIE && !paused) { cubeBoom = true; Boom(W(cubeC), 30f, 3.2f, new Color(0.3f, 0.9f, 1f)); for (int k = 0; k < 300; k++) { var d = UnityEngine.Random.onUnitSphere; Emit(fx, W(cubeC) + d * 3f, d * UnityEngine.Random.Range(10f, 50f), new Color(0.2f + 0.3f * UnityEngine.Random.value, 0.95f, 1f, 1f), UnityEngine.Random.Range(0.6f, 3f), UnityEngine.Random.Range(1.5f, 3.5f)); } shake = 3f; flashLamp.intensity = Lit * 30f; }
             // you are brought into the force field at 0:00 and kept inside until it breaks
-            if (t < T_BREAK && !paused) KeepInside(t);
+            if (t < T_BREAK && !paused) KeepInside(t); else if (sc == Sc.Surface && !paused) { seated = true; KeepInside(t, stageX, stageZ, 16f); }
+            if (!paused && tp < 210f && t >= 210f) { flashLamp.transform.position = W(cubeC + Vector3.up * 4f); flashLamp.color = new Color(0.4f, 0.8f, 1f); flashLamp.intensity = Lit * 22f; hitGlow = 1f; shake = Mathf.Max(shake, 1f); for (int k = 0; k < 160; k++) { float a2 = k / 160f * 6.2832f; Emit(fx, W(cubeC), new Vector3(Mathf.Cos(a2), 0.15f * Mathf.Sin(k), Mathf.Sin(a2)) * UnityEngine.Random.Range(14f, 30f), new Color(0.3f, 0.9f, 1f, 1f), UnityEngine.Random.Range(0.6f, 1.6f), UnityEngine.Random.Range(1.2f, 2.4f)); } }      // 3:30: a bright blue energy burst round the cube
             // ----- the Cube Queen's pyramid (always in the distance), her energy orb on top, the rift above it
             Vector3 pyrP = new Vector3(40f, GroundY(40f, 650f), 650f); float pyrS = 1.3f, apex = 150f * pyrS;
-            PlaceOn(pyrM, pyrP, pyrS, 20f, t < T_CUBE_DIE + 2f);
+            PlaceOn(pyrM, pyrP, pyrS, 20f, t < T_END_VIS && sc != Sc.Ocean);
             Vector3 orbP = pyrP + Vector3.up * (apex + 35f), riftC = pyrP + new Vector3(0f, 700f, -120f);
-            bool orbOn = t > T_RIFT - 8f && t < T_CUBE_DIE + 2f; if (orb.gameObject.activeSelf != orbOn) orb.gameObject.SetActive(orbOn);
+            bool orbOn = t > T_RIFT - 8f && t < T_END_VIS && sc != Sc.Ocean; if (orb.gameObject.activeSelf != orbOn) orb.gameObject.SetActive(orbOn);
             if (orbOn) { Face(orb, orbP); float os = 95f * Sm(T_RIFT - 8f, T_RIFT + 4f, t) * (1f + 0.1f * Mathf.Sin(t * 9f)); orb.localScale = new Vector3(os, os, 1f); var om = orb.GetComponent<Renderer>().sharedMaterial; om.color = new Color(1f, 0.6f, 0.25f, Mathf.Clamp01(rift + 0.4f)); }
-            bool riftOn = t > T_RIFT && t < T_CUBE_DIE + 2f; riftRing.enabled = riftRing2.enabled = mainBeam.enabled = riftOn; if (riftDisc.gameObject.activeSelf != riftOn) riftDisc.gameObject.SetActive(riftOn);
+            bool riftOn = t > T_RIFT && t < T_END_VIS; bool beamPre = t > 90f && t <= T_RIFT && sc == Sc.Island; riftRing.enabled = riftRing2.enabled = riftOn; mainBeam.enabled = (riftOn && sc != Sc.Ocean) || beamPre; if (riftDisc.gameObject.activeSelf != riftOn) riftDisc.gameObject.SetActive(riftOn);
             riftLamp.transform.position = W(riftC + new Vector3(0f, -100f, -200f)); riftLamp.intensity = riftOn ? Lit * 6f * rift : 0f;
             if (riftOn)
             {
@@ -290,18 +298,20 @@ namespace AstronomicalEvent
                 mainBeam.SetPosition(0, W(orbP)); mainBeam.SetPosition(1, cp); mainBeam.widthMultiplier = 26f * rift * (1f + 0.12f * Mathf.Sin(t * 14f));
                 if (t - lastBolt > 0.18f && !paused) { lastBolt = t; bolt.enabled = true; Vector3 a0 = cp + UnityEngine.Random.insideUnitSphere * R * 0.6f, b0 = a0 + new Vector3(UnityEngine.Random.Range(-300f, 300f), -UnityEngine.Random.Range(250f, 520f), UnityEngine.Random.Range(-300f, 300f)); for (int k = 0; k < 12; k++) bolt.SetPosition(k, Vector3.Lerp(a0, b0, k / 11f) + (k > 0 && k < 11 ? UnityEngine.Random.insideUnitSphere * 22f : Vector3.zero)); }
             }
+            else if (beamPre) { mainBeam.SetPosition(0, W(orbP)); mainBeam.SetPosition(1, W(orbP + Vector3.up * 1800f)); mainBeam.widthMultiplier = 22f * Sm(90f, 94f, t) * (1f + 0.1f * Mathf.Sin(t * 14f)); bolt.enabled = false; }
             else bolt.enabled = false;
+            if (t > 85f && t < T_RIFT && sc == Sc.Island && !paused && t - lastBolt > 0.55f + 0.5f * Hash((int)(t * 3f), 4)) { lastBolt = t; bolt.enabled = true; Vector3 a0 = pyrP + new Vector3(UnityEngine.Random.Range(-260f, 260f), 1100f, UnityEngine.Random.Range(-260f, 260f)), b0 = pyrP + new Vector3(UnityEngine.Random.Range(-120f, 120f), 0f, UnityEngine.Random.Range(-120f, 120f)); for (int k = 0; k < 12; k++) bolt.SetPosition(k, W(Vector3.Lerp(a0, b0, k / 11f) + (k > 0 && k < 11 ? UnityEngine.Random.insideUnitSphere * 40f : Vector3.zero))); flashLamp.transform.position = W(b0 + Vector3.up * 40f); flashLamp.color = new Color(0.8f, 0.85f, 1f); flashLamp.intensity = Lit * 14f; }
             // ----- the Cube Queen: floats above her pyramid from the rift opening to the end
-            bool qOn = queenM != null && t > T_RIFT - 8f && t < T_CUBE_DIE + 2f;
+            bool qOn = queenM != null && t > T_RIFT - 8f && t < T_END_VIS && sc != Sc.Ocean;
             if (queenM != null) { PlaceGo(queenGo, orbP + Vector3.up * (-14f + 1.5f * Mathf.Sin(t * 0.7f)), 28f / 1.8f * Sm(T_RIFT + 6f, T_RIFT + 16f, t), Quaternion.Euler(0f, yaw * 0f + 180f + 8f * Mathf.Sin(t * 0.3f), 0f), qOn); if (qOn) { float lt; string qc = QueenClip(t, out lt); PlayClip(queenRig, queenM, qc, lt); } }
             // ----- the Last Reality fleet: the Cube's Cradle and the motherships
-            bool crOn = cradleM != null && t > T_FLEET - 4f && t < T_CUBE_DIE + 2f;
+            bool crOn = cradleM != null && t > T_FLEET - 4f && t < T_END_VIS && !IsRoom(sc);
             PlaceOn(cradleM, new Vector3(-60f, 520f, 1500f), 0.12f * Sm(T_FLEET - 4f, T_FLEET + 6f, t), 0f, crOn);
             for (int i = 0; i < ships.Count; i++)
             {
-                float arrive = T_FLEET + i * 1.6f; float k = Sm(arrive, arrive + 9f, t); bool on = t > arrive && t < T_CUBE_DIE + 2f; float ang = (i / (float)ships.Count) * Mathf.PI * 1.1f - 0.55f * Mathf.PI * 1.1f + 0.1f * Mathf.Sin(t * 0.2f + i);
+                float arrive = T_FLEET + i * 1.6f; float k = Sm(arrive, arrive + 9f, t); bool on = t > arrive && t < T_END_VIS && !IsRoom(sc); float ang = (i / (float)ships.Count) * Mathf.PI * 1.1f - 0.55f * Mathf.PI * 1.1f + 0.1f * Mathf.Sin(t * 0.2f + i);
                 Vector3 hover = new Vector3(Mathf.Sin(ang) * 760f, 430f + 80f * (i % 3) + 12f * Mathf.Sin(t * 0.4f + i), 520f + Mathf.Cos(ang) * 420f - 150f + (i % 2) * 120f);
-                Vector3 pos = Vector3.Lerp(riftC, hover, k) + new Vector3(0f, 0f, 0f);
+                Vector3 pos = Vector3.Lerp(riftC, hover, k) + (i == 0 ? Vector3.up * 1500f * Mathf.Pow(Sm(424f, 430f, t), 2f) : Vector3.zero);
                 PlaceGo(ships[i], pos, 0.62f * k, Quaternion.Euler(Mathf.Sin(t * 0.5f + i) * 3f, t * 2.5f + i * 40f, Mathf.Cos(t * 0.45f + i) * 3f), on);
             }
             // ----- the caretaker waves: walk / run to the force field, beat on it (it flashes), then die; the big ones slam it
@@ -321,21 +331,23 @@ namespace AstronomicalEvent
             // ----- abductors circle the cube from 3:45 and fire at its shield from 4:15
             for (int i = 0; i < abds.Count; i++)
             {
-                float arrive = T_ABD + i * 1.4f; float k = Sm(arrive, arrive + 7f, t); bool on = t > arrive && t < T_CUBE_DIE + 1f; float ang = t * 0.35f + i * 0.63f; float rad = Mathf.Lerp(380f, 85f + 12f * (i % 3), k);
-                Vector3 pos = cubeC + new Vector3(Mathf.Cos(ang) * rad, Mathf.Lerp(260f, 55f + 8f * (i % 4), k), Mathf.Sin(ang) * rad * 0.8f - 20f);
-                PlaceGo(abds[i], pos, 0.1f, Quaternion.Euler(Mathf.Sin(t + i) * 6f, -ang * Mathf.Rad2Deg, Mathf.Cos(t * 0.8f + i) * 6f), on);
+                float arrive = 140f + i * 1.4f; float far = Sm(arrive, arrive + 10f, t), near = Sm(T_ABD + i * 1.0f, T_ABD + i * 1.0f + 8f, t); bool on = t > arrive && t < T_END_VIS && !IsRoom(sc); float ang = t * 0.35f + i * 0.63f; float rad = Mathf.Lerp(Mathf.Lerp(950f, 420f, far), 85f + 12f * (i % 3), near);
+                Vector3 pos = cubeC + new Vector3(Mathf.Cos(ang) * rad, Mathf.Lerp(Mathf.Lerp(330f, 200f, far), 55f + 8f * (i % 4), near), Mathf.Sin(ang) * rad * 0.8f - 20f);
+                PlaceGo(abds[i], pos, 0.1f * Mathf.Lerp(1.9f, 1f, near), Quaternion.Euler(Mathf.Sin(t + i) * 6f, -ang * Mathf.Rad2Deg, Mathf.Cos(t * 0.8f + i) * 6f), on);
                 bool fire = on && t > T_SHIELD - 1f + i * 0.3f && t < T_BREAK + 6f; if (beams[i].enabled != fire) beams[i].enabled = fire;
                 if (fire) { Vector3 a = W(pos + Vector3.down * 3f), b = W(cubeC + (pos - cubeC).normalized * 14f); beams[i].SetPosition(0, a); beams[i].SetPosition(1, b); beams[i].widthMultiplier = 2.5f + 1.5f * Mathf.Sin(t * 22f + i); }
                 if (fire && !paused && dt > 0f && UnityEngine.Random.value < dt * 10f) Emit(fx, W(cubeC + (pos - cubeC).normalized * 14f), UnityEngine.Random.insideUnitSphere * 8f, new Color(1f, 0.5f, 0.95f, 1f), UnityEngine.Random.Range(0.8f, 2.2f), 0.6f);
             }
             // ----- after the cube is gone: black until the next milestone
-            Black(black, cam); flashLamp.intensity = Mathf.Max(0f, flashLamp.intensity - dt * 20f * Lit);
+            Color bcol; float pb = P2Black(t, out bcol); if (pb >= 0f) black = pb; else bcol = Color.black; P2Frame(t, dt, tp, cam);
+            Black(black, cam, bcol); flashLamp.intensity = Mathf.Max(0f, flashLamp.intensity - dt * 20f * Lit);
             if (!paused && dt > 0f) { rumbleT += dt; if (rumbleT > 0.12f) { rumbleT = 0f; float v = Mathf.Max(shake * 0.4f, 0f); if (v > 0.05f) { try { var gt = GorillaTagger.Instance; if (gt != null) { gt.StartVibration(true, Mathf.Clamp01(v), 0.14f); gt.StartVibration(false, Mathf.Clamp01(v), 0.14f); } } catch { } } } }
             shake = Mathf.Max(0f, shake - dt * 1.4f);
         }
 
         public void Cleanup()
         {
+            try { P2Cleanup(); } catch { }
             if (ambientSaved) { RenderSettings.ambientLight = ambientSave; RenderSettings.fog = fogSave; ambientSaved = false; }
             try { if (farSave > 0f && Camera.main != null) Camera.main.farClipPlane = farSave; } catch { }
             farSave = -1f; foreach (var kv in origMats) if (kv.Key != null) kv.Key.sharedMaterials = kv.Value; origMats.Clear();
