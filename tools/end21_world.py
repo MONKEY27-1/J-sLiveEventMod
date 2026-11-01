@@ -49,9 +49,11 @@ def walls_z(x, z0, z1, y0, h, m, gaps=(), th=0.3, oh=3.0):
         if h > oh: bx(x, y0 + (oh + h) / 2, (a0 + a1) / 2, th, h - oh, a1 - a0, m)
         cur = a1
     if cur < z1: bx(x, y0 + h / 2, (cur + z1) / 2, th, h, z1 - cur, m)
+ROOMLOG = []
 NOCEIL = bool(os.environ.get('NOCEIL')); DETAIL = not os.environ.get('NODETAIL')
 def room(cx, cz, w, d, h, wm, openings=(), y0=0.0, strip=LC, floor=MF, ceil=MC, strips=True):
     """a closed box room: centre (cx, cz), footprint w (x) by d (z), floor top at y0.  openings: (side, offset along the wall, width, height) with side in xm xp zm zp"""
+    ROOMLOG.append((cx, cz, w, d, h, y0))
     bx(cx, y0 - 0.15, cz, w + 0.6, 0.3, d + 0.6, floor)
     if not NOCEIL: bx(cx, y0 + h + 0.15, cz, w + 0.6, 0.3, d + 0.6, ceil)
     g = {'xm': [], 'xp': [], 'zm': [], 'zp': []}
@@ -108,6 +110,70 @@ def _audit():
     for k, v in sorted(found.items(), key=lambda kv: -len(kv[1]))[:14]:
         i, j, ar = v[0]; print('AUDIT', k, len(v), 'pairs; e.g. boxes', BOXLOG[i][:6], 'vs', BOXLOG[j][:6], 'overlap m2', ar)
 import atexit; atexit.register(_audit)
+
+import random as _rnd, mathutils as _mu
+def rbox(x, y, z, sx, sy, sz, rot, m):
+    """a rotated box (unity centre x, y, z; size width sx, height sy, depth sz; euler rot in blender axes)"""
+    c = Bz(x, y, z); s = (sx, sz, sy); e = _mu.Euler(rot, 'XYZ').to_matrix(); P = {}
+    for ix in (-1, 1):
+        for iy in (-1, 1):
+            for iz in (-1, 1):
+                v = e @ _mu.Vector((ix * s[0] / 2, iy * s[1] / 2, iz * s[2] / 2)); P[(ix, iy, iz)] = (c[0] + v.x, c[1] + v.y, c[2] + v.z)
+    for ax in range(3):
+        for sg in (-1, 1):
+            o1, o2 = [a for a in range(3) if a != ax]; q = []
+            for (u, vv) in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
+                k = [0, 0, 0]; k[ax] = sg; k[o1] = u; k[o2] = vv; q.append(P[tuple(k)])
+            b.quad(q[0], q[1], q[2], q[3], m, [(0, 0), (1, 0), (1, 1), (0, 1)]); b.quad(q[3], q[2], q[1], q[0], m, [(0, 1), (1, 1), (1, 0), (0, 0)])
+def _d(a): return math.radians(a)
+def wreck_rooms(seed, k=1.0):
+    """the Seven are tearing the island over: every box room gets hanging ceiling panels, fallen beams and rubble along the walls (never in the middle lane), scorch marks, glowing wall breaches and leaning pillars"""
+    for ri, (cx, cz, w_, d_, h_, y0) in enumerate(list(ROOMLOG)):
+        R = _rnd.Random(seed * 100 + ri); alongz = d_ >= w_; L = max(w_, d_); hw = min(w_, d_) / 2
+        def P(u, lat): return (cx + lat, cz + u) if alongz else (cx + u, cz + lat)
+        for i in range(int(L / 4 * k) + 1):      # hanging ceiling panels
+            u = R.uniform(-L / 2 + 1, L / 2 - 1); lat = R.uniform(-hw + 0.8, hw - 0.8); x, z = P(u, lat)
+            rbox(x, y0 + h_ - R.uniform(0.35, 0.8), z, R.uniform(1.2, 2.4), 0.12, R.uniform(1.0, 2.0), (_d(R.uniform(10, 38)) * R.choice((-1, 1)), _d(R.uniform(-15, 15)), _d(R.uniform(0, 180))), R.choice((MS, MD, MWR)))
+        for i in range(int(L * 1.3 * k) + 2):    # rubble along both walls
+            side = R.choice((-1, 1)); u = R.uniform(-L / 2 + 0.5, L / 2 - 0.5); lat = side * R.uniform(hw - 1.4, hw - 0.35); s = R.uniform(0.15, 0.7); x, z = P(u, lat)
+            rbox(x, y0 + s * 0.35, z, s, s * R.uniform(0.6, 1.2), s * 0.8, (_d(R.uniform(0, 35)), _d(R.uniform(0, 35)), _d(R.uniform(0, 180))), R.choice((MS, MD, MWB, MWR)))
+        for i in range(int(L / 6 * k) + 1):      # fallen beams
+            side = R.choice((-1, 1)); u = R.uniform(-L / 2 + 1.5, L / 2 - 1.5); lat = side * (hw - 0.7); x, z = P(u, lat)
+            rbox(x, y0 + 0.3, z, 0.3, 0.3, R.uniform(2.2, 4.0), (_d(R.uniform(-6, 6)), 0, _d(R.uniform(-12, 12) + (90 if not alongz else 0))), MD)
+        for i in range(int(L / 5 * k) + 1):      # scorch marks
+            u = R.uniform(-L / 2 + 1, L / 2 - 1); lat = R.uniform(-hw + 0.6, hw - 0.6); x, z = P(u, lat); rbox(x, y0 + 0.02, z, R.uniform(1.2, 3.0), 0.02, R.uniform(1.0, 2.2), (0, 0, _d(R.uniform(0, 180))), MD)
+        for i in range(int(L / 8 * k) + 1):      # glowing breaches in the walls
+            side = R.choice((-1, 1)); u = R.uniform(-L / 2 + 1.5, L / 2 - 1.5); wd = R.uniform(1.0, 2.0); ht = R.uniform(0.9, 1.8); yy = y0 + R.uniform(1.0, 2.0)
+            xa, za = P(u, side * (hw - 0.2)); xb, zb = P(u, side * (hw - 0.26))
+            if alongz: rbox(xa, yy, za, 0.1, ht + 0.3, wd + 0.3, (0, 0, 0), LA); rbox(xb, yy, zb, 0.06, ht, wd, (0, 0, 0), MD)
+            else: rbox(xa, yy, za, wd + 0.3, ht + 0.3, 0.1, (0, 0, 0), LA); rbox(xb, yy, zb, wd, ht, 0.06, (0, 0, 0), MD)
+        for i in range(int(L / 10 * k) + 1):     # leaning pillars
+            side = R.choice((-1, 1)); u = R.uniform(-L / 2 + 1, L / 2 - 1); x, z = P(u, side * (hw - 0.8)); lean = _d(R.uniform(8, 18)) * (1 if (side > 0) == alongz else -1)
+            rbox(x, y0 + h_ / 2 - 0.1, z, 0.35, h_ - 0.2, 0.35, (0, lean, 0) if alongz else (lean, 0, 0), MD)
+def wreck_round(cx, cz, Rr, h_, n, seed, skip=None):
+    R = _rnd.Random(seed)
+    for i in range(n):                           # rubble round the wall
+        a = R.uniform(0, 360)
+        if skip is not None and skip(a % 360): continue
+        r = Rr - R.uniform(0.5, 3.2); s = R.uniform(0.2, 1.1); rbox(cx + math.cos(_d(a)) * r, s * 0.35, cz + math.sin(_d(a)) * r, s, s * R.uniform(0.6, 1.2), s * 0.8, (_d(R.uniform(0, 35)), _d(R.uniform(0, 35)), _d(R.uniform(0, 180))), R.choice((MS, MD, MWP, MCR)))
+    for i in range(int(n / 5)):                   # hanging ceiling slabs
+        a = R.uniform(0, 360); r = Rr * R.uniform(0.2, 0.92); rbox(cx + math.cos(_d(a)) * r, h_ - R.uniform(0.6, 1.6), cz + math.sin(_d(a)) * r, R.uniform(2.0, 4.5), 0.18, R.uniform(1.6, 3.5), (_d(R.uniform(12, 40)) * R.choice((-1, 1)), _d(R.uniform(-20, 20)), _d(R.uniform(0, 180))), R.choice((MS, MD)))
+    for i in range(int(n / 9) + 2):               # long beams fallen from the wall to the floor
+        a = R.uniform(0, 360)
+        if skip is not None and skip(a % 360): continue
+        r = Rr - 2.5; rbox(cx + math.cos(_d(a)) * r, 1.6, cz + math.sin(_d(a)) * r, 0.4, 0.4, R.uniform(4, 8), (_d(R.uniform(35, 55)), 0, _d(a + 90)), MD)
+    for i in range(int(n / 6) + 2):               # scorch marks
+        a = R.uniform(0, 360); r = Rr * R.uniform(0.2, 0.9); rbox(cx + math.cos(_d(a)) * r, 0.03, cz + math.sin(_d(a)) * r, R.uniform(2, 5), 0.02, R.uniform(1.6, 3.5), (0, 0, _d(R.uniform(0, 180))), MD)
+# the I.O. complex is tilted: the Seven are heaving the island over above it. Walls, ceilings and fittings lean sideways (shear x += k * height), floors stay flat so nobody walks on a slope
+SHEAR = {'hall': 0.05, 'gyro': 0.06, 'base': 0.07}.get(kind, 0.0)
+def shear_all():
+    if SHEAR == 0: return
+    for o in bpy.data.objects:
+        if o.type == 'MESH' and o.name in ('Hall', 'Gyro', 'Base'):
+            for v in o.data.vertices: v.co.x += SHEAR * max(0.0, v.co.z)
+        else: o.location.x += SHEAR * o.location.z
+_export0 = export
+def export(out_): shear_all(); _export0(out_)
 WPS = []
 def wp(x, y, z): WPS.append((x, y, z))
 def ring_obj(name, radius, tube, mat, loc, axis='z', seg=48, tseg=8, rot=None):
@@ -150,6 +216,7 @@ if kind == 'hall':
     bx(0, 1.9, 51.9, 7, 3.2, 0.15, MD); bx(2.5, 1.5, 51.7, 0.7, 0.9, 0.12, XO, 1.0); bx(-2.5, 1.5, 51.7, 0.7, 0.9, 0.12, XB, 1.0); bx(0, 3.0, 51.6, 3.0, 0.15, 0.1, LR, 1.0)
     for k, z in enumerate((15.0, 28.0, 40.0)): bx(0, 1.7, z, 4, 0.4, 0.3, MD); bx(0, 1.0, z, 0.3, 2.0, 0.3, MS)                                         # door frames across the hall
     for z in (10, 22, 34, 44.5): wp(0, 0, z)
+    wreck_rooms(11, 1.1)
     b.build('Hall')
     for i, (x, y, z) in enumerate(WPS): empty('WP%02d' % i, None, Bz(x, y, z))
     export(out)
@@ -168,10 +235,12 @@ elif kind == 'gyro':
     bx(0, 1.15, 3.5, 6.0, 1.1, 1.3, MD, 2.0, top=MS); bx(-1.9, 1.95, 3.9, 1.8, 0.9, 0.1, XB, 1.0); bx(0, 1.95, 3.9, 1.8, 0.9, 0.1, XG, 1.0); bx(1.9, 1.95, 3.9, 1.8, 0.9, 0.1, XR, 1.0)
     bx(-1.2, 1.78, 3.1, 1.0, 0.1, 0.6, XO, 1.0); cylv(1.4, 1.85, 3.1, 0.22, 0.2, LR, 10)                                          # the keypad and the big red button
     ring_obj('Arc', 7.0, 0.35, LW, (0, 8.0, 6.0), 'z', 64, 8); ring_obj('Arc2', 5.8, 0.18, LC, (0, 8.0, 5.9), 'z', 64, 6); ring_obj('Arc3', 8.4, 0.12, LPU, (0, 8.0, 6.1), 'z', 64, 6)
-    b.cyl(Bz(0, 6.6, 7.0), 0.05, 2.8, MCR2, 8, r2=1.7); b.cyl(Bz(0, 9.4, 7.0), 1.7, 2.8, MCR, 8, r2=0.05)      # the Zero Point crystal at the centre of the ring (two cones)
     for k in range(8): a = k * 2 * math.pi / 8; bx(math.cos(a) * 8.2, 8.0 + math.sin(a) * 8.2, 6.2, 0.5, 0.5, 0.6, MS, 1.0)       # clamps round the arc
     arcs = [o for o in bpy.data.objects if o.name.startswith('Arc')]
     for k, o in enumerate(arcs): keys(o, 'scale', lambda t, k=k: (1.0 + 0.03 * math.sin(2 * math.pi * t / (1.6 + 0.4 * k)),) * 3, 24, 8, 2); keys(o, 'rotation_euler', lambda t, k=k: (math.pi / 2, (1 if k % 2 == 0 else -1) * 2 * math.pi * t / 8 * (1 + k), 0), 24, 8, 2)
+    for sgn in (-1, 1):      # the two corridors the guards come down (door frames at x = +-15); a closed far end with a small doorway
+        room(sgn * 27.8, 0, 25, 10, 5.0, MWB if sgn > 0 else MWR, [('xm' if sgn > 0 else 'xp', 0, 10.0, 4.0), ('xp' if sgn > 0 else 'xm', 0, 4.0, 3.0)], strip=LC if sgn > 0 else LR)
+    wreck_round(0, 0, R, 16.0, 80, 7, lambda d: min(d, 360 - d) < 20 or abs(d - 180) < 20); wreck_rooms(12, 1.3)
     wp(0, 0, -6); wp(0, 0, 1.5)
     b.build('Gyro')
     for i, (x, y, z) in enumerate(WPS): empty('WP%02d' % i, None, Bz(x, y, z))
@@ -273,6 +342,7 @@ elif kind == 'base':
     for sgn in (-1, 1): bx(ccx + sgn * 16.0, 8.0, ccz + 6.0, 2.4, 16.0, 2.4, MD, 2.0); bx(ccx + sgn * 16.0, 8.0, ccz + 4.7, 0.3, 14.0, 0.2, LPU, 1.0)    # the pylons the ring hangs from
     for k in range(10): a = k * 2 * math.pi / 10; bx(ccx + math.cos(a) * 11.0, 17.0 + math.sin(a) * 11.0, ccz + 6.0, 1.0, 1.0, 1.2, MS, 1.0)
     wp(ccx, 0, ccz - CR); wp(ccx, 0, ccz - CR + 14)
+    wreck_rooms(13, 0.9); wreck_round(ccx, ccz, CR, 31.0, 90, 17, lambda d: abs(d - 270) < 12)
     b.build('Base')
     # the glass dome (alpha, separate so the scene can shatter it) and the swirl disc inside the ring
     GL = material('A_Glass', tex_glass(0.22)); gm = sphere(CR + 0.2, 40, 16)

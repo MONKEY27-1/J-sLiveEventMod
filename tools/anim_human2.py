@@ -285,7 +285,7 @@ def c_shield(t): return P(IDLE, gun=BACK, hl=(0.3, 0.6, 0.6, 1.0), hr=(0.3, 0.6,
 
 # ---- THE END part 2 additions: a reclined captive (the scanner chair), a crouched sneak-walk with the rifle low, a held pose for pushing / pinning, and a two-handed shove
 def c_recline(t):
-    return P(IDLE, gun=BACK, pel=(0, -0.46, -0.24), fl=(FX, 0, 0.19), fr=(-FX, 0, 0.19), lean=-0.3 + 0.012 * sn(t, 0.25), nod=-0.12 + 0.04 * sn(t, 0.18), turn=0.14 * sn(t, 0.07), tilt=0.05 * sn(t, 0.11),
+    return P(IDLE, gun=BACK, pel=(0, -0.46, -0.24), fl=(FX, 0, 0.5), fr=(-FX, 0, 0.5), lean=-0.3 + 0.012 * sn(t, 0.25), nod=-0.12 + 0.04 * sn(t, 0.18), turn=0.14 * sn(t, 0.07), tilt=0.05 * sn(t, 0.11),
              hl=(0.35, -0.9, 0.15, 0.62), hr=(0.35, -0.9, 0.15, 0.62), el=(0.9, -0.1, -0.2), er=(0.9, -0.1, -0.2))
 def c_sneak(t):
     p = gait(t, 1.35, 1.0, 0.66, 0.08, 0.018, 0.34, 0.0, LOW); p['pel'] = (p['pel'][0], p['pel'][1] - 0.30, p['pel'][2] + 0.03); p['nod'] = 0.1 + 0.03 * sn(t, 0.74); p['turn'] = 0.25 * sn(t, 0.37); return p

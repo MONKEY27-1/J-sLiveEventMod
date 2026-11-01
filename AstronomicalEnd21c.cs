@@ -81,9 +81,9 @@ namespace AstronomicalEvent
             float[] gt = { 357.0f, 358.4f, 361.4f, 365.6f, 372.4f, 375.2f, 379.0f, 385.2f, 386.6f, 389.5f };
             for (int k = 0; k < gt.Length; k++)
             {
-                float side = k < 4 ? 1f : (k < 7 ? -1f : (k % 2 == 0 ? 1f : -1f)), t0 = gt[k], tx = side * (8f + (k % 3) * 1.1f), tz = ((k * 37) % 5 - 2) * 0.75f, doorX = side * 13.9f, run = 2.2f + 0.1f * (k % 3);
-                var g = NewAct("Guard" + (10 + k), grdM, 1f, true, true, -1f, t0 - 0.1f, t0 + run + 7.2f); if (g == null) continue; float yw = side > 0 ? 270f : 90f;
-                Wp(g, t0, doorX, Y_GYRO, tz * 0.5f, yw, "Run"); Wp(g, t0 + run, tx, Y_GYRO, tz, yw, "Fire"); Wp(g, t0 + run + 4.4f, tx, Y_GYRO, tz, yw, "Fire"); Wp(g, t0 + run + 4.6f, tx, Y_GYRO, tz, yw, "Death"); Wp(g, t0 + run + 7.0f, tx, Y_GYRO, tz, yw, "Death");
+                float side = k < 4 ? 1f : (k < 7 ? -1f : (k % 2 == 0 ? 1f : -1f)), t0 = gt[k], tx = side * (8f + (k % 3) * 1.1f), tz = ((k * 37) % 5 - 2) * 0.75f, run = 2.2f + 0.1f * (k % 3), arrive = t0 + run, ts = Mathf.Max(arrive - 6.2f, T_GYRO + 0.05f), doorX = side * (Mathf.Abs(tx) + Mathf.Min(30f, (arrive - ts) * 4.9f));      // they run down the corridor (30 m at 4.9 m/s)
+                var g = NewAct("Guard" + (10 + k), grdM, 1f, true, true, -1f, ts - 0.05f, t0 + run + 7.2f); if (g == null) continue; float yw = side > 0 ? 270f : 90f;
+                Wp(g, ts, doorX, Y_GYRO, tz, yw, "Run"); Wp(g, t0 + run, tx, Y_GYRO, tz, yw, "Fire"); Wp(g, t0 + run + 4.4f, tx, Y_GYRO, tz, yw, "Fire"); Wp(g, t0 + run + 4.6f, tx, Y_GYRO, tz, yw, "Death"); Wp(g, t0 + run + 7.0f, tx, Y_GYRO, tz, yw, "Death");
                 g.Aim = () => F != null && F.Go != null ? F.Go.transform.position + Vector3.up * 1.2f : Vector3.zero;
             }
             FindStage();
@@ -184,6 +184,12 @@ namespace AstronomicalEvent
                 if (t > 547.2f && t < T_FLOOD && UnityEngine.Random.value < dt * 30f) Emit(fx, top + UnityEngine.Random.insideUnitSphere * 30f, new Vector3(0f, -UnityEngine.Random.Range(4f, 12f), 0f), new Color(0.8f, 0.95f, 1f, 0.9f), UnityEngine.Random.Range(0.2f, 0.7f), UnityEngine.Random.Range(1f, 2.5f));      // the glass cracks and showers down
                 if (at(T_FLOOD)) { Sfx(sGlass, top, 1f, 0.75f, 0.1f); Sfx(sRumble, HeadNow(), 0.9f, 1f, 0.5f); glassGone = true; Boom(top, 32f, 1.5f, new Color(0.6f, 0.9f, 1f)); shake = Mathf.Max(shake, 3.5f); for (int k = 0; k < 400; k++) Emit(fx, top + UnityEngine.Random.insideUnitSphere * 30f, new Vector3(UnityEngine.Random.Range(-8f, 8f), -UnityEngine.Random.Range(5f, 25f), UnityEngine.Random.Range(-8f, 8f)), new Color(0.7f, 0.95f, 1f, 1f), UnityEngine.Random.Range(0.15f, 0.6f), UnityEngine.Random.Range(1.5f, 3.5f)); }
                 if (t > T_FLOOD && dt > 0f) { Vector3 hp = HeadNow(); if (UnityEngine.Random.value < dt * 60f) Emit(dust, hp + UnityEngine.Random.insideUnitSphere * 6f, new Vector3(0f, UnityEngine.Random.Range(1f, 3f), 0f), new Color(0.6f, 0.85f, 1f, 0.5f), UnityEngine.Random.Range(0.1f, 0.4f), UnityEngine.Random.Range(2f, 4f)); }
+            }
+            if ((sc == Sc.Hall || sc == Sc.Gyro || sc == Sc.Base) && dt > 0f)      // the island is being heaved over: dust and embers fall from the ceiling, the complex groans
+            {
+                Vector3 hp = HeadNow(); if (UnityEngine.Random.value < dt * 24f) Emit(dust, hp + new Vector3(UnityEngine.Random.Range(-6f, 6f), UnityEngine.Random.Range(0.5f, 3f), UnityEngine.Random.Range(-6f, 6f)), new Vector3(0f, -UnityEngine.Random.Range(0.3f, 1.2f), 0f), new Color(0.5f, 0.45f, 0.45f, 0.35f), UnityEngine.Random.Range(0.12f, 0.5f), UnityEngine.Random.Range(2f, 4.5f));
+                if (UnityEngine.Random.value < dt * 14f) Emit(fx, hp + new Vector3(UnityEngine.Random.Range(-7f, 7f), UnityEngine.Random.Range(-0.3f, 2.5f), UnityEngine.Random.Range(-7f, 7f)), new Vector3(UnityEngine.Random.Range(-0.4f, 0.4f), UnityEngine.Random.Range(0.6f, 2f), UnityEngine.Random.Range(-0.4f, 0.4f)), new Color(1f, UnityEngine.Random.Range(0.4f, 0.7f), 0.12f, 0.9f), UnityEngine.Random.Range(0.04f, 0.12f), UnityEngine.Random.Range(1.2f, 2.8f));
+                if (UnityEngine.Random.value < dt * 0.35f) { shake = Mathf.Max(shake, 0.45f); Sfx(sRumble, hp, 0.5f, 1.1f, 2f); }
             }
             OceanFx(t, tp, dt, sc, cam);
         }

@@ -18,7 +18,7 @@ namespace AstronomicalEvent
     internal sealed partial class AstronomicalEnd21
     {
         const float T_FAC = 270f, T_HALL = 332f, T_GYRO = 356f, T_SURF = 400f, T_BASE = 430f, T_CHAM = 508f, T_FLOOD = 550f, T_OCEAN = 555f, T_END_VIS = 603.5f;
-        const float Y_PLAT_OFF = 0.7f, Y_FAC = 700f, Y_HALL = 760f, Y_GYRO = 820f, Y_BASE = 900f;
+        const float Y_PLAT_OFF = 0.7f, GYRO_SHEAR = 0.06f, Y_FAC = 700f, Y_HALL = 760f, Y_GYRO = 820f, Y_BASE = 900f;
         enum Sc { Island, Fac, Hall, Gyro, Surface, Base, Ocean }
         static Sc SceneAt(float t) { if (t < T_FAC) return Sc.Island; if (t < T_HALL) return Sc.Fac; if (t < T_GYRO) return Sc.Hall; if (t < T_SURF) return Sc.Gyro; if (t < T_BASE) return Sc.Surface; if (t < T_OCEAN) return Sc.Base; return Sc.Ocean; }
         static bool IsRoom(Sc s) { return s == Sc.Fac || s == Sc.Hall || s == Sc.Gyro || s == Sc.Base; }
@@ -334,6 +334,11 @@ namespace AstronomicalEvent
                 if (baseGlass != null) { bool gl = t < T_FLOOD && !glassGone; if (baseGlass.gameObject.activeSelf != gl) baseGlass.gameObject.SetActive(gl); }
                 bool zpOn = zpM2 != null && t >= T_CHAM - 16f && t < T_FLOOD + 1.5f; if (zpM2 != null && zpM2.Pivot.activeSelf != zpOn) zpM2.Pivot.SetActive(zpOn);
                 if (zpOn) { var zt = zpM2.Pivot.transform; zt.localScale = Vector3.one * 6.2f * Sm(T_CHAM - 16f, T_CHAM - 12f, t) * (1f + 0.05f * Mathf.Sin(t * 6f)); zt.localRotation = Quaternion.Euler(0f, t * 25f, 0f); PlaceByFile(zpM2, bZpc); if (zpR2 != null) zpR2.Pose(FindClip(zpM2, "Animation"), t); }
+            }
+            else if (sc == Sc.Gyro && zpM2 != null)      // 5:56 - 6:40: the Zero Point hangs in the middle of the machine's ring (the ring is at height 8, 7 m in front of the desk; the room leans 0.06 per metre of height)
+            {
+                if (!zpM2.Pivot.activeSelf) zpM2.Pivot.SetActive(true); var zt = zpM2.Pivot.transform; float surge = Sm(391.5f, 392.5f, t) * (1f - Sm(396f, 400f, t)); zt.localScale = Vector3.one * 2.3f * (1f + 0.06f * Mathf.Sin(t * 6f) + 0.35f * surge); zt.localRotation = Quaternion.Euler(0f, t * 22f, 0f);
+                PlaceByFile(zpM2, new Vector3(GYRO_SHEAR * 8f, Y_GYRO + 8f, 7f)); if (zpR2 != null) zpR2.Pose(FindClip(zpM2, "Animation"), t);
             }
             else if (zpM2 != null && zpM2.Pivot.activeSelf) zpM2.Pivot.SetActive(false);
         }
