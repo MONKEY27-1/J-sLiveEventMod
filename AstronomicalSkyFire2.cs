@@ -22,14 +22,14 @@ namespace AstronomicalEvent
 
         void BuildModels()
         {
-            inM = Take("interior", 1.0f, true); viewM = Take("view", 1.0f, true); propM = Take("props", 1.0f, true); ufoM = Take("ufo", 1.2f, false); cubeM = Take("cube", 1.0f, true); shipM = Take("mothership", 1.2f, false); jonM = Take("jones", 1.25f, false); fouM = Take("foundation", 1.25f, false); grdM = Take("guard", 1.25f, false);
+            inM = Take("interior", 1.0f, true); viewM = Take("view", 1.0f, true); propM = Take("props", 1.0f, true); ufoM = Take("ufo", 1.2f, false); cubeM = Take("cube", 1.0f, true); debM = Take("debris", 1.0f, true); shipM = Take("mothership", 1.2f, false); jonM = Take("jones", 1.25f, false); fouM = Take("foundation", 1.25f, false); grdM = Take("guard", 1.25f, false);
         }
         void BuildContent()
         {
             squad.Clear(); blocks.Clear(); bS.Clear(); bE.Clear();
             if (inM != null)
             {
-                inM.Pivot.SetActive(true); PlaceByFile(inM, new Vector3(0f, Y_INT, 0f));
+                inM.Pivot.SetActive(true); inM.Pivot.transform.localScale = Vector3.one * MK; PlaceByFile(inM, new Vector3(0f, Y_INT, 0f));
                 foreach (var t in inM.Pivot.GetComponentsInChildren<Transform>(true))
                 {
                     if (t.name.StartsWith("S_")) bS[t.name.Substring(2)] = root.transform.InverseTransformPoint(t.position); else if (t.name.StartsWith("E_")) bE[t.name.Substring(2)] = root.transform.InverseTransformPoint(t.position);
@@ -40,10 +40,10 @@ namespace AstronomicalEvent
             }
             if (viewM != null)
             {
-                viewM.Pivot.SetActive(false); PlaceByFile(viewM, new Vector3(0f, VIEW_Y, VIEW_Z));
+                viewM.Pivot.SetActive(false); viewM.Pivot.transform.localScale = Vector3.one * MK; PlaceByFile(viewM, new Vector3(0f, VIEW_Y, VIEW_Z));
                 foreach (var t in viewM.Pivot.GetComponentsInChildren<Transform>(true)) { if (t.name == "S_VIEW") bS["VIEW"] = root.transform.InverseTransformPoint(t.position); else if (t.name == "E_VIEW") bE["VIEW"] = root.transform.InverseTransformPoint(t.position); }
             }
-            BuildCubeHall();
+            BuildCubeHall(); BuildDebris();
             JsLiveEventsMod.Log.LogInfo("SkyFire: blocks " + blocks.Count + ", routes " + bS.Count + ", swirl mats " + swirlMats.Count);
             // props: the backpack, rocks and saucers are cloned from the props / ufo files
             var packSrc = Sub(propM, "Backpack");
@@ -77,7 +77,7 @@ namespace AstronomicalEvent
         void BackReset() { }
         void ContentCleanup()
         {
-            parts.Clear(); partBase.Clear(); partRot.Clear(); steamPts.Clear(); scrollMats.Clear(); rackGos.Clear(); floaters.Clear(); fallCubes.Clear(); floatBase.Clear(); cubeParts.Clear(); routes.Clear(); runeTex = null; rackFrame = rackFace = fallGlow = null;
+            parts.Clear(); partBase.Clear(); partRot.Clear(); steamPts.Clear(); scrollMats.Clear(); rackGos.Clear(); floaters.Clear(); fallCubes.Clear(); floatBase.Clear(); cubeParts.Clear(); routes.Clear(); DebrisCleanup(); runeTex = null; rackFrame = rackFace = fallGlow = null;
             squad.Clear(); blocks.Clear(); rocks.Clear(); saucers.Clear(); swirlMats.Clear(); bolts.Clear(); poolT = null; beam = vortex = null; cubeP = cubeB = cubeU = null; promptTm = titleTm = null; cubeTex = edgeTex = null; shipGo = null; textFont = null;
         }
 
@@ -115,7 +115,7 @@ namespace AstronomicalEvent
         static string TimerText(float t) { int s = Mathf.Max(0, Mathf.RoundToInt(Timer(t))); return (s / 60) + ":" + (s % 60).ToString("00"); }
         static void GaitOf(string clip, out float period, out float stride)
         {
-            switch (clip) { case "Run": period = 0.75f; stride = 3.2f; break; case "Jog": period = 0.85f; stride = 2.3f; break; default: period = 1.0f; stride = 1.5f; break; }
+            switch (clip) { case "Run": period = 0.75f; stride = 3.2f * 2.1f; break; case "Jog": period = 0.85f; stride = 2.3f * 2.1f; break; default: period = 1.0f; stride = 1.5f * 2.1f; break; }
         }
         static readonly HashSet<string> oneShot = new HashSet<string>(new[] { "Death", "Stagger", "Fall", "Panic", "Land", "Hit" });
         Color RoomLight(float t, Seg g, out Color c2, out float i1, out float i2, out Color amb, out float sunI, out Color sunC)
@@ -188,7 +188,8 @@ namespace AstronomicalEvent
             if (sc != Sc.Purple) foreach (var b in bolts) if (b.enabled) b.enabled = false;
             if (promptTm != null && sc != Sc.Blue && promptTm.gameObject.activeSelf) promptTm.gameObject.SetActive(false);
             if (sc != Sc.Crystal) { foreach (var go in rackGos) if (go != null && go.activeSelf) go.SetActive(false); foreach (var go in floaters) if (go != null && go.activeSelf) go.SetActive(false); }
-            if (sc != Sc.Fall) foreach (var go in fallCubes) if (go != null && go.activeSelf) go.SetActive(false);
+            if (sc != Sc.Fall) { foreach (var go in fallCubes) if (go != null && go.activeSelf) go.SetActive(false); foreach (var go in debFall) if (go != null && go.activeSelf) go.SetActive(false); foreach (var go in debChunks) if (go != null && go.activeSelf) go.SetActive(false); }
+            if (sc != Sc.Crystal) foreach (var go in debHall) if (go != null && go.activeSelf) go.SetActive(false);
             if (sc != Sc.Crystal && sc != Sc.Fall && sc != Sc.Abduct) for (int i = 0; i < saucers.Count; i++) if (saucers[i] != null && saucers[i].activeSelf) saucers[i].SetActive(false);
             if (sc != Sc.Fall && sc != Sc.Abduct && shipM != null && shipM.Pivot.activeSelf) shipM.Pivot.SetActive(false);
             if (sc == Sc.Fall && t >= T_TITLE && titleTm != null && cam != null)
@@ -221,12 +222,12 @@ namespace AstronomicalEvent
         {
             foreach (var m in swirlMats) if (m != null) m.mainTextureOffset = new Vector2(t * 0.9f, t * 0.25f);
             Vector3 f = root.transform.rotation * Vector3.forward;
-            if (!paused && dt > 0f) for (int k = 0; k < 3; k++) { float a = UnityEngine.Random.value * 6.2832f, r = UnityEngine.Random.Range(1.2f, 3.1f); Vector3 p = headW + f * UnityEngine.Random.Range(8f, 40f) + root.transform.right * Mathf.Cos(a) * r + Vector3.up * (Mathf.Sin(a) * r - 0.9f); Emit(fx, p, -f * 40f, new Color(0.5f, 1f, 1f, 1f), 0.18f, 0.5f); }
+            if (!paused && dt > 0f) for (int k = 0; k < 3; k++) { float a = UnityEngine.Random.value * 6.2832f, r = UnityEngine.Random.Range(1.2f, 3.1f) * MK; Vector3 p = headW + f * UnityEngine.Random.Range(8f, 40f) + root.transform.right * Mathf.Cos(a) * r + Vector3.up * (Mathf.Sin(a) * r - 0.9f); Emit(fx, p, -f * 40f, new Color(0.5f, 1f, 1f, 1f), 0.18f, 0.5f); }
             Seg g = SegAt(t); if (tp < g.T0 + 0.6f && t >= g.T0 + 0.6f) Sfx(sWhoosh, headW, 0.9f, 1f, 1f);
         }
         void PurpleFx(float t, float tp, float dt, Seg g, Vector3 headW)
         {
-            Vector3 s = bS["PURPLE"], c = s + new Vector3(0f, 0f, 28f); float grow = Sm(305f, 326f, t), hover = 7f + 1.0f * Mathf.Sin(t * 0.8f); float size = 12f * grow;
+            Vector3 s = bS["PURPLE"], c = s + new Vector3(0f, 0f, 28f) * MK; float grow = Sm(305f, 326f, t), hover = (7f + 1.0f * Mathf.Sin(t * 0.8f)) * MK; float size = 12f * MK * grow;
             float charge = Sm(326f, 352f, t), flare = Sm(348f, 355f, t) * (1f - Sm(357f, 360f, t));
             Color core = Color.Lerp(new Color(0.42f, 0.4f, 0.48f), new Color(0.3f, 0.12f, 0.45f), charge); Color aura = Color.Lerp(new Color(0.65f, 0.35f, 0.95f, 0.12f), new Color(0.85f, 0.4f, 1f, 0.75f), charge); aura = Color.Lerp(aura, new Color(1f, 0.9f, 1f, 1f), flare);
             SetCube(cubeP, c + Vector3.up * (hover + size * 0.5f), new Vector3(size, size * 0.9f, size) * 0.9f, t * 6f + 20f, core, aura, grow > 0.01f);
@@ -237,7 +238,7 @@ namespace AstronomicalEvent
                     boltT = Mathf.Lerp(0.2f, 0.09f, charge); Vector3 from = W(c + Vector3.up * (hover + size * 0.5f)); bool zapped = false;
                     for (int b = 0; b < bolts.Count; b++)
                     {
-                        var l = bolts[b]; bool on = UnityEngine.Random.value < 0.35f + 0.5f * charge; l.enabled = on; if (!on) continue; float a = UnityEngine.Random.value * 6.2832f; Vector3 to = W(c + new Vector3(Mathf.Sin(a) * 25f, UnityEngine.Random.Range(0.5f, 20f), Mathf.Cos(a) * 25f));
+                        var l = bolts[b]; bool on = UnityEngine.Random.value < 0.35f + 0.5f * charge; l.enabled = on; if (!on) continue; float a = UnityEngine.Random.value * 6.2832f; Vector3 to = W(c + new Vector3(Mathf.Sin(a) * 25f * MK, UnityEngine.Random.Range(0.5f, 20f) * MK, Mathf.Cos(a) * 25f * MK));
                         for (int k = 0; k < l.positionCount; k++) { float u = k / (l.positionCount - 1f); Vector3 p = Vector3.Lerp(from, to, u); if (k > 0 && k < l.positionCount - 1) p += UnityEngine.Random.insideUnitSphere * 2.2f * Mathf.Sin(u * 3.14f); l.SetPosition(k, p); }
                         l.widthMultiplier = 0.5f + UnityEngine.Random.value * 0.9f; if (!zapped) { zapped = true; Sfx(sZap, to, 0.5f, UnityEngine.Random.Range(0.7f, 1.2f), 0.12f); flashLamp.transform.position = to; flashLamp.color = new Color(0.85f, 0.6f, 1f); flashLamp.intensity = Lit * 12f; }
                     }
@@ -245,23 +246,23 @@ namespace AstronomicalEvent
                 }
             }
             else foreach (var b in bolts) if (b.enabled) b.enabled = false;
-            if (!paused && dt > 0f && t >= 295f) for (int k = 0; k < (int)(2 + 5 * charge); k++) { float a = UnityEngine.Random.value * 6.2832f, r = UnityEngine.Random.Range(0f, 11f); Emit(fx, W(c + new Vector3(Mathf.Sin(a) * r, 0.2f, Mathf.Cos(a) * r)), Vector3.up * UnityEngine.Random.Range(2f, 9f), new Color(0.85f, 0.4f, 1f, 0.9f), UnityEngine.Random.Range(0.2f, 0.6f), UnityEngine.Random.Range(1f, 2.4f)); }
-            if (flare > 0.01f) { flashLamp.transform.position = W(c + Vector3.up * 14f); flashLamp.color = new Color(0.95f, 0.8f, 1f); flashLamp.intensity = Lit * 10f * flare; }
+            if (!paused && dt > 0f && t >= 295f) for (int k = 0; k < (int)(2 + 5 * charge); k++) { float a = UnityEngine.Random.value * 6.2832f, r = UnityEngine.Random.Range(0f, 11f) * MK; Emit(fx, W(c + new Vector3(Mathf.Sin(a) * r, 0.2f, Mathf.Cos(a) * r)), Vector3.up * UnityEngine.Random.Range(2f, 9f), new Color(0.85f, 0.4f, 1f, 0.9f), UnityEngine.Random.Range(0.2f, 0.6f), UnityEngine.Random.Range(1f, 2.4f)); }
+            if (flare > 0.01f) { flashLamp.transform.position = W(c + Vector3.up * 14f * MK); flashLamp.color = new Color(0.95f, 0.8f, 1f); flashLamp.intensity = Lit * 10f * flare; }
         }
         void BlueFx(float t, float tp, float dt, Seg g, Vector3 headW, Camera cam)
         {
             if (g.S == Sc.Lift) { shake = Mathf.Max(shake, 0.3f + 0.3f * Sm(495f, 500f, t)); if (!paused && dt > 0f) { if (UnityEngine.Random.value < dt * 8f) Emit(dust, headW + UnityEngine.Random.insideUnitSphere * 6f + Vector3.up * 6f, Vector3.down * 2f, new Color(0.6f, 0.6f, 0.8f, 0.4f), 1.5f, 1.5f); if (Mathf.FloorToInt(t / 3f) != Mathf.FloorToInt(tp / 3f)) Sfx(sBig, headW, 0.5f, 0.5f, 1f); } }
-            Vector3 c = bS["BLUE"] + new Vector3(0f, 0f, 38f); float rb = Sm(T_REBOOT, T_REBOOT + 6f, t), rise = Sm(T_REBOOT + 4f, T_REBOOT + 24f, t); if (t >= 495f) { rb = 1f; rise = 1f; }
+            Vector3 c = bS["BLUE"] + new Vector3(0f, 0f, 38f) * MK; float rb = Sm(T_REBOOT, T_REBOOT + 6f, t), rise = Sm(T_REBOOT + 4f, T_REBOOT + 24f, t); if (t >= 495f) { rb = 1f; rise = 1f; }
             Color core = Color.Lerp(new Color(0.42f, 0.4f, 0.46f), new Color(0.3f, 0.68f, 1f), rb), aura = Color.Lerp(new Color(0.55f, 0.5f, 0.75f, 0.12f), new Color(0.45f, 0.88f, 1f, 0.7f), rb);
-            float h = Mathf.Lerp(7f, 9f, rise); Vector3 cc = c + new Vector3(0f, 3.4f + h * 0.5f + 0.4f * Mathf.Sin(t * 1.1f), 0f); SetCube(cubeB, cc, new Vector3(h, h, h), t * 9f + 20f, core, aura, true);
+            float h = Mathf.Lerp(7f, 9f, rise) * MK; Vector3 cc = c + new Vector3(0f, 3.4f * MK + h * 0.5f + 0.4f * Mathf.Sin(t * 1.1f), 0f); SetCube(cubeB, cc, new Vector3(h, h, h), t * 9f + 20f, core, aura, true);
             bool pr = t > 418f && t < 428f && promptTm != null; if (promptTm != null && promptTm.gameObject.activeSelf != pr) promptTm.gameObject.SetActive(pr);
-            if (pr) { Vector3 pp = W(c + new Vector3(0f, 2.3f, -7.5f)); promptTm.transform.position = pp; if (cam != null) { Vector3 d = pp - cam.transform.position; d.y = 0f; if (d.sqrMagnitude > 0.01f) promptTm.transform.rotation = Quaternion.LookRotation(d, Vector3.up); } promptTm.color = new Color(1f, 1f, 1f, Sm(418f, 419f, t) * (1f - Sm(T_REBOOT, T_REBOOT + 1.5f, t) * 0.7f)); }
+            if (pr) { Vector3 pp = W(c + new Vector3(0f, 2.3f, -7.5f * MK)); promptTm.transform.position = pp; if (cam != null) { Vector3 d = pp - cam.transform.position; d.y = 0f; if (d.sqrMagnitude > 0.01f) promptTm.transform.rotation = Quaternion.LookRotation(d, Vector3.up); } promptTm.color = new Color(1f, 1f, 1f, Sm(418f, 419f, t) * (1f - Sm(T_REBOOT, T_REBOOT + 1.5f, t) * 0.7f)); }
             if (tp < T_REBOOT && t >= T_REBOOT && !paused) { Boom(W(cc), 9f, 0.6f, new Color(0.4f, 0.85f, 1f), false); flashLamp.intensity = Lit * 14f; for (int k = 0; k < 240; k++) { var d = UnityEngine.Random.onUnitSphere; Emit(fx, W(cc), d * UnityEngine.Random.Range(6f, 26f), new Color(0.4f, 0.9f, 1f, 1f), UnityEngine.Random.Range(0.3f, 1.4f), UnityEngine.Random.Range(0.8f, 2.2f)); } }
             if (rb > 0.3f && !paused && dt > 0f) for (int k = 0; k < 3; k++) Emit(fx, W(cc + UnityEngine.Random.onUnitSphere * h * 0.75f), Vector3.up * UnityEngine.Random.Range(0.5f, 3f), new Color(0.6f, 0.95f, 1f, 0.9f), UnityEngine.Random.Range(0.12f, 0.4f), UnityEngine.Random.Range(1f, 2.4f));
         }
         void FallFx(float t, float tp, float dt, Seg g, Vector3 an, Camera cam)
         {
-            FallCubes(t, tp, dt, an);
+            FallCubes(t, tp, dt, an); FallDebris(t, tp, dt, an);
             // the Mothership far above and ahead: it burns and tears apart (9:50 - 10:09 is mostly this view)
             if (shipM != null)
             {

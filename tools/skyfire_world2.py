@@ -49,11 +49,28 @@ def doorway(b, x0, z, w_open, wall_w, h, name_l, name_r, mat=ME_):
     bx(b, x0, h - 0.6, z, w_open, 1.2, 0.8, RB_, 1.0); bx(b, x0, 0.03, z - 1.4, w_open, 0.05, 1.6, HZ_, 1.0); bx(b, x0, h - 1.3, z - 0.45, w_open, 0.1, 0.1, CY_, 1.0)
     for nm, sx in ((name_l, -1), (name_r, 1)): part(nm, x0 + sx * half / 2, (h - 1.2) / 2, z, lambda b2: bx(b2, 0, 0, 0, half, h - 1.2, 0.5, mat, 2.0))
 
+def detail(b, x0, z0, z1, w, h):
+    """greebles for a room: hex wall panels between the ribs, a cable tray with cables, ceiling trusses with light bars, vents, floor grates"""
+    zc = (z0 + z1) / 2; L = z1 - z0; z = z0 + 2.5; k = 0
+    for sx in (-1, 1):
+        xw = x0 + sx * (w / 2 - 0.03)
+        bx(b, x0 + sx * (w / 2 - 0.45), h - 1.25, zc, 0.5, 0.14, L, DK_, 1.0)
+        for j, (col, dy) in enumerate(((RE_, 0.06), (CY_, 0.0), (PU_, -0.06))): cy(b, x0 + sx * (w / 2 - 0.45 + 0.12 * (j - 1)), h - 1.12 + dy, zc, 0.04, L, col, 6, axis='z')
+        bx(b, xw, 0.45, zc, 0.06, 0.9, L, HZ_, 2.0)
+    while z < z1 - 1.5:
+        for sx in (-1, 1):
+            xw = x0 + sx * (w / 2 - 0.03)
+            bx(b, xw, h * 0.52, z, 0.04, h * 0.42, 3.4, HX_, 1.0); bx(b, xw, h * 0.52 + h * 0.23, z, 0.07, 0.08, 3.5, CY_, 1.0)
+            if k % 3 == 1: bx(b, xw - sx * 0.05, 1.4, z + 1.7, 0.1, 0.7, 1.3, DK_, 1.0); [bx(b, xw - sx * 0.1, 1.15 + 0.17 * q, z + 1.7, 0.04, 0.05, 1.2, ME_, 1.0) for q in range(3)]
+        bx(b, x0, h - 0.18, z, w - 0.5, 0.14, 0.3, RB_, 1.0); bx(b, x0, h - 0.3, z, 2.0, 0.06, 0.12, WH_, 1.0)
+        if k % 2 == 0: bx(b, x0 + R.uniform(-w / 4, w / 4), 0.025, z + 1.2, 1.4, 0.03, 1.4, DK_, 1.0); bx(b, x0 + R.uniform(-w / 4, w / 4), 0.04, z + 0.2, 1.4, 0.03, 0.12, HZ_, 1.0)
+        z += 2.5; k += 1
+
 if kind == 'interior':
     BX = {'CELLS': 0, 'HALL': 60, 'WALK': 130, 'TUBE': 200, 'ROOMS': 240, 'PURPLE': 300, 'BLUE': 380, 'CUBES': 440}
     # ---- CELLS: you start inside a holding cell (six in a row, an energy barrier across each front); the barriers drop and the squad runs out
     b = new(); x0 = BX['CELLS']; W = 26.0
-    room(b, x0, -8, 14, W, 6.0); strips(b, x0, -8, 14, W, 6.0); conduits(b, x0, -8, 14, W)
+    room(b, x0, -8, 14, W, 6.0); strips(b, x0, -8, 14, W, 6.0); conduits(b, x0, -8, 14, W); detail(b, x0, -8, 14, W, 6.0)
     for k in range(7): bx(b, x0 - 12.6 + k * 4.2, 1.6, -4, 0.3, 3.2, 8.0, RB_, 1.0); bx(b, x0 - 12.6 + k * 4.2, 5.0, -4, 0.3, 2.0, 8.0, RB_, 1.0)
     for i in range(6):
         cx = x0 - 10.5 + i * 4.2
@@ -64,13 +81,13 @@ if kind == 'interior':
     for sx in (-1, 1): bx(b, x0 + sx * 4.2, 3.0, 14.0, 0.5, 6.0, 0.7, RB_, 1.0)
     for zz in (4, 9): bx(b, x0, 5.7, zz, 5.0, 0.2, 0.4, CY_, 1.0)
     # the corridor behind the cell hall: more cells behind pink fields on both sides
-    room(b, x0, 14, 70, 8.0, 5.5); strips(b, x0, 14, 70, 8.0, 5.5); ribs(b, x0, 14, 70, 8.0, 5.5, 5.0); windows(b, x0, 14, 70, 8.0, 5.5, PK_, 5.0); conduits(b, x0, 14, 70, 8.0, ys=((0.2, 5.0),))
+    room(b, x0, 14, 70, 8.0, 5.5); strips(b, x0, 14, 70, 8.0, 5.5); detail(b, x0, 14, 70, 8.0, 5.5); ribs(b, x0, 14, 70, 8.0, 5.5, 5.0); windows(b, x0, 14, 70, 8.0, 5.5, PK_, 5.0); conduits(b, x0, 14, 70, 8.0, ys=((0.2, 5.0),))
     bx(b, x0, 2.0, 70.2, 8.0, 5.5, 0.2, BL_, 1.0)
     for z in (24, 40, 56): bx(b, x0, 5.0, z, 3.0, 0.3, 0.3, CY_, 1.0)
     b.build('CELLS'); marks('CELLS', x0, 0, 0, 56)
     for i in range(6): part('Barrier%d' % i, x0 - 10.5 + i * 4.2, 1.6, -0.1, lambda b2: bx(b2, 0, 0, 0, 3.9, 3.0, 0.06, PK_, 1.0))
     # ---- HALL: blast doors, pistons, fans, conduits, screens
-    b = new(); x0 = BX['HALL']; room(b, x0, -4, 94, 14.0, 8.0); strips(b, x0, -4, 94, 14.0, 8.0); ribs(b, x0, -4, 94, 14.0, 8.0, 6.0, 0.9); conduits(b, x0, -4, 94, 14.0); screens(b, x0, 14.0, (14, 44, 76))
+    b = new(); x0 = BX['HALL']; room(b, x0, -4, 94, 14.0, 8.0); strips(b, x0, -4, 94, 14.0, 8.0); ribs(b, x0, -4, 94, 14.0, 8.0, 6.0, 0.9); conduits(b, x0, -4, 94, 14.0); screens(b, x0, 14.0, (14, 44, 76)); detail(b, x0, -4, 94, 14.0, 8.0)
     for sx in (-1, 1):
         for zz in range(8, 90, 9):
             if R.random() < 0.8 and abs(zz - 30) > 4 and abs(zz - 62) > 4:
@@ -95,12 +112,12 @@ if kind == 'interior':
         for zz in range(-3, 44, 6): bx(b, x0 + sx * 2.6, 0.6, zz, 0.2, 1.4, 0.2, CY_, 1.0); bx(b, x0 + sx * 8.5, -6.0, zz + 3, 1.2, 14, 1.2, RB_, 1.0)
     for z in range(0, 44, 11): bx(b, x0, 6.0, z, W0, 0.6, 0.8, RB_, 1.0); bx(b, x0, 5.6, z, 3.0, 0.2, 0.3, PU_, 1.0)
     for zz in (8, 22, 36): bx(b, x0, 0.08, zz, 5.0, 0.02, 0.5, HZ_, 1.0)
-    z0, z1 = 44.0, 74.0; room(b, x0, z0, z1, 14.0, 7.0); strips(b, x0, z0, z1, 14.0, 7.0); ribs(b, x0, z0, z1, 14.0, 7.0, 7.5, 0.6)
+    z0, z1 = 44.0, 74.0; room(b, x0, z0, z1, 14.0, 7.0); strips(b, x0, z0, z1, 14.0, 7.0); detail(b, x0, z0, z1, 14.0, 7.0); ribs(b, x0, z0, z1, 14.0, 7.0, 7.5, 0.6)
     for sx in (-1, 1):
         for zz in (51.5, 59.0, 66.5): bx(b, x0 + sx * 6.9, 3.8, zz, 0.12, 4.6, 6.0, PK_, 1.0); bx(b, x0 + sx * 6.97, 3.8, zz, 0.06, 5.0, 6.4, CY_, 1.0)
     bx(b, x0 - 6.8, 3.0, 73.0, 0.12, 3.4, 3.4, PU_, 1.0)
     for k in range(6): a = k / 6 * math.tau; bx(b, x0 - 6.74, 3.0 + math.sin(a) * 1.2, 73.0 + math.cos(a) * 1.2, 0.05, 0.3, 0.3, WH_, 1.0)
-    z0, z1 = 74.0, 104.0; room(b, x0, z0, z1, 16.0, 11.0); strips(b, x0, z0, z1, 16.0, 11.0); ribs(b, x0, z0, z1, 16.0, 11.0, 7.5, 0.8)
+    z0, z1 = 74.0, 104.0; room(b, x0, z0, z1, 16.0, 11.0); strips(b, x0, z0, z1, 16.0, 11.0); detail(b, x0, z0, z1, 16.0, 11.0); ribs(b, x0, z0, z1, 16.0, 11.0, 7.5, 0.8)
     cy(b, x0 + 4.2, 4.5, 92.0, 3.0, 9.0, GL_, 20); cy(b, x0 + 4.2, 0.3, 92.0, 3.4, 0.6, ME_, 20); cy(b, x0 + 4.2, 9.2, 92.0, 3.4, 0.6, ME_, 20); cy(b, x0 + 4.2, 4.5, 92.0, 0.9, 9.0, CY_, 12)
     for k in range(4): cy(b, x0 - 5.0, 1.4 + 2.6 * k, 90.0, 1.8 - 0.2 * k, 0.9, ME_, 14)
     bx(b, x0, 5.5, 104.2, 16.0, 11.0, 0.2, 1); bx(b, x0, 3.0, 104.0, 4.0, 5.0, 0.2, BL_, 1.0)
@@ -116,11 +133,11 @@ if kind == 'interior':
         for z in range(0, 74, 3): b.quad(tp(a0, z - 0.25, 3.3), tp(a1, z - 0.25, 3.3), tp(a1, z + 0.25, 3.3), tp(a0, z + 0.25, 3.3), CY_, [(0, 0), (1, 0), (1, 1), (0, 1)])
     cy(b, x0, 0, 77.5, 3.2, 0.4, WH_, 18, axis='z'); cy(b, x0, 0, -4.5, 3.2, 0.4, WH_, 18, axis='z'); b.build('TUBE'); marks('TUBE', x0, -0.9, -2, 72)
     # ---- ROOMS: arrival room, windows, a piston door into the machinery room whose rings turn
-    b = new(); x0 = BX['ROOMS']; room(b, x0, -4, 20, 12.0, 6.5); strips(b, x0, -4, 20, 12.0, 6.5); ribs(b, x0, -4, 20, 12.0, 6.5, 6.0, 0.7); conduits(b, x0, -4, 20, 12.0)
+    b = new(); x0 = BX['ROOMS']; room(b, x0, -4, 20, 12.0, 6.5); strips(b, x0, -4, 20, 12.0, 6.5); detail(b, x0, -4, 20, 12.0, 6.5); ribs(b, x0, -4, 20, 12.0, 6.5, 6.0, 0.7); conduits(b, x0, -4, 20, 12.0)
     for k in range(4): cy(b, x0 + (-3.5 + 2.3 * k), 1.1, 14.0, 0.5, 2.2, ME_, 10)
     bx(b, x0, 3.2, -4.1, 12.0, 6.5, 0.2, 1)
-    z0, z1 = 20.0, 52.0; room(b, x0, z0, z1, 9.0, 6.0); strips(b, x0, z0, z1, 9.0, 6.0); ribs(b, x0, z0, z1, 9.0, 6.0, 6.5, 0.5); windows(b, x0, z0, z1, 9.0, 6.0, GR_, 6.5, 5.0, 3.6, 1.2, left=True, right=False)
-    z0, z1 = 52.0, 86.0; room(b, x0, z0, z1, 26.0, 15.0); strips(b, x0, z0, z1, 26.0, 15.0, False); ribs(b, x0, z0, z1, 26.0, 15.0, 8.5, 1.2)
+    z0, z1 = 20.0, 52.0; room(b, x0, z0, z1, 9.0, 6.0); strips(b, x0, z0, z1, 9.0, 6.0); detail(b, x0, z0, z1, 9.0, 6.0); ribs(b, x0, z0, z1, 9.0, 6.0, 6.5, 0.5); windows(b, x0, z0, z1, 9.0, 6.0, GR_, 6.5, 5.0, 3.6, 1.2, left=True, right=False)
+    z0, z1 = 52.0, 86.0; room(b, x0, z0, z1, 26.0, 15.0); strips(b, x0, z0, z1, 26.0, 15.0, False); detail(b, x0, z0, z1, 26.0, 15.0); ribs(b, x0, z0, z1, 26.0, 15.0, 8.5, 1.2)
     doorway(b, x0, 52.0, 9.0, 26.0, 6.0, 'PDoorL', 'PDoorR')
     cy(b, x0, 7.0, 74.0, 1.1, 14.0, CY_, 10); bx(b, x0, 8.5, 64.0, 26.0, 0.5, 0.5, PU_, 1.0); screens(b, x0, 26.0, (60, 74), 6.0)
     bx(b, x0, 7.5, 86.2, 26.0, 15.0, 0.2, 1); bx(b, x0, 3.0, 86.0, 4.0, 5.0, 0.2, BL_, 1.0); b.build('ROOMS'); marks('ROOMS', x0, 0, 0, 80)
@@ -133,6 +150,9 @@ if kind == 'interior':
     for k in range(40):
         a = k / 40 * math.tau; bx(b, x0 + math.sin(a) * (Rr + 0.2), 11.0, zc + math.cos(a) * (Rr + 0.2), 4.3, 22.0, 4.3, 1)
     for k in range(12): a = k / 12 * math.tau; bx(b, x0 + math.sin(a) * 13.5, 0.5, zc + math.cos(a) * 13.5, 1.2, 1.0, 1.2, RB_, 1.0); bx(b, x0 + math.sin(a) * 13.5, 1.05, zc + math.cos(a) * 13.5, 0.7, 0.1, 0.7, PU_, 1.0)
+    for k in range(8):
+        a = k / 8 * math.tau + 0.2; px, pz = x0 + math.sin(a) * 22.0, zc + math.cos(a) * 22.0; bx(b, px, 0.9, pz, 2.4, 1.8, 1.4, DK_, 1.0); bx(b, px, 1.85, pz, 2.0, 0.08, 1.1, PU_, 1.0); cy(b, px, 3.0, pz, 0.12, 6.0, ME_, 8)
+    for yy in (8.0, 15.0): [bx(b, x0 + math.sin(a) * 25.5, yy, zc + math.cos(a) * 25.5, 5.0, 0.3, 1.6, ME_, 2.0) for a in [k / 10 * math.tau for k in range(10)]]
     bx(b, x0, 0.4, 1.0, 10.0, 0.8, 4.0, ME_, 2.0); b.build('PURPLE'); marks('PURPLE', x0, 0, 2, 16)
     pb = new(); cy(pb, x0, 0.04, zc, 12.0, 0.1, PU_, 36); cy(pb, x0, 0.12, zc, 12.8, 0.1, RB_, 36, r2=12.0); cy(pb, x0, 0.16, zc, 8.0, 0.06, PK_, 28)
     for r_ in (14.0, 17.0, 20.0): cy(pb, x0, 0.03, zc, r_, 0.05, ST_, 36, r2=r_ - 0.25)
@@ -147,6 +167,9 @@ if kind == 'interior':
     bx(b, x0, 5.0, 44.0, 12.0, 10.0, 1.0, DK_, 1.0)
     for sx in (-1, 1): bx(b, x0 + sx * 6.3, 5.0, 43.5, 0.8, 10.0, 1.2, RB_, 1.0)
     bx(b, x0, 10.2, 43.5, 13.6, 0.8, 1.2, RB_, 1.0); bx(b, x0, 8.0, 43.4, 10.0, 0.18, 0.3, BL_, 1.0); bx(b, x0, 0.04, 40, 10, 0.06, 2.0, HZ_, 1.0)
+    for sx in (-1, 1):
+        for zz in (6, 18, 30): bx(b, x0 + sx * 10.5, 0.7, zz, 2.2, 1.4, 1.8, DK_, 1.0); bx(b, x0 + sx * 10.2, 1.5, zz, 1.4, 0.1, 1.2, BL_, 1.0); bx(b, x0 + sx * 10.8, 2.6, zz, 0.15, 1.8, 1.4, GR_, 1.0)
+        cy(b, x0 + sx * 11.8, 8.0, 24, 0.35, 16.0, ME_, 10, axis='y')
     b.build('BLUE'); marks('BLUE', x0, 0, 2, 26)
     def shaft(b2):
         for sx in (-1, 1):
@@ -170,7 +193,34 @@ if kind == 'interior':
     for zz in (28, 58, 88): cy(b, x0, H, zz, 6.0, 0.4, DK_, 18)
     cy(b, x0, 0.5, 104, 12.0, 1.0, ME_, 24); cy(b, x0, 1.2, 104, 9.5, 0.5, RB_, 24); cy(b, x0, 1.52, 104, 8.0, 0.1, GD_, 24); cy(b, x0, 0.9, 104, 12.3, 0.12, GD_, 24)
     for a in (0.7, 2.3, 3.9, 5.5): bx(b, x0 + math.cos(a) * 9.0, 7.0, 104 + math.sin(a) * 9.0, 1.2, 14.0, 1.2, RB_, 1.0); bx(b, x0 + math.cos(a) * 9.0, 14.2, 104 + math.sin(a) * 9.0, 0.8, 0.5, 0.8, GD_, 1.0)
+    for zz in range(10, 100, 10): bx(b, x0, H - 4.0, zz, 0.15, 3.6, 0.15, ME_, 1.0); bx(b, x0, H - 6.0, zz, 3.0, 0.3, 0.8, WH_, 1.0)
+    for sx in (-1, 1): bx(b, x0 + sx * 6.0, H - 3.0, 53, 0.8, 0.8, 110, RB_, 1.0); bx(b, x0 + sx * 5.0, 0.03, 53, 0.12, 0.05, 100, CY_, 1.0)
+    for zz in range(8, 100, 12): bx(b, x0, 0.025, zz, 8.0, 0.03, 0.5, HZ_, 1.0)
+    for k in range(5): bx(b, x0, 0.12 * k, 14.0 + 0.6 * k, 12.0, 0.12, 0.6, ME_, 1.0)
     b.build('CUBES'); marks('CUBES', x0, 0, 4, 52)
+    export(out)
+
+elif kind == 'debris':
+    def obj(name, fn): b = new(); fn(b); b.build(name)
+    def t_plate(b): bx(b, 0, 0, 0, 6.0, 0.25, 4.5, ME_, 2.0); bx(b, -2.2, 0.18, 0.5, 1.4, 0.3, 1.2, RB_, 1.0); bx(b, 1.6, 0.16, -1.2, 2.2, 0.1, 0.12, CY_, 1.0); bx(b, 0.2, 0.14, 1.6, 0.12, 0.08, 2.0, PK_, 1.0)
+    def t_plate2(b): bx(b, 0, 0, 0, 4.0, 0.2, 6.5, ME_, 2.0); bx(b, 0, 0.12, 0, 3.0, 0.06, 5.2, HX_, 1.0); bx(b, 1.8, 0.14, 2.8, 0.5, 0.2, 0.5, GD_, 1.0)
+    def t_beam(b): bx(b, 0, 0, 0, 0.5, 0.18, 9.0, ME_, 1.0); bx(b, 0, 0.3, 0, 0.18, 0.5, 9.0, ME_, 1.0); bx(b, 0, -0.3, 0, 0.5, 0.12, 9.0, ME_, 1.0); bx(b, 0, 0.1, 4.4, 0.7, 0.7, 0.2, HZ_, 1.0)
+    def t_beam2(b): bx(b, 0, 0, 0, 0.6, 0.6, 6.0, RB_, 1.0); [bx(b, 0, 0, -2.5 + 1.0 * k, 0.9, 0.9, 0.15, ME_, 1.0) for k in range(6)]; bx(b, 0, 0.35, 0, 0.12, 0.08, 6.0, CY_, 1.0)
+    def t_pipe(b): cy(b, 0, 0, 0, 0.7, 8.0, ME_, 12, axis='z'); cy(b, 0, 0, -2.0, 0.95, 0.5, RB_, 12, axis='z'); cy(b, 0, 0, 2.5, 0.95, 0.5, RB_, 12, axis='z'); cy(b, 0, 0, 0, 0.74, 0.3, CY_, 12, axis='z')
+    def t_pipe2(b): cy(b, 0, 0, 0, 0.35, 5.0, ME_, 8, axis='z'); cy(b, 0.9, 0.2, 0, 0.3, 4.0, RE_, 8, axis='z'); cy(b, -0.8, 0.1, 0.5, 0.25, 3.0, PU_, 8, axis='z')
+    def t_strut(b): [bx(b, 0, 0, k * 1.0 - 2.5, 0.15, 0.15, 1.2, ME_, 1.0) for k in range(6)]; [bx(b, 0.6 * (k % 2) - 0.3, 0.6 * ((k + 1) % 2) - 0.3, k * 1.0 - 2.5, 0.12, 0.12, 1.4, RB_, 1.0) for k in range(6)]; bx(b, 0, 0, 0, 1.0, 1.0, 0.2, GR_, 1.0)
+    def t_ring(b): [bx(b, math.cos(k / 12 * math.tau) * 2.6, math.sin(k / 12 * math.tau) * 2.6, 0, 1.6, 0.5, 0.7, ME_, 1.0) for k in range(12)]; [bx(b, math.cos(k / 12 * math.tau) * 2.0, math.sin(k / 12 * math.tau) * 2.0, 0, 0.9, 0.18, 0.4, CY_, 1.0) for k in range(12)]
+    def t_panel(b): bx(b, 0, 0, 0, 3.2, 0.18, 2.4, DK_, 1.0); bx(b, 0, 0.1, 0, 2.7, 0.05, 1.9, PK_, 1.0); bx(b, 0, 0.12, 0, 3.3, 0.08, 0.15, CY_, 1.0)
+    def t_tank(b): cy(b, 0, 0, 0, 1.5, 3.5, ME_, 14, axis='z'); cy(b, 0, 0, 1.9, 1.1, 0.5, RB_, 14, axis='z'); cy(b, 0, 0, -1.9, 1.1, 0.5, RB_, 14, axis='z'); cy(b, 0, 0, 0, 1.55, 0.25, HZ_, 14, axis='z')
+    def t_chunk(b):
+        for k in range(14): bx(b, R.uniform(-2, 2), R.uniform(-1.2, 1.2), R.uniform(-2, 2), R.uniform(1.0, 2.6), R.uniform(0.8, 2.0), R.uniform(1.0, 2.6), ME_ if k % 3 else RB_, 2.0)
+        bx(b, 0, 0.2, 0, 1.4, 1.4, 1.4, OR_, 1.0)
+    def t_chunk2(b):
+        for k in range(10): bx(b, R.uniform(-3, 3), R.uniform(-0.8, 0.8), R.uniform(-3, 3), R.uniform(1.6, 3.4), R.uniform(0.3, 0.7), R.uniform(1.6, 3.4), HX_ if k % 2 else ME_, 2.0)
+        bx(b, 0, 0.5, 0, 0.8, 1.0, 0.8, RE_, 1.0)
+    def t_seat(b): bx(b, 0, 0, 0, 1.4, 0.3, 1.4, DK_, 1.0); bx(b, 0, 0.7, -0.6, 1.4, 1.4, 0.25, DK_, 1.0); bx(b, 0.6, 0.35, 0, 0.12, 0.4, 1.2, ME_, 1.0); bx(b, -0.6, 0.35, 0, 0.12, 0.4, 1.2, ME_, 1.0)
+    def t_crate(b): bx(b, 0, 0, 0, 1.8, 1.4, 1.8, RB_, 1.0); bx(b, 0, 0, 0, 1.9, 0.2, 1.9, HZ_, 1.0); bx(b, 0, 0.7, 0, 1.3, 0.05, 1.3, BL_, 1.0)
+    for nm, fn in (('Deb_Plate1', t_plate), ('Deb_Plate2', t_plate2), ('Deb_Beam1', t_beam), ('Deb_Beam2', t_beam2), ('Deb_Pipe1', t_pipe), ('Deb_Pipe2', t_pipe2), ('Deb_Strut', t_strut), ('Deb_Ring', t_ring), ('Deb_Panel', t_panel), ('Deb_Tank', t_tank), ('Deb_Chunk1', t_chunk), ('Deb_Chunk2', t_chunk2), ('Deb_Seat', t_seat), ('Deb_Crate', t_crate)): obj(nm, fn)
     export(out)
 
 elif kind == 'cube':

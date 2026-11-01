@@ -18,12 +18,13 @@ namespace AstronomicalEvent
         readonly float[] cellRelX = new float[6];
         void BuildRoutes()
         {
-            routes.Clear(); float c2 = cellRelX[2], cx = c2 - 0.9f;
+            routes.Clear(); float c2 = cellRelX[2] / MK, cx = c2 - 0.9f;
             routes[25f] = new[] { L(25f, cx, -4.6f), L(36.4f, cx, -4.6f), L(39.4f, cx * 0.4f, 6f), L(41.6f, 0f, 13f), L(64f, 0f, 56f) };
             routes[65f] = new[] { L(65f, 0f, 0f), L(70f, 0f, 25f), L(74.2f, 0f, 26.5f), L(81f, 0f, 57f), L(86f, 0f, 58.5f), L(106f, 0f, 90f), L(115f, 0f, 90f) };
             routes[115f] = new[] { L(115f, 0f, 0f), L(118f, 0f, 0f), L(133f, 0f, 44f, true), L(143f, 0f, 66f), L(150f, 0f, 66f), L(165f, 0f, 100f) };
             routes[180f] = new[] { L(180f, 0f, 0f), L(183f, 0f, 0f), L(192f, 0f, 18f), L(203.5f, 0f, 46f), L(207.8f, 0f, 49f), L(214f, 0f, 62f), L(225f, 0f, 64f) };
             routes[510f] = new[] { L(510f, 0f, 0f), L(516f, 0f, 0f), L(540f, 0f, 40f), L(551f, 0f, 44f) };
+            foreach (var kv in routes) foreach (var lg in kv.Value) { lg.X *= MK; lg.Z *= MK; }
         }
         bool RouteXZ(Seg g, float t, out float x, out float z)
         {
@@ -83,22 +84,22 @@ namespace AstronomicalEvent
             if (g.S == Sc.Hall)
             {
                 float o30 = Sm(70.4f, 73.8f, t) * (1f - Sm(76.4f, 76.9f, t)), o62 = Sm(82.2f, 85.4f, t) * (1f - Sm(89.2f, 89.7f, t));
-                DoorPair("BlastDoor30", "HALL", o30, 3.5f); DoorPair("BlastDoor62", "HALL", o62, 3.5f);
-                if (!paused && ((tp < 76.4f && t >= 76.4f) || (tp < 89.2f && t >= 89.2f))) { Sfx(sBoom, headW + root.transform.forward * -8f, 0.9f, 0.6f, 0.5f); shake = Mathf.Max(shake, 0.9f); for (int k = 0; k < 30; k++) Emit(dust, headW + root.transform.forward * -8f + UnityEngine.Random.insideUnitSphere * 3f, Vector3.up * 2f, new Color(0.7f, 0.7f, 0.9f, 0.4f), 2f, 2f); }
-                if (!paused && ((tp < 70.4f && t >= 70.4f) || (tp < 82.2f && t >= 82.2f))) Sfx(sWhoosh, headW + root.transform.forward * 8f, 0.8f, 0.6f, 0.5f);
-                for (int k = 0; k < 6; k++) { float ph = Mathf.Abs(Mathf.Sin(t * 2.4f + k * 1.3f)); SetPartPos("Piston" + k, new Vector3(0f, 1.6f * ph, 0f)); if (ph > 0.97f && !paused && dt > 0f && UnityEngine.Random.value < 0.4f) Emit(fx, W(partBase["Piston" + k] + Vector3.down * 2.6f), UnityEngine.Random.onUnitSphere * 2f, new Color(1f, 0.8f, 0.4f, 1f), 0.2f, 0.3f); }
+                DoorPair("BlastDoor30", "HALL", o30, 3.5f * MK); DoorPair("BlastDoor62", "HALL", o62, 3.5f * MK);
+                if (!paused && ((tp < 76.4f && t >= 76.4f) || (tp < 89.2f && t >= 89.2f))) { Sfx(sBoom, headW + root.transform.forward * -8f * MK, 0.9f, 0.6f, 0.5f); shake = Mathf.Max(shake, 0.9f); for (int k = 0; k < 30; k++) Emit(dust, headW + root.transform.forward * -8f * MK + UnityEngine.Random.insideUnitSphere * 3f, Vector3.up * 2f, new Color(0.7f, 0.7f, 0.9f, 0.4f), 2f, 2f); }
+                if (!paused && ((tp < 70.4f && t >= 70.4f) || (tp < 82.2f && t >= 82.2f))) Sfx(sWhoosh, headW + root.transform.forward * 8f * MK, 0.8f, 0.6f, 0.5f);
+                for (int k = 0; k < 6; k++) { float ph = Mathf.Abs(Mathf.Sin(t * 2.4f + k * 1.3f)); SetPartPos("Piston" + k, new Vector3(0f, 1.6f * MK * ph, 0f)); if (ph > 0.97f && !paused && dt > 0f && UnityEngine.Random.value < 0.4f) Emit(fx, W(partBase["Piston" + k] + Vector3.down * 2.6f * MK), UnityEngine.Random.onUnitSphere * 2f, new Color(1f, 0.8f, 0.4f, 1f), 0.2f, 0.3f); }
                 for (int k = 0; k < 4; k++) { Transform tr; if (parts.TryGetValue("Fan" + k, out tr)) tr.rotation = root.transform.rotation * Quaternion.Euler(t * (k % 2 == 0 ? 420f : -380f), 0f, 0f) * partRot["Fan" + k]; }
                 for (int k = 0; k < steamPts.Count; k++) { float ph = Mathf.Repeat(t * 0.32f + k * 0.27f, 1f); if (ph < 0.12f && !paused && dt > 0f) for (int q = 0; q < 3; q++) Emit(dust, W(steamPts[k]) + UnityEngine.Random.insideUnitSphere * 0.3f, new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(3f, 7f), UnityEngine.Random.Range(-1f, 1f)), new Color(0.85f, 0.92f, 1f, 0.45f), UnityEngine.Random.Range(1.2f, 2.4f), UnityEngine.Random.Range(0.8f, 1.6f)); }
             }
             if (g.S == Sc.Rooms)
             {
-                DoorPair("PDoor", "ROOMS", Sm(203.8f, 207.3f, t), 4.5f);
+                DoorPair("PDoor", "ROOMS", Sm(203.8f, 207.3f, t), 4.5f * MK);
                 if (!paused && tp < 203.8f && t >= 203.8f) Sfx(sWhoosh, headW + root.transform.forward * 6f, 0.9f, 0.7f, 0.5f);
                 for (int k = 0; k < 5; k++) { Transform tr; if (parts.TryGetValue("Ring" + k, out tr)) tr.rotation = root.transform.rotation * Quaternion.Euler(0f, t * (22f + 11f * k) * (k % 2 == 0 ? 1f : -1f), 0f) * partRot["Ring" + k]; }
             }
             if (g.S == Sc.Lift)
             {
-                float lk = Mathf.Clamp01((t - 495f) / 14.5f); float rise = 170f * (lk * lk * (3f - 2f * lk)); SetPartPos("Shaft", new Vector3(0f, -rise, 0f));
+                float lk = Mathf.Clamp01((t - 495f) / 14.5f); float rise = 170f * MK * (lk * lk * (3f - 2f * lk)); SetPartPos("Shaft", new Vector3(0f, -rise, 0f));
             }
             else if (g.S == Sc.Blue) SetPartPos("Shaft", Vector3.zero);
         }
@@ -173,7 +174,7 @@ namespace AstronomicalEvent
             {
                 int key = (side + 1) * 1000 + xi * 100 + tier * 20 + bay; if (WorldKit.Hash(key, 3, 5) < 0.12f) continue;
                 float size = 3.0f + 1.5f * WorldKit.Hash(key, 7, 5); float y = 2.2f + tier * 6f + size * 0.5f; float z = 11f + bay * 6f; float yaw = (WorldKit.Hash(key, 11, 5) - 0.5f) * 0.6f * Mathf.Rad2Deg;
-                Vector3 p = s + new Vector3(side * xs[xi], y - s.y + s.y, z - 4f); p.y = s.y + y; var mtx = Matrix4x4.TRS(p, Quaternion.Euler(0f, yaw, 0f), Vector3.one * (size / unit)); int grp = Mathf.Clamp(bay / 3, 0, 4); n++;
+                Vector3 p = s + new Vector3(side * xs[xi], y, z - 4f) * MK; var mtx = Matrix4x4.TRS(p, Quaternion.Euler(0f, yaw, 0f), Vector3.one * (size * MK / unit)); int grp = Mathf.Clamp(bay / 3, 0, 4); n++;
                 foreach (var cp in cubeParts) { var ci = new CombineInstance { mesh = cp.Mesh, subMeshIndex = cp.Sub, transform = mtx * cp.Rel }; if (cp.Cat == 0) frame.Add(ci); else if (cp.Cat == 1) face.Add(ci); else glow[grp].Add(ci); }
             }
             rackCount = n; rackGos.Clear();
@@ -181,7 +182,7 @@ namespace AstronomicalEvent
             foreach (var go in rackGos) go.SetActive(false);
             // floating cubes in the aisle (they move), falling cubes for the end of the fall
             floaters.Clear(); floatBase.Clear();
-            for (int i = 0; i < 28; i++) { floaters.Add(CubeClone("SFloat" + i, rackFrame, rackFace, rackGlow[i % 5])); floatBase.Add(new Vector4(Mathf.Lerp(-7f, 7f, WorldKit.Hash(i, 1, 9)), Mathf.Lerp(8f, 36f, WorldKit.Hash(i, 2, 9)), Mathf.Lerp(14f, 98f, WorldKit.Hash(i, 3, 9)), 1.6f + 1.8f * WorldKit.Hash(i, 4, 9))); }
+            for (int i = 0; i < 28; i++) { floaters.Add(CubeClone("SFloat" + i, rackFrame, rackFace, rackGlow[i % 5])); floatBase.Add(new Vector4(Mathf.Lerp(-7f, 7f, WorldKit.Hash(i, 1, 9)) * MK, Mathf.Lerp(8f, 36f, WorldKit.Hash(i, 2, 9)) * MK, Mathf.Lerp(14f, 98f, WorldKit.Hash(i, 3, 9)) * MK, (1.6f + 1.8f * WorldKit.Hash(i, 4, 9)) * MK)); }
             fallCubes.Clear(); for (int i = 0; i < 70; i++) fallCubes.Add(CubeClone("SFall" + i, rackFrame, rackFace, fallGlow));
             JsLiveEventsMod.Log.LogInfo("SkyFire: Cube hall built: " + n + " cubes in the racks, " + floaters.Count + " floating, " + fallCubes.Count + " for the fall (cube size " + unit.ToString("0.00") + ", parts " + cubeParts.Count + ")");
         }
@@ -204,7 +205,7 @@ namespace AstronomicalEvent
         // ---------------------------------------------------------------- the Cube hall frame (8:30 - 9:30): racks wake up, cubes float, the golden cube hangs over its dais, the backpacks go off, the hall tears apart
         void CubesFx(float t, float tp, float dt, Seg g, Vector3 headW, Vector3 floorP, Vector3 dir)
         {
-            Vector3 s = bS["CUBES"]; bool boom = t >= T_ZERO; float e = Mathf.Max(0f, t - T_ZERO);
+            Vector3 s = bS["CUBES"]; bool boom = t >= T_ZERO; float e = Mathf.Max(0f, t - T_ZERO); HallDebris(t, dt, headW);
             foreach (var go in rackGos) if (go.activeSelf != true) go.SetActive(true);
             // the racks wake up in a wave from the dock to the far end; hot orange after the blast
             float hot = Sm(T_ZERO, T_ZERO + 7f, t);
@@ -214,20 +215,20 @@ namespace AstronomicalEvent
                 Color purple = new Color(0.55f, 0.2f, 0.95f) * (0.35f + 0.5f * awake * wave); Color orange = new Color(1f, 0.45f, 0.1f) * (0.9f + 0.4f * Mathf.PerlinNoise(t * 6f, i)); rackGlow[i].color = Color.Lerp(purple, orange, hot);
             }
             // the golden cube over its dais at the far end (it can be seen from the dock, small and bright)
-            float gk = Sm(511f, 516f, t); Vector3 gp = s + new Vector3(0f, 9f + 1.4f * Mathf.Sin(t * 0.9f), 100f);
-            SetCube(cubeU, gp, Vector3.one * (9f * Mathf.Max(0.001f, gk)), t * 14f, new Color(0.45f, 0.32f, 0.1f), new Color(1f, 0.82f, 0.3f, 0.8f + 0.2f * Mathf.Sin(t * 3f)), gk > 0.01f);
+            float gk = Sm(511f, 516f, t); Vector3 gp = s + new Vector3(0f, 9f + 1.4f * Mathf.Sin(t * 0.9f), 100f) * MK;
+            SetCube(cubeU, gp, Vector3.one * (9f * MK * Mathf.Max(0.001f, gk)), t * 14f, new Color(0.45f, 0.32f, 0.1f), new Color(1f, 0.82f, 0.3f, 0.8f + 0.2f * Mathf.Sin(t * 3f)), gk > 0.01f);
             if (!paused && dt > 0f && gk > 0.5f) for (int q = 0; q < 2; q++) Emit(fx, W(gp) + UnityEngine.Random.insideUnitSphere * 7f, Vector3.up * UnityEngine.Random.Range(1f, 4f), new Color(1f, 0.85f, 0.35f, 0.9f), UnityEngine.Random.Range(0.2f, 0.7f), UnityEngine.Random.Range(1.2f, 2.5f));
             // floating cubes drift through the aisle; the blast pulls them down
             for (int i = 0; i < floaters.Count; i++)
             {
-                var fb = floatBase[i]; Vector3 p = s + new Vector3(fb.x + 2.2f * Mathf.Sin(t * 0.2f + i), fb.y + 1.5f * Mathf.Sin(t * 0.33f + i * 2f), fb.z - 4f + 3f * Mathf.Cos(t * 0.17f + i)); float fall = boom ? Mathf.Min(e * e * 6f, Mathf.Max(0f, p.y - s.y - fb.w * 0.5f)) : 0f; p.y -= fall;
+                var fb = floatBase[i]; Vector3 p = s + new Vector3(fb.x + 2.2f * MK * Mathf.Sin(t * 0.2f + i), fb.y + 1.5f * MK * Mathf.Sin(t * 0.33f + i * 2f), fb.z - 4f * MK + 3f * MK * Mathf.Cos(t * 0.17f + i)); float fall = boom ? Mathf.Min(e * e * 6f, Mathf.Max(0f, p.y - s.y - fb.w * 0.5f)) : 0f; p.y -= fall;
                 CubePose(floaters[i], p, fb.w, Quaternion.Euler(t * (7f + i % 5 * 3f) + i * 20f, t * (11f + i % 4 * 4f), t * 5f + i * 9f), true);
             }
             // the saucers drifting under the roof
             float usc = ufoM != null ? 8f / Mathf.Max(0.5f, Mathf.Max(ufoM.RendererBounds.size.x, ufoM.RendererBounds.size.z)) : 1f;
-            for (int i = 0; i < saucers.Count; i++) { var u = saucers[i]; Vector3 p = s + new Vector3(Mathf.Sin(t * 0.13f + i * 1.3f) * 7f, 30f + 3f * Mathf.Sin(i + t * 0.5f), 14f + i * 14f + 6f * Mathf.Sin(t * 0.2f + i)); PlaceGo(u, p, usc * 1.4f, Quaternion.Euler(4f * Mathf.Sin(t + i), t * 30f + i * 60f, 4f * Mathf.Cos(t * 0.8f + i)), true); if (!paused && dt > 0f) Emit(fx, W(p + Vector3.down * 1.4f), Vector3.zero, new Color(0.85f, 0.4f, 1f, 0.9f), 6f, 0.06f); }
+            for (int i = 0; i < saucers.Count; i++) { var u = saucers[i]; Vector3 p = s + new Vector3(Mathf.Sin(t * 0.13f + i * 1.3f) * 7f, 30f + 3f * Mathf.Sin(i + t * 0.5f), 14f + i * 14f + 6f * Mathf.Sin(t * 0.2f + i)) * MK; PlaceGo(u, p, usc * 1.4f * MK, Quaternion.Euler(4f * Mathf.Sin(t + i), t * 30f + i * 60f, 4f * Mathf.Cos(t * 0.8f + i)), true); if (!paused && dt > 0f) Emit(fx, W(p + Vector3.down * 1.4f), Vector3.zero, new Color(0.85f, 0.4f, 1f, 0.9f), 6f, 0.06f); }
             // the dock: steam and a flash when the lift arrives (8:30)
-            if (t >= 510f && t < 516f && !paused && dt > 0f) for (int q = 0; q < 3; q++) Emit(dust, W(s + new Vector3(UnityEngine.Random.Range(-6f, 6f), 0.3f, UnityEngine.Random.Range(-2f, 8f))), new Vector3(0f, UnityEngine.Random.Range(2f, 5f), 0f), new Color(0.8f, 0.7f, 1f, 0.4f), UnityEngine.Random.Range(1.5f, 3f), 1.5f);
+            if (t >= 510f && t < 516f && !paused && dt > 0f) for (int q = 0; q < 3; q++) Emit(dust, W(s + new Vector3(UnityEngine.Random.Range(-6f, 6f), 0.3f, UnityEngine.Random.Range(-2f, 8f)) * MK), new Vector3(0f, UnityEngine.Random.Range(2f, 5f), 0f), new Color(0.8f, 0.7f, 1f, 0.4f), UnityEngine.Random.Range(1.5f, 3f), 1.5f);
             if (tp < 510.1f && t >= 510.1f && !paused) { Sfx(sBig, headW, 0.8f, 0.7f, 1f); shake = Mathf.Max(shake, 0.7f); }
             if (t >= 524f && !paused && dt > 0f) { float k = Sm(524f, 548f, t); for (int q = 0; q < (int)(1 + 8 * k); q++) Emit(fx, headW + new Vector3(UnityEngine.Random.Range(-22f, 22f), UnityEngine.Random.Range(-1.5f, 30f), UnityEngine.Random.Range(-12f, 60f)), new Vector3(0f, UnityEngine.Random.Range(0.4f, 2.5f), 0f), new Color(0.85f, 0.4f, 1f, 0.85f), UnityEngine.Random.Range(0.12f, 0.45f), UnityEngine.Random.Range(1.5f, 3.5f)); }
             if (!boom) { if (t > 541f && !paused && Mathf.FloorToInt(t) != Mathf.FloorToInt(tp)) shake = Mathf.Max(shake, 0.12f); return; }
@@ -288,13 +289,13 @@ namespace AstronomicalEvent
                     bool inCell = sc == Sc.Cells && t < 36.4f + 0.3f * Mathf.Abs(i - 2) + 0.2f;
                     if (sc == Sc.Cells)
                     {
-                        Vector3 cellP = S0 + new Vector3(cellRelX[Mathf.Clamp(i, 0, 5)] + (i == 2 ? 0.9f : 0f), 0f, -5.0f + 0.5f * (i % 2)); float rel = BarrierDrop(i);
+                        Vector3 cellP = S0 + new Vector3(cellRelX[Mathf.Clamp(i, 0, 5)] + (i == 2 ? 0.9f : 0f), 0f, (-5.0f + 0.5f * (i % 2)) * MK); float rel = BarrierDrop(i);
                         if (t < rel) { pos = cellP; yawD = 8f * Mathf.Sin(i * 3f + t * 0.5f); clip = CELL_CLIPS[i]; ct = t * 0.9f + m.Seed; }
                         else { float u = Mathf.Clamp01((t - rel - 0.2f) / 2.6f); pos = Vector3.Lerp(cellP, pos, u * u * (3f - 2f * u)); Vector3 dv = pos - cellP; if (u < 1f) { yawD = Mathf.Atan2(dv.x, Mathf.Max(0.5f, dv.z)) * Mathf.Rad2Deg; clip = "Run"; float per, str; GaitOf("Run", out per, out str); ct = (t * 3.4f + i * 0.7f) / str * per; } }
                     }
                     if (inCell) { }
                     else if (belt) { clip = i % 2 == 0 ? "Idle" : "Look"; ct = t + m.Seed; yawD += 8f * Mathf.Sin(t * 0.4f + i); }
-                    else if (walking) { float v = Mathf.Max(0.6f, speed); clip = v > 3.2f ? "Run" : v > 1.6f ? "Jog" : "Walk"; float per, str; GaitOf(clip, out per, out str); ct = (v * t + i * 0.7f) / str * per; }
+                    else if (walking) { float v = Mathf.Max(0.6f, speed); clip = v > 5.5f ? "Run" : v > 2.8f ? "Jog" : "Walk"; float per, str; GaitOf(clip, out per, out str); ct = (v * t + i * 0.7f) / str * per; }
                     else { Cue(i, t, sc, out clip, out ct); ct += m.Seed; yawD += 8f * Mathf.Sin(t * 0.25f + i); }
                     if (sc == Sc.Crystal && t >= T_ZERO + 0.25f * i)
                     {

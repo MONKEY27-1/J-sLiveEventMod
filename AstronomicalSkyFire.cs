@@ -23,7 +23,7 @@ namespace AstronomicalEvent
             G(0f, 5f, Sc.Black, null, 0f), G(5f, 25f, Sc.Abduct, null, 0f), G(25f, 65f, Sc.Cells, "CELLS", 0f), G(65f, 115f, Sc.Hall, "HALL", 0f), G(115f, 165f, Sc.Walk, "WALK", 0f), G(165f, 180f, Sc.Tube, "TUBE", 15f),
             G(180f, 225f, Sc.Rooms, "ROOMS", 0f), G(225f, 245f, Sc.Tube, "TUBE", 20f), G(245f, 285f, Sc.View, "VIEW", 12f), G(285f, 360f, Sc.Purple, "PURPLE", 15f), G(360f, 410f, Sc.View, "VIEW", 12f), G(410f, 495f, Sc.Blue, "BLUE", 15f),
             G(495f, 510f, Sc.Lift, "BLUE", 0f), G(510f, 570f, Sc.Crystal, "CUBES", 0f), G(570f, 609.5f, Sc.Fall, null, 0f) };
-        const float T_REBOOT = 426f, T_ZERO = 551f, T_FALL = 570f, T_LAND = 600f, T_TITLE = 604f, T_END = 609.3f, Y_INT = 800f, VIEW_Y = 55f, VIEW_Z = -40f, FALL_TOP = 380f;
+        const float MK = 1.5f, T_REBOOT = 426f, T_ZERO = 551f, T_FALL = 570f, T_LAND = 600f, T_TITLE = 604f, T_END = 609.3f, Y_INT = 800f, VIEW_Y = 55f, VIEW_Z = -40f, FALL_TOP = 380f;
         static float Sm(float a, float b, float x) { return AstronomicalCube.Sm(a, b, x); }
         static Seg SegAt(float t) { Seg r = SEGS[0]; foreach (var g in SEGS) if (t >= g.T0) r = g; return r; }
         static bool Inside(Sc s) { return s != Sc.Black && s != Sc.Abduct && s != Sc.View && s != Sc.Fall; }
@@ -204,8 +204,8 @@ namespace AstronomicalEvent
             fx = MakePS("SFx", 6000, 0.2f, kit.Glow(Color.white, glowTex, 3004)); dust = MakePS("SDust", 2500, -0.02f, kit.Glow(new Color(0.8f, 0.6f, 0.55f, 0.5f), glowTex, 3001));
             sun = new GameObject("SSun").AddComponent<Light>(); sun.transform.SetParent(root.transform, false); sun.type = LightType.Directional; sun.shadows = LightShadows.None; sun.intensity = 0.8f; sun.transform.rotation = Quaternion.Euler(30f, yaw + 160f, 0f);
             flashLamp = new GameObject("SFlash").AddComponent<Light>(); flashLamp.transform.SetParent(root.transform, false); flashLamp.type = LightType.Point; flashLamp.range = 140f; flashLamp.intensity = 0f; flashLamp.shadows = LightShadows.None;
-            facLight = new GameObject("SLight1").AddComponent<Light>(); facLight.transform.SetParent(root.transform, false); facLight.type = LightType.Point; facLight.shadows = LightShadows.None; facLight.range = 44f; facLight.intensity = 0f;
-            facLight2 = new GameObject("SLight2").AddComponent<Light>(); facLight2.transform.SetParent(root.transform, false); facLight2.type = LightType.Point; facLight2.shadows = LightShadows.None; facLight2.range = 44f; facLight2.intensity = 0f;
+            facLight = new GameObject("SLight1").AddComponent<Light>(); facLight.transform.SetParent(root.transform, false); facLight.type = LightType.Point; facLight.shadows = LightShadows.None; facLight.range = 70f; facLight.intensity = 0f;
+            facLight2 = new GameObject("SLight2").AddComponent<Light>(); facLight2.transform.SetParent(root.transform, false); facLight2.type = LightType.Point; facLight2.shadows = LightShadows.None; facLight2.range = 70f; facLight2.intensity = 0f;
         }
         void Boom(Vector3 wp, float size, float power, Color? tint = null, bool blast = true)
         {
@@ -339,7 +339,7 @@ namespace AstronomicalEvent
             farSave = -1f; foreach (var kv in origMats) if (kv.Key != null) kv.Key.sharedMaterials = kv.Value; origMats.Clear();
             foreach (var g in clones) if (g != null) UnityEngine.Object.Destroy(g); clones.Clear(); bS.Clear(); bE.Clear();
             foreach (var mdl in models) if (mdl != null && mdl.Pivot != null) { foreach (var bc in mdl.Pivot.GetComponentsInChildren<Collider>(true)) UnityEngine.Object.Destroy(bc); mdl.Pivot.transform.SetParent(null, false); mdl.Pivot.SetActive(false); JsLiveEventsMod.ParkModel(mdl.Pivot); }
-            models.Clear(); inM = viewM = propM = ufoM = shipM = jonM = fouM = grdM = cubeM = null;
+            models.Clear(); inM = viewM = propM = ufoM = shipM = jonM = fouM = grdM = cubeM = debM = null;
             if (flashGo != null) UnityEngine.Object.Destroy(flashGo); flashGo = null; if (skyGo != null) UnityEngine.Object.Destroy(skyGo); skyGo = null; if (root != null) UnityEngine.Object.Destroy(root); root = null;
             if (kit != null) foreach (var o in kit.Owned) if (o != null) UnityEngine.Object.Destroy(o); foreach (var o in owned) if (o != null) UnityEngine.Object.Destroy(o); owned.Clear(); kit = null; built = false; lastT = -1f; skyMesh = null; textMat = null;
         }
