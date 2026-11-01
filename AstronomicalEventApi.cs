@@ -12,7 +12,7 @@ namespace AstronomicalEvent
     }
 
     // Stable public surface for other menus/mods. Everything here is primitives/strings/enums so it also works via reflection:
-    //   var t = Type.GetType("AstronomicalEvent.AstronomicalEventApi, AstronomicalEventMod");
+    //   var t = Type.GetType("AstronomicalEvent.AstronomicalEventApi, JsLiveEventsMod");
     //   t.GetMethod("Start").Invoke(null, new object[] { -1 });
     // Main thread only (call from Update/OnGUI). The event is purely local: nothing here touches networking.
     public static class AstronomicalEventApi
@@ -195,7 +195,7 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("API subscriber threw: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("API subscriber threw: " + e.Message);
             }
         }
 

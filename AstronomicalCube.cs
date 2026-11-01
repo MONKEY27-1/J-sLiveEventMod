@@ -213,7 +213,7 @@ namespace AstronomicalEvent
             {
                 Model.Pivot.transform.SetParent(null, false);
                 Model.Pivot.SetActive(false);
-                AstronomicalEventMod.ParkModel(Model.Pivot);
+                JsLiveEventsMod.ParkModel(Model.Pivot);
             }
             if (Root != null)
                 UnityEngine.Object.Destroy(Root);
@@ -448,7 +448,7 @@ namespace AstronomicalEvent
             if (m != null && m.Pivot != null)
                 cube = CubePart.Create(m, origin, floorLayer);
             else
-                AstronomicalEventMod.Log.LogWarning("Cube: model missing");
+                JsLiveEventsMod.Log.LogWarning("Cube: model missing");
             sun = new GameObject("CubeSun").AddComponent<Light>();
             sun.transform.SetParent(root.transform, false);
             sun.type = LightType.Directional;
@@ -459,7 +459,7 @@ namespace AstronomicalEvent
             lastT = -1f;
             blasted25 = false;
             built = true;
-            AstronomicalEventMod.Log.LogInfo("Kevin the Cube built at " + origin + " layer " + floorLayer + " cube " + (cube != null));
+            JsLiveEventsMod.Log.LogInfo("Kevin the Cube built at " + origin + " layer " + floorLayer + " cube " + (cube != null));
         }
 
         static bool fitOk;
@@ -986,7 +986,7 @@ namespace AstronomicalEvent
                 persistedGround = origin;
                 persistT = lastT;
                 cube = null;
-                AstronomicalEventMod.Log.LogInfo("Kevin the Cube stays here until you leave the map");
+                JsLiveEventsMod.Log.LogInfo("Kevin the Cube stays here until you leave the map");
             }
             else if (cube != null)
             {

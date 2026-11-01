@@ -150,9 +150,9 @@ namespace AstronomicalEvent
                     }
                 }
             }
-            catch (Exception e) { AstronomicalEventMod.Log.LogWarning("End21 island copy: " + e.Message); }
-            if (isleCenterN > 0) { Vector3 ctr = isleCenterSum / isleCenterN; ctr.y = 0f; Vector3 lc = isle.transform.InverseTransformVector(ctr); Matrix4x4 sh = Matrix4x4.Translate(new Vector3(-lc.x, 0f, -lc.z)); for (int i = 0; i < isleDraws.Count; i++) { var dd = isleDraws[i]; dd.Rel = sh * dd.Rel; isleDraws[i] = dd; } AstronomicalEventMod.Log.LogInfo("End21: the map copy was " + lc.magnitude.ToString("0") + " m off the island's axis: re-centred"); }
-            AstronomicalEventMod.Log.LogInfo("End21: the island copy has " + isleDraws.Count + " draws (" + batched + " from static batches, " + plain + " plain, " + isleSkipped + " skipped)");
+            catch (Exception e) { JsLiveEventsMod.Log.LogWarning("End21 island copy: " + e.Message); }
+            if (isleCenterN > 0) { Vector3 ctr = isleCenterSum / isleCenterN; ctr.y = 0f; Vector3 lc = isle.transform.InverseTransformVector(ctr); Matrix4x4 sh = Matrix4x4.Translate(new Vector3(-lc.x, 0f, -lc.z)); for (int i = 0; i < isleDraws.Count; i++) { var dd = isleDraws[i]; dd.Rel = sh * dd.Rel; isleDraws[i] = dd; } JsLiveEventsMod.Log.LogInfo("End21: the map copy was " + lc.magnitude.ToString("0") + " m off the island's axis: re-centred"); }
+            JsLiveEventsMod.Log.LogInfo("End21: the island copy has " + isleDraws.Count + " draws (" + batched + " from static batches, " + plain + " plain, " + isleSkipped + " skipped)");
             // the rock underside and a plain ground disc under everything (so the island has a surface even where the copy is thin)
             isleCone = new GameObject("EIsleCone"); isleCone.transform.SetParent(isle.transform, false); Mesh spk; isleCone.AddComponent<MeshFilter>().sharedMesh = MakeRock(ISLE_R, ISLE_D, 70f, 26, 96, 7, out spk); var spo = new GameObject("EIsleSpikes"); spo.transform.SetParent(isle.transform, false); spo.AddComponent<MeshFilter>().sharedMesh = spk; var spr = spo.AddComponent<MeshRenderer>(); spr.sharedMaterial = kit.Glow(Color.white, null, 3004); spr.shadowCastingMode = ShadowCastingMode.Off; var cr = isleCone.AddComponent<MeshRenderer>(); cr.sharedMaterial = coneMat; cr.shadowCastingMode = ShadowCastingMode.Off;
             isleDisc = new GameObject("EIsleDisc"); isleDisc.transform.SetParent(isle.transform, false); isleDisc.transform.localPosition = new Vector3(0f, -0.9f, 0f); isleDisc.AddComponent<MeshFilter>().sharedMesh = MakeDisc(ISLE_R, 48, 40f); var dr = isleDisc.AddComponent<MeshRenderer>(); dr.sharedMaterial = discMat; dr.shadowCastingMode = ShadowCastingMode.Off;
@@ -167,7 +167,7 @@ namespace AstronomicalEvent
         {
             if (entering)
             {
-                BuildIsland(); try { if (!mapHidden) { AstronomicalForestHider.Hide(originW, 1500f, tr => root != null && tr.IsChildOf(root.transform)); mapHidden = true; } } catch (Exception e) { AstronomicalEventMod.Log.LogWarning("End21 hide map: " + e.Message); }
+                BuildIsland(); try { if (!mapHidden) { AstronomicalForestHider.Hide(originW, 1500f, tr => root != null && tr.IsChildOf(root.transform)); mapHidden = true; } } catch (Exception e) { JsLiveEventsMod.Log.LogWarning("End21 hide map: " + e.Message); }
             }
             else { try { if (mapHidden) { AstronomicalForestHider.Restore(); mapHidden = false; } } catch { } DestroyIsle(); if (oceanGo != null) oceanGo.SetActive(false); if (titleGo != null) titleGo.SetActive(false); }
         }

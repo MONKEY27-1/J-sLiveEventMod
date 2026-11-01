@@ -362,7 +362,7 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Arena fit failed: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Arena fit failed: " + e.Message);
             }
             AstronomicalShowdown.lastFit = sl;
             AstronomicalShowdown.fitOrigin = so;
@@ -426,7 +426,7 @@ namespace AstronomicalEvent
             hiderOn = false;
             officePlaced = false;
             built = true;
-            AstronomicalEventMod.Log.LogInfo(
+            JsLiveEventsMod.Log.LogInfo(
                 "The Device built: origin "
                     + origin
                     + " scale "
@@ -556,7 +556,7 @@ namespace AstronomicalEvent
             agency = def.Prop("agency");
             if (agency == null || agency.Pivot == null)
             {
-                AstronomicalEventMod.Log.LogWarning("Device: agency model missing");
+                JsLiveEventsMod.Log.LogWarning("Device: agency model missing");
                 agency = null;
                 return;
             }
@@ -609,7 +609,7 @@ namespace AstronomicalEvent
             var m = def.Prop("tentacle");
             if (m == null || m.Pivot == null)
             {
-                AstronomicalEventMod.Log.LogWarning("Device: pylon model missing");
+                JsLiveEventsMod.Log.LogWarning("Device: pylon model missing");
                 return;
             }
             Prep(m, root.transform, false);
@@ -1067,7 +1067,7 @@ namespace AstronomicalEvent
                 } // glow materials in slot order: 0 / 1 screens, 2 window, 3 ceiling panels, 4 lamp
             }
             else
-                AstronomicalEventMod.Log.LogWarning("Device: office model missing");
+                JsLiveEventsMod.Log.LogWarning("Device: office model missing");
             foreach (var p in new[] { new Vector3(0f, 2.7f, 1.6f), new Vector3(-2f, 2.7f, -1.2f), new Vector3(2f, 2.7f, -1.2f) })
             {
                 var l = new GameObject("OfficeLight").AddComponent<Light>();
@@ -2275,7 +2275,7 @@ namespace AstronomicalEvent
                     {
                         m.Pivot.transform.SetParent(null, false);
                         m.Pivot.SetActive(false);
-                        AstronomicalEventMod.ParkModel(m.Pivot);
+                        JsLiveEventsMod.ParkModel(m.Pivot);
                     }
             }
             catch { }

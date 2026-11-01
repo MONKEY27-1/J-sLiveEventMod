@@ -1,4 +1,4 @@
-p = r'C:\Users\drago\Documents\AstronomicalEventMod\tools\pose.py'
+p = r"C:\Users\drago\Documents\J'sLiveEventsMod\tools\pose.py"
 s = open(p, encoding='utf-8').read()
 def rep(a, b):
     global s
@@ -16,7 +16,7 @@ rep("""        for nm, w in (('neck_01', 0.25), ('neck_02', 0.25), ('head', 0.5)
         for nm, w in [(n, 0.5 / len(necks)) for n in necks] + [('head', 0.5)]:
             self.local(nm, m3mul(m3mul(rx(pitch * w), ry(yaw * w)), rz(roll * w)))""")
 open(p, 'w', encoding='utf-8').write(s)
-p = r'C:\Users\drago\Documents\AstronomicalEventMod\tools\render_sheet.py'
+p = r"C:\Users\drago\Documents\J'sLiveEventsMod\tools\render_sheet.py"
 s = open(p, encoding='utf-8').read()
 rep("hb = [b for b in arm.pose.bones if b.name == 'head' or (b.name.startswith('head') and b.name[4:].lstrip('_').replace('_', '').isdigit())][0]",
     "hb = [b for b in arm.pose.bones if b.name == 'head' or (b.name.startswith('head') and 'end' not in b.name and 'offset_end' not in b.name)][0]")

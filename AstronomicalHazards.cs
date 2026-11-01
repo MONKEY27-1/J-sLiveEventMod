@@ -57,7 +57,7 @@ namespace AstronomicalEvent
                 if (Time.time - lastWarn > 5f)
                 {
                     lastWarn = Time.time;
-                    AstronomicalEventMod.Log.LogWarning("Knockback failed: " + e.Message);
+                    JsLiveEventsMod.Log.LogWarning("Knockback failed: " + e.Message);
                 }
             }
         }
@@ -89,7 +89,7 @@ namespace AstronomicalEvent
                 if (Time.time - lastWarn > 5f)
                 {
                     lastWarn = Time.time;
-                    AstronomicalEventMod.Log.LogWarning("Pull failed: " + e.Message);
+                    JsLiveEventsMod.Log.LogWarning("Pull failed: " + e.Message);
                 }
             }
         }
@@ -131,13 +131,13 @@ namespace AstronomicalEvent
                 if (pl.forcedUnderwater != on)
                 {
                     pl.forcedUnderwater = on;
-                    AstronomicalEventMod.Log.LogInfo("Flood swimming " + (on ? "on" : "off"));
+                    JsLiveEventsMod.Log.LogInfo("Flood swimming " + (on ? "on" : "off"));
                 }
                 swimOn = on;
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Swim toggle failed: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Swim toggle failed: " + e.Message);
             }
         }
 
@@ -153,7 +153,7 @@ namespace AstronomicalEvent
             {
                 pl.forcedUnderwater = false;
                 swimOn = false;
-                AstronomicalEventMod.Log.LogInfo("Flood swimming released");
+                JsLiveEventsMod.Log.LogInfo("Flood swimming released");
             }
             catch (Exception e)
             {
@@ -166,7 +166,7 @@ namespace AstronomicalEvent
             if (Time.time - lastWarn > 5f)
             {
                 lastWarn = Time.time;
-                AstronomicalEventMod.Log.LogWarning("Swim release failed: " + m);
+                JsLiveEventsMod.Log.LogWarning("Swim release failed: " + m);
             }
         }
 

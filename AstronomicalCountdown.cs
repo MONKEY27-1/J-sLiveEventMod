@@ -43,7 +43,7 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Gazebo search failed: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Gazebo search failed: " + e.Message);
             }
             return fallback + Vector3.up * 22f;
         }

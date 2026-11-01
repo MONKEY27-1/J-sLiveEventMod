@@ -1,8 +1,8 @@
 import bpy, json, os, sys
 bpy.ops.wm.read_factory_settings(use_empty=True)
-bpy.ops.import_scene.gltf(filepath=r"C:\Users\drago\Documents\AstronomicalEventMod\tools\cache\showdown\robot.glb")
+bpy.ops.import_scene.gltf(filepath=r"C:\Users\drago\Documents\J'sLiveEventsMod\tools\cache\showdown\robot.glb")
 arm=[o for o in bpy.data.objects if o.type=='ARMATURE'][0]; arm.animation_data_create(); arm.animation_data.action=list(bpy.data.actions)[0]
-tr=json.load(open(r"C:\Users\drago\Documents\AstronomicalEventMod\tools\cache\showdown\robot_trace.json"))
+tr=json.load(open(r"C:\Users\drago\Documents\J'sLiveEventsMod\tools\cache\showdown\robot_trace.json"))
 sc=bpy.context.scene
 print('fps',sc.render.fps, 'action range', list(bpy.data.actions)[0].frame_range)
 for t in (70,125,175,250):

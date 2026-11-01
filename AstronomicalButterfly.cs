@@ -186,7 +186,7 @@ namespace AstronomicalEvent
             lastT = -1f;
             boomDone = butDone = voidOn = false;
             built = true;
-            AstronomicalEventMod.Log.LogInfo(
+            JsLiveEventsMod.Log.LogInfo(
                 "Butterfly event built at "
                     + origin
                     + ": cube "
@@ -388,7 +388,7 @@ namespace AstronomicalEvent
             cubeM = def.Prop("cube");
             if (cubeM == null || cubeM.Pivot == null)
             {
-                AstronomicalEventMod.Log.LogWarning("Butterfly: cube model missing");
+                JsLiveEventsMod.Log.LogWarning("Butterfly: cube model missing");
                 return;
             }
             cubePv = cubeM.Pivot.transform;
@@ -438,7 +438,7 @@ namespace AstronomicalEvent
             inbM = def.Prop("inbetween");
             if (inbM == null || inbM.Pivot == null)
             {
-                AstronomicalEventMod.Log.LogWarning("Butterfly: In-Between model missing");
+                JsLiveEventsMod.Log.LogWarning("Butterfly: In-Between model missing");
                 return;
             }
             inbPv = inbM.Pivot.transform;
@@ -452,7 +452,7 @@ namespace AstronomicalEvent
             butM = def.Prop("butterfly");
             if (butM == null || butM.Pivot == null)
             {
-                AstronomicalEventMod.Log.LogWarning("Butterfly: butterfly model missing");
+                JsLiveEventsMod.Log.LogWarning("Butterfly: butterfly model missing");
                 return;
             }
             butPv = butM.Pivot.transform;
@@ -850,7 +850,7 @@ namespace AstronomicalEvent
                 {
                     mdl.Pivot.transform.SetParent(null, false);
                     mdl.Pivot.SetActive(false);
-                    AstronomicalEventMod.ParkModel(mdl.Pivot);
+                    JsLiveEventsMod.ParkModel(mdl.Pivot);
                 }
             cubeM = butM = inbM = null;
             if (flashGo != null)

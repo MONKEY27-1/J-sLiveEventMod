@@ -1,4 +1,4 @@
-R = r'C:\Users\drago\Documents\AstronomicalEventMod' + '\\'
+R = r"C:\Users\drago\Documents\J'sLiveEventsMod" + '\\'
 def edit(fn, pairs, base=R):
     s = open(base + fn, encoding='utf-8').read()
     for a, b in pairs:
@@ -12,11 +12,11 @@ edit('AstronomicalSettings.cs', [
 ])
 edit('AstronomicalEventManager.cs', [
  ("        public void Start(int fromSeq)\n        {\n            if (State != EventState.Idle) return; // single instance only",
-  "        public bool CountingDown; public float CountdownLeft; int pendingSeq;\n\n        public void Start(int fromSeq)\n        {\n            if (State != EventState.Idle || CountingDown) return;\n            float c = AstronomicalSettings.Countdown.Value;\n            if (c > 0.5f) { CountingDown = true; CountdownLeft = c; pendingSeq = fromSeq; Message = \"Event starts in \" + Mathf.CeilToInt(c) + \" s\"; AstronomicalEventMod.Log.LogInfo(\"Countdown started: \" + c + \" s\"); return; }\n            StartNow(fromSeq);\n        }\n\n        void StartNow(int fromSeq)\n        {\n            if (State != EventState.Idle) return; // single instance only"),
+  "        public bool CountingDown; public float CountdownLeft; int pendingSeq;\n\n        public void Start(int fromSeq)\n        {\n            if (State != EventState.Idle || CountingDown) return;\n            float c = AstronomicalSettings.Countdown.Value;\n            if (c > 0.5f) { CountingDown = true; CountdownLeft = c; pendingSeq = fromSeq; Message = \"Event starts in \" + Mathf.CeilToInt(c) + \" s\"; JsLiveEventsMod.Log.LogInfo(\"Countdown started: \" + c + \" s\"); return; }\n            StartNow(fromSeq);\n        }\n\n        void StartNow(int fromSeq)\n        {\n            if (State != EventState.Idle) return; // single instance only"),
  ("        public void Stop()\n        {", "        public void Stop()\n        {\n            CountingDown = false;"),
  ("            Audio.Poll();\n            if (State == EventState.Idle) return;", "            Audio.Poll();\n            if (CountingDown)\n            {\n                CountdownLeft -= Time.unscaledDeltaTime;\n                if (CountdownLeft <= 0f) { CountingDown = false; Message = \"\"; StartNow(pendingSeq); }\n                return;\n            }\n            if (State == EventState.Idle) return;"),
 ])
-edit('AstronomicalEventMod.cs', [
+edit("J'sLiveEventsMod.cs", [
  ("        void OnGUI() { if (AstronomicalSettings.BuiltInMenu.Value) ui.Draw(); }",
   "        GUIStyle cdStyle;\n        void OnGUI()\n        {\n            if (AstronomicalSettings.BuiltInMenu.Value) ui.Draw();\n            if (mgr != null && mgr.CountingDown)\n            {\n                if (cdStyle == null) cdStyle = new GUIStyle(GUI.skin.label) { fontSize = 56, alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };\n                cdStyle.normal.textColor = Color.white;\n                GUI.Label(new Rect(0, Screen.height * 0.12f, Screen.width, 100), \"EVENT STARTS IN \" + Mathf.CeilToInt(mgr.CountdownLeft), cdStyle);\n            }\n        }"),
 ])
@@ -55,7 +55,7 @@ edit('AstronomicalEffectsManager.cs', [
                     coasterPts = pts; coasterUp = ups; coasterModels = true;
                     return;
                 }
-                catch (Exception ex) { AstronomicalEventMod.Log.LogWarning("Coaster model failed, using the simple one: " + ex.Message); coasterPts = coasterUp = null; }
+                catch (Exception ex) { JsLiveEventsMod.Log.LogWarning("Coaster model failed, using the simple one: " + ex.Message); coasterPts = coasterUp = null; }
             }"""),
  ("            if (coasterCart == null || coasterTrack.Count < 2) return;",
   """            if (coasterPts != null && coasterCart != null)

@@ -265,7 +265,7 @@ namespace AstronomicalEvent
                     GUILayout.Height(28)
                 ) && !AstronomicalInstaller.Busy
             )
-                AstronomicalEventMod.Inst.StartCoroutine(AstronomicalInstaller.Refresh());
+                JsLiveEventsMod.Inst.StartCoroutine(AstronomicalInstaller.Refresh());
             foreach (var kv in AstronomicalInstaller.Remote)
             {
                 GUILayout.BeginHorizontal();
@@ -281,7 +281,7 @@ namespace AstronomicalEvent
                     GUILayout.Button(AstronomicalInstaller.Installed(kv.Key) ? "Update" : "Install", button, GUILayout.Width(90))
                     && !AstronomicalInstaller.Busy
                 )
-                    AstronomicalEventMod.Inst.StartCoroutine(AstronomicalInstaller.Install(kv.Key, m));
+                    JsLiveEventsMod.Inst.StartCoroutine(AstronomicalInstaller.Install(kv.Key, m));
                 GUILayout.EndHorizontal();
             }
             if (AstronomicalInstaller.Busy)

@@ -332,7 +332,7 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Arena fit failed: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Arena fit failed: " + e.Message);
             }
             AstronomicalShowdown.lastFit = sl;
             AstronomicalShowdown.fitOrigin = so;
@@ -391,7 +391,7 @@ namespace AstronomicalEvent
             hiderOn = false;
             haveGlass = false;
             built = true;
-            AstronomicalEventMod.Log.LogInfo(
+            JsLiveEventsMod.Log.LogInfo(
                 "The Unvaulting built: origin "
                     + origin
                     + " scale "
@@ -924,7 +924,7 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Stage teleport: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Stage teleport: " + e.Message);
             }
         }
 
@@ -1023,7 +1023,7 @@ namespace AstronomicalEvent
                     }
                     catch (Exception e)
                     {
-                        AstronomicalEventMod.Log.LogWarning("Cue: " + e.Message);
+                        JsLiveEventsMod.Log.LogWarning("Cue: " + e.Message);
                     }
                 }
             }
@@ -1782,7 +1782,7 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Restore: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Restore: " + e.Message);
             }
             if (ambientSaved)
             {
@@ -1798,7 +1798,7 @@ namespace AstronomicalEvent
                     {
                         m.Pivot.transform.SetParent(null, false);
                         m.Pivot.SetActive(false);
-                        AstronomicalEventMod.ParkModel(m.Pivot);
+                        JsLiveEventsMod.ParkModel(m.Pivot);
                     }
                     weaponModels[i] = null;
                 }
@@ -1806,19 +1806,19 @@ namespace AstronomicalEvent
                 {
                     vault.Pivot.transform.SetParent(null, false);
                     vault.Pivot.SetActive(false);
-                    AstronomicalEventMod.ParkModel(vault.Pivot);
+                    JsLiveEventsMod.ParkModel(vault.Pivot);
                 }
                 if (volcModel != null && volcModel.Pivot != null)
                 {
                     volcModel.Pivot.transform.SetParent(null, false);
                     volcModel.Pivot.SetActive(false);
-                    AstronomicalEventMod.ParkModel(volcModel.Pivot);
+                    JsLiveEventsMod.ParkModel(volcModel.Pivot);
                 }
                 if (zpModel != null && zpModel.Pivot != null)
                 {
                     zpModel.Pivot.transform.SetParent(null, false);
                     zpModel.Pivot.SetActive(false);
-                    AstronomicalEventMod.ParkModel(zpModel.Pivot);
+                    JsLiveEventsMod.ParkModel(zpModel.Pivot);
                 }
             }
             catch { }

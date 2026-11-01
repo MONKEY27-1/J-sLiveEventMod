@@ -363,7 +363,7 @@ namespace AstronomicalEvent
             var m = def.Prop(propId);
             if (m == null || m.Pivot == null)
             {
-                AstronomicalEventMod.Log.LogWarning("Concert: model '" + propId + "' missing");
+                JsLiveEventsMod.Log.LogWarning("Concert: model '" + propId + "' missing");
                 return null;
             }
             models.Add(m);
@@ -390,7 +390,7 @@ namespace AstronomicalEvent
                 if (sk != null)
                     sk.updateWhenOffscreen = true;
             }
-            AstronomicalEventMod.Log.LogInfo(
+            JsLiveEventsMod.Log.LogInfo(
                 "Concert: "
                     + propId
                     + " height "
@@ -457,7 +457,7 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Arena fit failed: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Arena fit failed: " + e.Message);
             }
             AstronomicalShowdown.lastFit = sl;
             AstronomicalShowdown.fitOrigin = so;
@@ -514,7 +514,7 @@ namespace AstronomicalEvent
             lastBeat = -1;
             flashV = 0f;
             built = true;
-            AstronomicalEventMod.Log.LogInfo(
+            JsLiveEventsMod.Log.LogInfo(
                 "Concert built: origin "
                     + origin
                     + " scale "
@@ -568,7 +568,7 @@ namespace AstronomicalEvent
             endT = def != null && def.Length > 10f ? def.Length : 617f;
             if (c == null || c["beats"] == null)
             {
-                AstronomicalEventMod.Log.LogWarning("Concert: cues.json missing - a plain 100 bpm grid is used");
+                JsLiveEventsMod.Log.LogWarning("Concert: cues.json missing - a plain 100 bpm grid is used");
                 var b = new List<float>();
                 for (float t = 0f; t < endT; t += 0.6f)
                     b.Add(t);
@@ -618,7 +618,7 @@ namespace AstronomicalEvent
             var sm = def.Prop("stage");
             if (sm == null || sm.Pivot == null)
             {
-                AstronomicalEventMod.Log.LogWarning("Concert: stage model missing");
+                JsLiveEventsMod.Log.LogWarning("Concert: stage model missing");
                 return;
             }
             models.Add(sm);
@@ -1886,7 +1886,7 @@ namespace AstronomicalEvent
                     {
                         m.Pivot.transform.SetParent(null, false);
                         m.Pivot.SetActive(false);
-                        AstronomicalEventMod.ParkModel(m.Pivot);
+                        JsLiveEventsMod.ParkModel(m.Pivot);
                     }
                 foreach (var kv in nodes)
                     if (kv.Value != null && kv.Value.name.StartsWith("Text", StringComparison.Ordinal))

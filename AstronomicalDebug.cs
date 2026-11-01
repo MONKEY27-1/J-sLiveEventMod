@@ -35,7 +35,7 @@ namespace AstronomicalEvent
 
         static void Say(string s)
         {
-            AstronomicalEventMod.Log.LogInfo("[eventtest] " + s);
+            JsLiveEventsMod.Log.LogInfo("[eventtest] " + s);
             try
             {
                 File.AppendAllText(logPath, DateTime.Now.ToString("HH:mm:ss") + " " + s + "\n");
@@ -136,7 +136,7 @@ namespace AstronomicalEvent
                     waitUntil = Time.unscaledTime + F(a, 1, 1f);
                     break;
                 case "start":
-                    AstronomicalEventMod.Inst.StartCoroutine(StartEvent(mgr, a.Length > 1 ? a[1] : "collision", F(a, 2, 0f)));
+                    JsLiveEventsMod.Inst.StartCoroutine(StartEvent(mgr, a.Length > 1 ? a[1] : "collision", F(a, 2, 0f)));
                     break;
                 case "seek":
                     mgr.SeekToTime(F(a, 1));
@@ -236,7 +236,7 @@ namespace AstronomicalEvent
                 {
                     Func<Vector3> fa2;
                     if (a.Length < 2 || !Anchors.TryGetValue(a[1], out fa2) || FireHook == null) { Say("shoot <anchor> [count] [gap]  (anchors: " + string.Join(", ", Anchors.Keys.ToArray()) + ")"); break; }
-                    AstronomicalEventMod.Inst.StartCoroutine(ShootBurst(fa2, (int)F(a, 2, 1f), F(a, 3, 0.2f)));
+                    JsLiveEventsMod.Inst.StartCoroutine(ShootBurst(fa2, (int)F(a, 2, 1f), F(a, 3, 0.2f)));
                     break;
                 }
                 case "floor": // floor [dy]: what is under your head (first solid collider within 8 m), and under the first 4 anchors' rooms
@@ -264,7 +264,7 @@ namespace AstronomicalEvent
                     break;
                 }
                 case "trace":
-                    AstronomicalEventMod.Inst.StartCoroutine(
+                    JsLiveEventsMod.Inst.StartCoroutine(
                         Trace(mgr, a.Length > 1 ? a[1] : "player", a.Length > 2 ? a[2] : "head", F(a, 3, 10f))
                     );
                     break;
@@ -287,14 +287,14 @@ namespace AstronomicalEvent
                     break;
                 }
                 case "repo":
-                    AstronomicalEventMod.Inst.StartCoroutine(RepoList());
+                    JsLiveEventsMod.Inst.StartCoroutine(RepoList());
                     break;
                 case "install":
-                    AstronomicalEventMod.Inst.StartCoroutine(RepoInstall(mgr, a.Length > 1 ? a[1] : ""));
+                    JsLiveEventsMod.Inst.StartCoroutine(RepoInstall(mgr, a.Length > 1 ? a[1] : ""));
                     break;
                 case "find": { string q = a.Length > 1 ? a[1] : "gazebo"; int n = 0; foreach (var t2 in UnityEngine.Object.FindObjectsOfType<Transform>()) { if (t2 != null && t2.name.IndexOf(q, StringComparison.OrdinalIgnoreCase) >= 0 && n++ < 25) Say("found " + t2.name + " at " + t2.position + " active " + t2.gameObject.activeInHierarchy + " parent " + (t2.parent != null ? t2.parent.name : "-")); } Say("find '" + q + "': " + n + " matches"); break; }
                 case "shot":
-                    AstronomicalEventMod.Inst.StartCoroutine(Shot(a.Length > 1 ? a[1] : "shot"));
+                    JsLiveEventsMod.Inst.StartCoroutine(Shot(a.Length > 1 ? a[1] : "shot"));
                     break;
                 case "state":
                     Say("anchors " + string.Join(" ", Anchors.Select(k => k.Key + "=" + k.Value().ToString("0.0")).ToArray()));

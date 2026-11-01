@@ -1,4 +1,4 @@
-p = r'C:\Users\drago\Documents\AstronomicalEventMod\AstronomicalNet.cs'
+p = r"C:\Users\drago\Documents\J'sLiveEventsMod\AstronomicalNet.cs"
 s = open(p, encoding='utf-8').read()
 a = s.index("        static void Handle("); b = s.index("        static long ReadLong(string s")
 new = '''        static void Handle(AstronomicalEventManager mgr, string line)

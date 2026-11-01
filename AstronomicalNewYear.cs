@@ -234,7 +234,7 @@ namespace AstronomicalEvent
             zeroDone = confDone = boomDone = false;
             cellIdx = 0;
             built = true;
-            AstronomicalEventMod.Log.LogInfo(
+            JsLiveEventsMod.Log.LogInfo(
                 "New Year " + year + " built at " + origin + ", ball " + (model != null) + ", " + cells.Count + " year particles"
             );
         }
@@ -481,7 +481,7 @@ namespace AstronomicalEvent
             model = def.Prop(year == 2022 ? "crystal" : "disco");
             if (model == null || model.Pivot == null)
             {
-                AstronomicalEventMod.Log.LogWarning("New Year: ball model missing");
+                JsLiveEventsMod.Log.LogWarning("New Year: ball model missing");
                 return;
             }
             pivot = model.Pivot.transform;
@@ -989,7 +989,7 @@ namespace AstronomicalEvent
                 origMats.Clear();
                 model.Pivot.transform.SetParent(null, false);
                 model.Pivot.SetActive(false);
-                AstronomicalEventMod.ParkModel(model.Pivot);
+                JsLiveEventsMod.ParkModel(model.Pivot);
             }
             model = null;
             cells.Clear();

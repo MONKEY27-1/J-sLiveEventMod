@@ -370,19 +370,19 @@ namespace AstronomicalEvent
 
         static void StartLoad()
         {
-            if (AstronomicalEventMod.Inst == null || AstronomicalEventMod.Inst.Loader == null)
+            if (JsLiveEventsMod.Inst == null || JsLiveEventsMod.Inst.Loader == null)
             {
                 status = "plugin not ready";
                 return;
             }
             Loading = true;
             loadFailed = false;
-            AstronomicalEventMod.Inst.StartCoroutine(LoadCo());
+            JsLiveEventsMod.Inst.StartCoroutine(LoadCo());
         }
 
         static IEnumerator LoadCo()
         {
-            var ld = AstronomicalEventMod.Inst.Loader;
+            var ld = JsLiveEventsMod.Inst.Loader;
             string dir = Path.Combine(AstronomicalAssetLoader.Dir, "klombo");
             GltfModel a = null,
                 b = null;
@@ -393,12 +393,12 @@ namespace AstronomicalEvent
             {
                 loadFailed = true;
                 pendingSpawn = false;
-                AstronomicalEventMod.Log.LogWarning("Klombo: klombo.glb missing / failed");
+                JsLiveEventsMod.Log.LogWarning("Klombo: klombo.glb missing / failed");
                 yield break;
             }
             model = a;
             berryModel = b;
-            AstronomicalEventMod.Log.LogInfo("Klombo loaded (berries " + (b != null) + ")");
+            JsLiveEventsMod.Log.LogInfo("Klombo loaded (berries " + (b != null) + ")");
         }
 
         static Transform Node(string n)
@@ -534,7 +534,7 @@ namespace AstronomicalEvent
             for (float s = 0; s < pendingCatch; s += STEP)
                 Step(STEP, true);
             pendingCatch = 0f; // a late joiner fast-forwards the wander so Klombo is where it is for everybody else
-            AstronomicalEventMod.Log.LogInfo(
+            JsLiveEventsMod.Log.LogInfo(
                 "Klombo spawned at " + p + " size " + Size + " seed " + seed + " head " + (headT != null) + " body " + bb.size
             );
         }
@@ -634,7 +634,7 @@ namespace AstronomicalEvent
                 var pv = model.Pivot.transform;
                 pv.SetParent(null, false);
                 model.Pivot.SetActive(false);
-                AstronomicalEventMod.ParkModel(model.Pivot);
+                JsLiveEventsMod.ParkModel(model.Pivot);
                 // the parts were re-parented under pivots (and posed): put every pivot back to neutral, give the parts back to the model and destroy the pivots, so the next spawn starts clean
                 pv.localScale = Vector3.one;
                 var mdl = model.Model != null ? model.Model.transform : pv;
@@ -1001,7 +1001,7 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Klombo mount: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Klombo mount: " + e.Message);
                 return;
             }
             Riding = true;
@@ -1502,7 +1502,7 @@ namespace AstronomicalEvent
                 }
                 catch (Exception e)
                 {
-                    AstronomicalEventMod.Log.LogError("Klombo build: " + e);
+                    JsLiveEventsMod.Log.LogError("Klombo build: " + e);
                     pendingSpawn = false;
                     Despawn();
                 }
@@ -1538,7 +1538,7 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Klombo tick: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Klombo tick: " + e.Message);
             }
         }
     }

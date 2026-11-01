@@ -15,14 +15,14 @@ namespace AstronomicalEvent
     // through them (the same method as THE END's rooms). Everything is a pure function of the music time t; one-shots fire when t passes them.
     internal sealed partial class AstronomicalSkyFire : IEventScene, IDebug
     {
-        enum Sc { Black, Abduct, Cells, Hall, Walk, Tube, Rooms, View, Purple, Blue, Crystal, Fall }
+        enum Sc { Black, Abduct, Cells, Hall, Walk, Tube, Rooms, View, Purple, Blue, Lift, Crystal, Fall }
         sealed class Seg { public float T0, T1, Tw; public Sc S; public string Blk; }
         static Seg G(float t0, float t1, Sc s, string blk, float tw) { return new Seg { T0 = t0, T1 = t1, S = s, Blk = blk, Tw = tw }; }
         // time windows from the user's recording (mm:ss -> s); Tw = how long the walk along the block takes (then you stand at its end)
         static readonly Seg[] SEGS = {
-            G(0f, 5f, Sc.Black, null, 0f), G(5f, 25f, Sc.Abduct, null, 0f), G(25f, 65f, Sc.Cells, "CELLS", 40f), G(65f, 115f, Sc.Hall, "HALL", 50f), G(115f, 165f, Sc.Walk, "WALK", 50f), G(165f, 180f, Sc.Tube, "TUBE", 15f),
-            G(180f, 225f, Sc.Rooms, "ROOMS", 45f), G(225f, 245f, Sc.Tube, "TUBE", 20f), G(245f, 285f, Sc.View, "VIEW", 12f), G(285f, 360f, Sc.Purple, "PURPLE", 15f), G(360f, 410f, Sc.View, "VIEW", 12f), G(410f, 475f, Sc.Blue, "BLUE", 15f),
-            G(475f, 495f, Sc.View, "VIEW", 12f), G(495f, 510f, Sc.Blue, "BLUE", 2f), G(510f, 570f, Sc.Crystal, "CRYSTAL", 30f), G(570f, 609.5f, Sc.Fall, null, 0f) };
+            G(0f, 5f, Sc.Black, null, 0f), G(5f, 25f, Sc.Abduct, null, 0f), G(25f, 65f, Sc.Cells, "CELLS", 0f), G(65f, 115f, Sc.Hall, "HALL", 0f), G(115f, 165f, Sc.Walk, "WALK", 0f), G(165f, 180f, Sc.Tube, "TUBE", 15f),
+            G(180f, 225f, Sc.Rooms, "ROOMS", 0f), G(225f, 245f, Sc.Tube, "TUBE", 20f), G(245f, 285f, Sc.View, "VIEW", 12f), G(285f, 360f, Sc.Purple, "PURPLE", 15f), G(360f, 410f, Sc.View, "VIEW", 12f), G(410f, 495f, Sc.Blue, "BLUE", 15f),
+            G(495f, 510f, Sc.Lift, "BLUE", 0f), G(510f, 570f, Sc.Crystal, "CUBES", 0f), G(570f, 609.5f, Sc.Fall, null, 0f) };
         const float T_REBOOT = 426f, T_ZERO = 551f, T_FALL = 570f, T_LAND = 600f, T_TITLE = 604f, T_END = 609.3f, Y_INT = 800f, VIEW_Y = 55f, VIEW_Z = -40f, FALL_TOP = 380f;
         static float Sm(float a, float b, float x) { return AstronomicalCube.Sm(a, b, x); }
         static Seg SegAt(float t) { Seg r = SEGS[0]; foreach (var g in SEGS) if (t >= g.T0) r = g; return r; }
@@ -86,7 +86,7 @@ namespace AstronomicalEvent
             var g = new GameObject(n); g.transform.SetParent(root.transform, false); var l = g.AddComponent<LineRenderer>(); l.useWorldSpace = true; l.positionCount = pts; l.enabled = false; l.shadowCastingMode = ShadowCastingMode.Off;
             l.sharedMaterial = m; l.widthMultiplier = width; return l;
         }
-        static readonly HashSet<string> GLOWS = new HashSet<string> { "Pink", "Purp", "Cyan", "Strip", "White", "BlueGlow", "Teal", "Crystal", "Swirl", "Red", "Orange" };
+        static readonly HashSet<string> GLOWS = new HashSet<string> { "Pink", "Purp", "Cyan", "Strip", "White", "BlueGlow", "Teal", "Crystal", "Swirl", "Red", "Orange", "Belt", "Gold", "CubeGlow", "Hazard" };
         // room models: glowing materials are unlit (full colour), the rest are lit by the lights that follow you; characters / props: lit
         void Brighten(GltfModel mdl, float k, bool rooms)
         {
@@ -106,7 +106,7 @@ namespace AstronomicalEvent
         }
         GltfModel Take(string id, float bright, bool rooms)
         {
-            var m = def.Prop(id); if (m == null || m.Pivot == null) { AstronomicalEventMod.Log.LogWarning("SkyFire: prop '" + id + "' missing"); return null; }
+            var m = def.Prop(id); if (m == null || m.Pivot == null) { JsLiveEventsMod.Log.LogWarning("SkyFire: prop '" + id + "' missing"); return null; }
             m.Pivot.transform.SetParent(root.transform, false); m.Pivot.SetActive(false); Brighten(m, bright, rooms); models.Add(m); return m;
         }
         static void PlaceByFile(GltfModel m, Vector3 localTarget)
@@ -145,7 +145,7 @@ namespace AstronomicalEvent
             {   // face the longest free line of sight (the deck looks that way over the island)
                 float best = -1f; Vector3 eye = originW + Vector3.up * 2.2f;
                 for (int k = 0; k < 24; k++) { float a = k * 15f; Vector3 d = Quaternion.Euler(0f, a, 0f) * Vector3.forward; float free = 90f; RaycastHit hh; if (Physics.Raycast(eye, d, out hh, 90f, ~0, QueryTriggerInteraction.Ignore)) free = hh.distance; Vector3 d2 = Quaternion.Euler(0f, a + 8f, 0f) * Vector3.forward; if (Physics.Raycast(eye + Vector3.up * 3f, d2, out hh, 90f, ~0, QueryTriggerInteraction.Ignore)) free = Mathf.Min(free, hh.distance + 15f); if (free > best) { best = free; yaw = a; } }
-                AstronomicalEventMod.Log.LogInfo("SkyFire: open direction " + yaw + " deg, free " + best.ToString("0") + " m");
+                JsLiveEventsMod.Log.LogInfo("SkyFire: open direction " + yaw + " deg, free " + best.ToString("0") + " m");
             }
             root = new GameObject("AstronomicalSkyFire"); root.transform.position = originW; root.transform.rotation = Quaternion.Euler(0f, yaw, 0f);
             kit = new WorldKit { Layer = floorLayer }; glowTex = kit.GlowTex();
@@ -159,13 +159,13 @@ namespace AstronomicalEvent
             skyboxSave = RenderSettings.skybox; RenderSettings.skybox = null;      // the desktop camera draws the map's GTSkybox over our sky dome (it is drawn last, wherever nothing else is); without it the camera shows our dome
             try { if (cam != null) { farSave = cam.farClipPlane; cam.farClipPlane = Mathf.Max(farSave, 6000f); } } catch { }
             lastT = -1f; built = true; try { FindSkyRenderers(); } catch { }
-            AstronomicalEventMod.Log.LogInfo("SkyFire built at " + originW + ": interior " + (inM != null) + ", deck " + (viewM != null) + ", props " + (propM != null) + ", ufo " + (ufoM != null) + ", ship " + (shipM != null) + ", squad " + squad.Count);
+            JsLiveEventsMod.Log.LogInfo("SkyFire built at " + originW + ": interior " + (inM != null) + ", deck " + (viewM != null) + ", props " + (propM != null) + ", ufo " + (ufoM != null) + ", ship " + (shipM != null) + ", squad " + squad.Count);
         }
 
         Material skyboxSave; Renderer mapSky; readonly List<Renderer> skyRs = new List<Renderer>();
         void FindSkyRenderers()
         {
-            skyRs.Clear(); foreach (var r in UnityEngine.Object.FindObjectsOfType<Renderer>()) { if (r == null || !r.enabled || !r.gameObject.activeInHierarchy || r.gameObject == skyGo || (root != null && r.transform.IsChildOf(root.transform))) continue; var m = r.sharedMaterial; string sn = m != null && m.shader != null ? m.shader.name : ""; string nm = r.gameObject.name.ToLowerInvariant(); if ((sn.IndexOf("Sky", StringComparison.OrdinalIgnoreCase) >= 0 && sn.IndexOf("WindTunnel", StringComparison.OrdinalIgnoreCase) < 0) || nm == "standard sky" || nm.Contains("skydome") || nm.Contains("sky dome")) { skyRs.Add(r); AstronomicalEventMod.Log.LogInfo("SkyFire sky renderer: " + r.gameObject.name + " (" + (r.transform.parent != null ? r.transform.parent.name : "-") + ") enabled " + r.enabled + " active " + r.gameObject.activeInHierarchy + " size " + r.bounds.size + " shader " + sn); } }
+            skyRs.Clear(); foreach (var r in UnityEngine.Object.FindObjectsOfType<Renderer>()) { if (r == null || !r.enabled || !r.gameObject.activeInHierarchy || r.gameObject == skyGo || (root != null && r.transform.IsChildOf(root.transform))) continue; var m = r.sharedMaterial; string sn = m != null && m.shader != null ? m.shader.name : ""; string nm = r.gameObject.name.ToLowerInvariant(); if ((sn.IndexOf("Sky", StringComparison.OrdinalIgnoreCase) >= 0 && sn.IndexOf("WindTunnel", StringComparison.OrdinalIgnoreCase) < 0) || nm == "standard sky" || nm.Contains("skydome") || nm.Contains("sky dome")) { skyRs.Add(r); JsLiveEventsMod.Log.LogInfo("SkyFire sky renderer: " + r.gameObject.name + " (" + (r.transform.parent != null ? r.transform.parent.name : "-") + ") enabled " + r.enabled + " active " + r.gameObject.activeInHierarchy + " size " + r.bounds.size + " shader " + sn); } }
         }
         // the map's sky dome objects are switched OFF (the whole object: the game re-enables a renderer, not a hidden object) while the event runs and back on in Cleanup
         readonly List<GameObject> hiddenGos = new List<GameObject>();
@@ -196,7 +196,7 @@ namespace AstronomicalEvent
         {
             if (skyMesh == null) return; Color top, mid, hor; SkyAt(t, g, out top, out mid, out hor);
             for (int k = 0; k < skyDirs.Length; k++) { var d = skyDirs[k]; float up = Mathf.Clamp01(d.y); var c = up < 0.3f ? Color.Lerp(hor, mid, up / 0.3f) : Color.Lerp(mid, top, (up - 0.3f) / 0.7f); c.a = 1f; skyCols[k] = c; }
-            skyMesh.colors = skyCols; if (g.S != lastSkyScene) { lastSkyScene = g.S; var mr = skyGo.GetComponent<MeshRenderer>(); AstronomicalEventMod.Log.LogInfo("SkyFire sky: " + g.S + " mid " + mid + " top " + top + " renderer on " + mr.enabled + " active " + skyGo.activeInHierarchy + " pos " + skyGo.transform.position + " cam " + (Camera.main != null ? Camera.main.transform.position.ToString() : "-") + " far " + (Camera.main != null ? Camera.main.farClipPlane : 0f) + " cull " + (Camera.main != null ? Camera.main.cullingMask.ToString() : "-") + " layer " + skyGo.layer); }
+            skyMesh.colors = skyCols; if (g.S != lastSkyScene) { lastSkyScene = g.S; var mr = skyGo.GetComponent<MeshRenderer>(); JsLiveEventsMod.Log.LogInfo("SkyFire sky: " + g.S + " mid " + mid + " top " + top + " renderer on " + mr.enabled + " active " + skyGo.activeInHierarchy + " pos " + skyGo.transform.position + " cam " + (Camera.main != null ? Camera.main.transform.position.ToString() : "-") + " far " + (Camera.main != null ? Camera.main.farClipPlane : 0f) + " cull " + (Camera.main != null ? Camera.main.cullingMask.ToString() : "-") + " layer " + skyGo.layer); }
         }
         Sc lastSkyScene = Sc.Fall;
         void BuildEffects()
@@ -230,10 +230,10 @@ namespace AstronomicalEvent
             try
             {
                 if (!noclipHold) NoClip(true); var pl = GTPlayer.Instance; var rb = pl.playerRigidBody; Vector3 d = headWorld - pl.headCollider.transform.position;
-                if (d.magnitude > 3f) { try { pl.TeleportTo(pl.transform.position + d, pl.transform.rotation, false, false); } catch (Exception e) { AstronomicalEventMod.Log.LogWarning("SkyFire: TeleportTo failed: " + e.Message); } d = headWorld - pl.headCollider.transform.position; }
-                rb.position += d; rb.linearVelocity = Vector3.zero; lastReseat = Time.unscaledTime; AstronomicalEventMod.Log.LogInfo("SkyFire: moved you to " + headWorld + " (" + d.magnitude.ToString("0") + " m)");
+                if (d.magnitude > 3f) { try { pl.TeleportTo(pl.transform.position + d, pl.transform.rotation, false, false); } catch (Exception e) { JsLiveEventsMod.Log.LogWarning("SkyFire: TeleportTo failed: " + e.Message); } d = headWorld - pl.headCollider.transform.position; }
+                rb.position += d; rb.linearVelocity = Vector3.zero; lastReseat = Time.unscaledTime; JsLiveEventsMod.Log.LogInfo("SkyFire: moved you to " + headWorld + " (" + d.magnitude.ToString("0") + " m)");
             }
-            catch (Exception e) { AstronomicalEventMod.Log.LogWarning("SkyFire: could not move you: " + e.Message); }
+            catch (Exception e) { JsLiveEventsMod.Log.LogWarning("SkyFire: could not move you: " + e.Message); }
         }
         static MethodInfo turnM; static bool turnTried;
         void FaceDir(Vector3 worldDir)
@@ -255,7 +255,7 @@ namespace AstronomicalEvent
                 Vector3 c = new Vector3(Mathf.Clamp(local.x, -hx, hx), Mathf.Clamp(local.y, -0.3f, 0.5f), Mathf.Clamp(local.z, zMin, zMax)); if ((c - local).sqrMagnitude > 1e-6f) rb.position += q * (c - local);
                 rb.linearVelocity = (rb.linearVelocity - Physics.gravity * dt) * (1f - Mathf.Min(0.6f, 2f * dt));
             }
-            catch (Exception e) { if (!carryErr) { carryErr = true; AstronomicalEventMod.Log.LogWarning("SkyFire carry: " + e.Message + " " + e.StackTrace); } }
+            catch (Exception e) { if (!carryErr) { carryErr = true; JsLiveEventsMod.Log.LogWarning("SkyFire carry: " + e.Message + " " + e.StackTrace); } }
         }
 
         // ---------------------------------------------------------------- the frame
@@ -284,11 +284,11 @@ namespace AstronomicalEvent
             Vector3 aw = W(an); float dd = Vector3.Distance(HeadNow(), aw);
             if ((dd > 16f || (dd > 9f && HeadNow().y < aw.y - 2.2f)) && reseatTries < 6 && Time.unscaledTime - lastReseat > 0.7f) { reseatTries++; Reseat(aw); }
             else if (dt > 0f && dd < 16f) Carry(aw, ayaw, dt, hx, z0, z1);
-            if (dd > 6f && Time.unscaledTime - dbgT > 1f) { dbgT = Time.unscaledTime; AstronomicalEventMod.Log.LogInfo("SkyFire: " + g.S + " t=" + t.ToString("0.0") + " you are " + dd.ToString("0.0") + " m from your hold point: head " + HeadNow() + " hold " + aw); }
+            if (dd > 6f && Time.unscaledTime - dbgT > 1f) { dbgT = Time.unscaledTime; JsLiveEventsMod.Log.LogInfo("SkyFire: " + g.S + " t=" + t.ToString("0.0") + " you are " + dd.ToString("0.0") + " m from your hold point: head " + HeadNow() + " hold " + aw); }
         }
         void OnSeg(Seg from, Seg to, float t)
         {
-            AstronomicalEventMod.Log.LogInfo("SkyFire: scene " + (from != null ? from.S.ToString() : "-") + " -> " + to.S + " at t=" + t.ToString("0.0") + " head " + HeadNow()); reseatTries = 0;
+            JsLiveEventsMod.Log.LogInfo("SkyFire: scene " + (from != null ? from.S.ToString() : "-") + " -> " + to.S + " at t=" + t.ToString("0.0") + " head " + HeadNow()); reseatTries = 0;
             Vector3 an; float ayaw, hx, z0, z1;
             if (Anchor(t, to, out an, out ayaw, out hx, out z0, out z1)) { Reseat(W(an)); FaceDir(root.transform.rotation * Quaternion.Euler(0f, ayaw, 0f) * Vector3.forward); }
             else if (to.S == Sc.Black) { }
@@ -300,14 +300,15 @@ namespace AstronomicalEvent
             switch (g.S)
             {
                 case Sc.Black: a = new Vector3(0f, 1.5f, 0f); hx = 3f; zMin = -3f; zMax = 3f; return t < 4.9f;
-                case Sc.Abduct: { float k = Sm(5f, 23f, t); a = new Vector3(0f, 1.5f + 140f * k, 0f); hx = 1.2f; zMin = -1.2f; zMax = 1.2f; return true; }
+                case Sc.Abduct: { float k = Sm(5f, 23f, t); a = new Vector3(0f, 1.5f + 190f * k, 0f); hx = 1.2f; zMin = -1.2f; zMax = 1.2f; return true; }
                 case Sc.Fall:
                     { if (t >= T_LAND) return false; float k = Mathf.Clamp01((t - T_FALL) / (T_LAND - T_FALL)); a = new Vector3(0f, 1.5f + FALL_TOP * Mathf.Pow(1f - k, 1.5f), 0f); hx = 1.5f; zMin = -1.5f; zMax = 1.5f; return true; }
                 default:
                     {
-                        Vector3 s, e; if (!Route(g, out s, out e)) return false; float x = g.Tw <= 0f ? 1f : Mathf.Clamp01((t - g.T0) / g.Tw); float k = g.Tw > 0f && g.Tw <= 20f ? Sm(0f, 1f, x) : x; Vector3 p = Vector3.Lerp(s, e, k);
-                        if (g.Tw <= 2f && g.Tw > 0f) p = e;
-                        a = p + Vector3.up * 1.6f; bool stand = g.S == Sc.View || g.S == Sc.Purple || g.S == Sc.Blue; hx = stand ? 3.5f : g.S == Sc.Tube ? 0.9f : 1.2f; zMin = stand ? -2.5f : -1.2f; zMax = stand ? 3.5f : 1.0f; return true;
+                        Vector3 s, e; if (!Route(g, out s, out e)) return false; Vector3 p; float rx, rz;
+                        if (RouteXZ(g, t, out rx, out rz)) p = s + new Vector3(rx, 0f, rz);
+                        else { float x = g.Tw <= 0f ? 1f : Mathf.Clamp01((t - g.T0) / g.Tw); float k = g.Tw > 0f && g.Tw <= 20f ? Sm(0f, 1f, x) : x; p = Vector3.Lerp(s, e, k); if (g.Tw <= 2f && g.Tw > 0f) p = e; }
+                        a = p + Vector3.up * 1.6f; bool stand = g.S == Sc.View || g.S == Sc.Purple || g.S == Sc.Blue || g.S == Sc.Lift; hx = stand ? 3.5f : g.S == Sc.Tube ? 0.9f : 1.2f; zMin = stand ? -2.5f : -1.2f; zMax = stand ? 3.5f : 1.0f; return true;
                     }
             }
         }
@@ -322,7 +323,7 @@ namespace AstronomicalEvent
             for (int i = 1; i < SEGS.Length; i++)
             {
                 float c = SEGS[i].T0; if (c < 6f) continue; float dip = Sm(c - 0.5f, c, t) * (1f - Sm(c + 0.15f, c + 0.9f, t));
-                if (dip > a) { a = dip; bool white = SEGS[i].S == Sc.Tube || SEGS[i].S == Sc.Cells || SEGS[i - 1].S == Sc.Tube || SEGS[i].S == Sc.Fall; col = white ? new Color(0.85f, 0.97f, 1f) : Color.black; }
+                if (dip > a) { a = dip; bool white = SEGS[i].S == Sc.Tube || SEGS[i].S == Sc.Cells || SEGS[i].S == Sc.Crystal || SEGS[i - 1].S == Sc.Tube || SEGS[i].S == Sc.Fall; col = white ? new Color(0.85f, 0.97f, 1f) : Color.black; }
             }
             if (t > T_TITLE - 1.2f && t < T_TITLE) { a = Mathf.Max(a, Sm(T_TITLE - 1.2f, T_TITLE, t)); col = Color.black; } else if (t >= T_TITLE) { a = Mathf.Max(a, 0.9f); col = Color.black; }
             if (t >= T_ZERO && t < T_ZERO + 2.5f) { float w = Sm(T_ZERO + 0.2f, T_ZERO + 0.6f, t) * (1f - Sm(T_ZERO + 0.8f, T_ZERO + 2.5f, t)); if (w > a) { a = w * 0.95f; col = new Color(1f, 0.9f, 0.7f); } }
@@ -337,8 +338,8 @@ namespace AstronomicalEvent
             try { if (farSave > 0f && Camera.main != null) Camera.main.farClipPlane = farSave; } catch { }
             farSave = -1f; foreach (var kv in origMats) if (kv.Key != null) kv.Key.sharedMaterials = kv.Value; origMats.Clear();
             foreach (var g in clones) if (g != null) UnityEngine.Object.Destroy(g); clones.Clear(); bS.Clear(); bE.Clear();
-            foreach (var mdl in models) if (mdl != null && mdl.Pivot != null) { foreach (var bc in mdl.Pivot.GetComponentsInChildren<Collider>(true)) UnityEngine.Object.Destroy(bc); mdl.Pivot.transform.SetParent(null, false); mdl.Pivot.SetActive(false); AstronomicalEventMod.ParkModel(mdl.Pivot); }
-            models.Clear(); inM = viewM = propM = ufoM = shipM = jonM = fouM = grdM = null;
+            foreach (var mdl in models) if (mdl != null && mdl.Pivot != null) { foreach (var bc in mdl.Pivot.GetComponentsInChildren<Collider>(true)) UnityEngine.Object.Destroy(bc); mdl.Pivot.transform.SetParent(null, false); mdl.Pivot.SetActive(false); JsLiveEventsMod.ParkModel(mdl.Pivot); }
+            models.Clear(); inM = viewM = propM = ufoM = shipM = jonM = fouM = grdM = cubeM = null;
             if (flashGo != null) UnityEngine.Object.Destroy(flashGo); flashGo = null; if (skyGo != null) UnityEngine.Object.Destroy(skyGo); skyGo = null; if (root != null) UnityEngine.Object.Destroy(root); root = null;
             if (kit != null) foreach (var o in kit.Owned) if (o != null) UnityEngine.Object.Destroy(o); foreach (var o in owned) if (o != null) UnityEngine.Object.Destroy(o); owned.Clear(); kit = null; built = false; lastT = -1f; skyMesh = null; textMat = null;
         }

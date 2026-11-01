@@ -290,13 +290,13 @@ namespace AstronomicalEvent
                 }
                 catch { }
             }
-            AstronomicalEventMod.Log.LogInfo(
+            JsLiveEventsMod.Log.LogInfo(
                 "Ice storm: "
                     + swapped
                     + " ground / grass meshes get the snow texture; materials: "
                     + string.Join(", ", new List<string>(names).GetRange(0, Mathf.Min(40, names.Count)).ToArray())
             );
-            AstronomicalEventMod.Log.LogInfo("Ice storm: " + hits + " up-facing floor points, " + chunks.Count + " snow tiles");
+            JsLiveEventsMod.Log.LogInfo("Ice storm: " + hits + " up-facing floor points, " + chunks.Count + " snow tiles");
         }
 
         // t = event time: tiles whose moment has come rise out of the ground (and sink back when scrubbing earlier)
@@ -763,7 +763,7 @@ namespace AstronomicalEvent
             shattered = false;
             hitDone = false;
             built = true;
-            AstronomicalEventMod.Log.LogInfo("Ice storm built at " + origin + " facing " + yaw.ToString("0") + ", king " + (model != null));
+            JsLiveEventsMod.Log.LogInfo("Ice storm built at " + origin + " facing " + yaw.ToString("0") + ", king " + (model != null));
         }
 
         public bool TryViewpoint(out Vector3 pos, out float y)
@@ -999,7 +999,7 @@ namespace AstronomicalEvent
             model = def.Prop("king");
             if (model == null || model.Pivot == null)
             {
-                AstronomicalEventMod.Log.LogWarning("Ice storm: king model missing");
+                JsLiveEventsMod.Log.LogWarning("Ice storm: king model missing");
                 return;
             }
             pivot = model.Pivot.transform;
@@ -1447,7 +1447,7 @@ namespace AstronomicalEvent
             if (natural)
             {
                 IceSnow.BeginFade();
-                AstronomicalEventMod.Log.LogInfo("Ice storm over: the snow stays until you leave the map");
+                JsLiveEventsMod.Log.LogInfo("Ice storm over: the snow stays until you leave the map");
             }
             else
                 IceSnow.Clear();
@@ -1459,7 +1459,7 @@ namespace AstronomicalEvent
                 origMats.Clear();
                 model.Pivot.transform.SetParent(null, false);
                 model.Pivot.SetActive(false);
-                AstronomicalEventMod.ParkModel(model.Pivot);
+                JsLiveEventsMod.ParkModel(model.Pivot);
             }
             kingMats.Clear();
             kingEye.Clear();

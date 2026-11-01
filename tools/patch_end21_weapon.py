@@ -70,7 +70,7 @@ d = rep(d, '                case "tweak":', '''                case "shoot": // 
                 {
                     Func<Vector3> fa2;
                     if (a.Length < 2 || !Anchors.TryGetValue(a[1], out fa2) || FireHook == null) { Say("shoot <anchor> [count] [gap]  (anchors: " + string.Join(", ", Anchors.Keys.ToArray()) + ")"); break; }
-                    AstronomicalEventMod.Inst.StartCoroutine(ShootBurst(fa2, (int)F(a, 2, 1f), F(a, 3, 0.2f)));
+                    JsLiveEventsMod.Inst.StartCoroutine(ShootBurst(fa2, (int)F(a, 2, 1f), F(a, 3, 0.2f)));
                     break;
                 }
                 case "tweak":''')

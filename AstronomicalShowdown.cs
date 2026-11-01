@@ -257,7 +257,7 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Arena fit failed: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Arena fit failed: " + e.Message);
             }
             root = new GameObject("FinalShowdown");
             root.transform.SetPositionAndRotation(origin, Quaternion.Euler(0, yaw, 0));
@@ -407,7 +407,7 @@ namespace AstronomicalEvent
             eyeOut = false;
             hidRobot = false;
             armT0 = -1f;
-            AstronomicalEventMod.Log.LogInfo(
+            JsLiveEventsMod.Log.LogInfo(
                 "Final Showdown built: origin "
                     + origin
                     + ", scale "
@@ -494,7 +494,7 @@ namespace AstronomicalEvent
             float[] scales = { 1f, 0.85f, 0.7f, 0.6f, 0.5f, 0.42f, 0.35f, 0.3f, 0.25f, 0.2f, 0.17f, 0.14f };
             if (cnt < 40)
             {
-                AstronomicalEventMod.Log.LogInfo("Arena fit: too little floor found (" + cnt + " cells), using scale " + baseScale * 0.6f);
+                JsLiveEventsMod.Log.LogInfo("Arena fit: too little floor found (" + cnt + " cells), using scale " + baseScale * 0.6f);
                 scale = baseScale * 0.6f;
                 return;
             }
@@ -552,7 +552,7 @@ namespace AstronomicalEvent
                 if (found)
                     break;
             }
-            AstronomicalEventMod.Log.LogInfo(
+            JsLiveEventsMod.Log.LogInfo(
                 "Arena fit: floor cells " + cnt + "/" + (n * n) + ", found " + found + ", scale " + bs + ", yaw " + by + ", shift " + bo
             );
             scale = bs;
@@ -1095,7 +1095,7 @@ namespace AstronomicalEvent
                     }
                     catch (Exception e)
                     {
-                        AstronomicalEventMod.Log.LogWarning("Cue " + c.Type + ": " + e.Message);
+                        JsLiveEventsMod.Log.LogWarning("Cue " + c.Type + ": " + e.Message);
                     }
                 }
             }
@@ -1154,7 +1154,7 @@ namespace AstronomicalEvent
                 }
                 catch (Exception e)
                 {
-                    AstronomicalEventMod.Log.LogWarning("Window " + w.Type + ": " + e.Message);
+                    JsLiveEventsMod.Log.LogWarning("Window " + w.Type + ": " + e.Message);
                 }
             }
             if (!beamOn)
@@ -1772,7 +1772,7 @@ namespace AstronomicalEvent
                     {
                         a.Model.Pivot.transform.SetParent(null, false);
                         a.Model.Pivot.SetActive(false);
-                        AstronomicalEventMod.ParkModel(a.Model.Pivot);
+                        JsLiveEventsMod.ParkModel(a.Model.Pivot);
                     }
                 }
                 catch { }
@@ -1783,7 +1783,7 @@ namespace AstronomicalEvent
                 {
                     vaultModel.Pivot.transform.SetParent(null, false);
                     vaultModel.Pivot.SetActive(false);
-                    AstronomicalEventMod.ParkModel(vaultModel.Pivot);
+                    JsLiveEventsMod.ParkModel(vaultModel.Pivot);
                 }
             }
             catch { }
@@ -1793,7 +1793,7 @@ namespace AstronomicalEvent
                 {
                     zpModel.Pivot.transform.SetParent(null, false);
                     zpModel.Pivot.SetActive(false);
-                    AstronomicalEventMod.ParkModel(zpModel.Pivot);
+                    JsLiveEventsMod.ParkModel(zpModel.Pivot);
                 }
             }
             catch { }
@@ -1803,7 +1803,7 @@ namespace AstronomicalEvent
                 {
                     sword.Pivot.transform.SetParent(null, false);
                     sword.Pivot.SetActive(false);
-                    AstronomicalEventMod.ParkModel(sword.Pivot);
+                    JsLiveEventsMod.ParkModel(sword.Pivot);
                 }
             }
             catch { }

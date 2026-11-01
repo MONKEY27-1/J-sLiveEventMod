@@ -1,4 +1,4 @@
-R = r'C:\Users\drago\Documents\AstronomicalEventMod' + '\\'
+R = r"C:\Users\drago\Documents\J'sLiveEventsMod" + '\\'
 def edit(fn, pairs):
     s = open(R + fn, encoding='utf-8').read()
     for a, b in pairs:
@@ -10,7 +10,7 @@ edit('AstronomicalEffectsManager.cs', [
  ("        Transform seatOrb; Material seatMat; Transform pelvisJoint;",
   "        Transform seatOrb; Material seatMat; Transform pelvisJoint;\n        AstronomicalLaunchRings rings; float[] shockT, shockSize; int shockIdx;"),
  ("            stage.SetActive(false); planets.SetActive(false);\n        }",
-  "            try { rings = new AstronomicalLaunchRings(); rings.Build(root.transform, anchorPos, ringMats[0]); }\n            catch (Exception ex) { AstronomicalEventMod.Log.LogWarning(\"Launch rings failed: \" + ex.Message); rings = null; }\n            stage.SetActive(false); planets.SetActive(false);\n        }"),
+  "            try { rings = new AstronomicalLaunchRings(); rings.Build(root.transform, anchorPos, ringMats[0]); }\n            catch (Exception ex) { JsLiveEventsMod.Log.LogWarning(\"Launch rings failed: \" + ex.Message); rings = null; }\n            stage.SetActive(false); planets.SetActive(false);\n        }"),
  ("            if (spec != null) spec.Mega(c, hue);", "            if (spec != null) spec.Mega(c, hue);\n            AstronomicalHazards.Blast(c, 170f, 45f, 22f);"),
  ("            Color c1 = Col(hue, 0.8f, 1f), c2 = Col(hue + 0.33f, 0.8f, 1f), c3 = Col(hue + 0.66f, 0.7f, 1f);",
   "            Color c1 = Col(hue, 0.8f, 1f), c2 = Col(hue + 0.33f, 0.8f, 1f), c3 = Col(hue + 0.66f, 0.7f, 1f);\n            if (!paused) AstronomicalHazards.Swim(water > 0.3f, root.transform.position);      // the game's own swimming while the arena is flooded\n            if (rings != null && !paused) rings.Tick(dt, t, i, kick, hue);"),

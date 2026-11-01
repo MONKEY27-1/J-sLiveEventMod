@@ -434,7 +434,7 @@ namespace AstronomicalEvent
             held = false;
             cabHave = false;
             built = true;
-            AstronomicalEventMod.Log.LogInfo(
+            JsLiveEventsMod.Log.LogInfo(
                 "Collision M1 v2 built at "
                     + originW
                     + ": mech "
@@ -677,7 +677,7 @@ namespace AstronomicalEvent
             if (domeM != null && domeM.Pivot != null)
                 foreach (var rr in domeM.Pivot.GetComponentsInChildren<Renderer>(true))
                 foreach (var mt in rr.sharedMaterials)
-                    AstronomicalEventMod.Log.LogInfo(
+                    JsLiveEventsMod.Log.LogInfo(
                         "Collision dome material: "
                             + (
                                 mt != null
@@ -1173,12 +1173,12 @@ namespace AstronomicalEvent
                     rb.linearVelocity = Vector3.zero;
                     holdOff = rb.position - cabinPoint;
                     cabHave = false;
-                    AstronomicalEventMod.Log.LogInfo("Collision: you are in the cabin at " + cabinPoint);
+                    JsLiveEventsMod.Log.LogInfo("Collision: you are in the cabin at " + cabinPoint);
                 }
                 catch (Exception e)
                 {
                     held = false;
-                    AstronomicalEventMod.Log.LogWarning("Collision: could not seat you: " + e.Message);
+                    JsLiveEventsMod.Log.LogWarning("Collision: could not seat you: " + e.Message);
                 }
             }
             else
@@ -1684,7 +1684,7 @@ namespace AstronomicalEvent
                         UnityEngine.Object.Destroy(bc);
                     mdl.Pivot.transform.SetParent(null, false);
                     mdl.Pivot.SetActive(false);
-                    AstronomicalEventMod.ParkModel(mdl.Pivot);
+                    JsLiveEventsMod.ParkModel(mdl.Pivot);
                 }
             cabM = moonM = colM = mechM = tankM = domeM = bruteM = swordM = originM = rockM = islandM = null;
             tanks.Clear();

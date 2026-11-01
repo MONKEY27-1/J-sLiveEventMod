@@ -204,7 +204,7 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Lake: water search " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Lake: water search " + e.Message);
             }
             if (best == null || bd > 250f)
                 return false;
@@ -364,7 +364,7 @@ namespace AstronomicalEvent
                 surfY = bestTop + 0.35f;
                 b = new Bounds(new Vector3(bestC.x, surfY, bestC.z), new Vector3(24f, 2f, 24f));
                 BuildPondRim(b, surfY, m);
-                AstronomicalEventMod.Log.LogInfo("Cube lake: pond spot spread " + bestS.ToString("0.0") + " m at " + bestC);
+                JsLiveEventsMod.Log.LogInfo("Cube lake: pond spot spread " + bestS.ToString("0.0") + " m at " + bestC);
             }
             waterB = b;
             if (!pond)
@@ -462,7 +462,7 @@ namespace AstronomicalEvent
             burstDone = false;
             splashed = false;
             built = true;
-            AstronomicalEventMod.Log.LogInfo(
+            JsLiveEventsMod.Log.LogInfo(
                 "Cube lake built: "
                     + (pond ? "pond" : "real water")
                     + ", surface "
@@ -696,7 +696,7 @@ namespace AstronomicalEvent
             model = def.Prop("cube");
             if (model == null || model.Pivot == null)
             {
-                AstronomicalEventMod.Log.LogWarning("Cube lake: model missing");
+                JsLiveEventsMod.Log.LogWarning("Cube lake: model missing");
                 return;
             }
             cubeRoot = new GameObject("AstronomicalCubeLakeCube");
@@ -961,7 +961,7 @@ namespace AstronomicalEvent
                 {
                     model.Pivot.transform.SetParent(null, false);
                     model.Pivot.SetActive(false);
-                    AstronomicalEventMod.ParkModel(model.Pivot);
+                    JsLiveEventsMod.ParkModel(model.Pivot);
                 }
                 UnityEngine.Object.Destroy(cubeRoot);
                 cubeRoot = null;
@@ -970,7 +970,7 @@ namespace AstronomicalEvent
             {
                 persisting = true;
                 persistT = lastT;
-                AstronomicalEventMod.Log.LogInfo("The lake stays purple and bouncy until you leave the map");
+                JsLiveEventsMod.Log.LogInfo("The lake stays purple and bouncy until you leave the map");
             }
             else
                 ClearPersistent();

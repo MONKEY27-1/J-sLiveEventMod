@@ -1,4 +1,4 @@
-p = r'C:\Users\drago\Documents\AstronomicalEventMod\AstronomicalEffectsManager.cs'
+p = r"C:\Users\drago\Documents\J'sLiveEventsMod\AstronomicalEffectsManager.cs"
 s = open(p, encoding='utf-8').read()
 a = s.index("            // Travis Scott: skinned model driven by the retargeted event dance")
 b = s.index("            TickFestivalCity(t, hue, kick, fx);")
@@ -80,7 +80,7 @@ helpers = '''        // Move log + seat windows written next to the show clip wh
                 if (ev != null) for (int k = 0; k < ev.Count; k++) { var e = ev[k]; if ((string)e[2] == "seat") { a0.Add((float)e[0]); a1.Add((float)e[1]); } }
                 seatT0 = a0.ToArray(); seatT1 = a1.ToArray();
             }
-            catch (Exception e) { AstronomicalEventMod.Log.LogWarning("Choreography log unreadable: " + e.Message); moveName = null; seatT0 = seatT1 = null; }
+            catch (Exception e) { JsLiveEventsMod.Log.LogWarning("Choreography log unreadable: " + e.Message); moveName = null; seatT0 = seatT1 = null; }
         }
 
         void TickMoveLog(float tc)

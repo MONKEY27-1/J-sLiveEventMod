@@ -251,7 +251,7 @@ namespace AstronomicalEvent
                 + ", world "
                 + (World != null)
                 + ")";
-            AstronomicalEventMod.Log.LogInfo("Assets: " + Status);
+            JsLiveEventsMod.Log.LogInfo("Assets: " + Status);
         }
 
         // Loads the music / performer / choreography of an extra event (the built-in one is loaded by LoadAll).
@@ -315,7 +315,7 @@ namespace AstronomicalEvent
                 d.Loaded = true;
                 d.Loading = false;
                 Status = "ready";
-                AstronomicalEventMod.Log.LogInfo("Event loaded: " + d.Id);
+                JsLiveEventsMod.Log.LogInfo("Event loaded: " + d.Id);
                 yield break;
             }
             if (!string.IsNullOrEmpty(d.MusicFile))
@@ -341,7 +341,7 @@ namespace AstronomicalEvent
                 d.Choreo = bd.Choreo;
             d.Loaded = true;
             d.Loading = false;
-            AstronomicalEventMod.Log.LogInfo("Event loaded: " + d.Id);
+            JsLiveEventsMod.Log.LogInfo("Event loaded: " + d.Id);
         }
 
         // a standalone model (Klombo): textured and lit, loaded on demand
@@ -374,7 +374,7 @@ namespace AstronomicalEvent
             if (req.result != UnityWebRequest.Result.Success)
             {
                 Problems.Add("music failed: " + req.error);
-                AstronomicalEventMod.Log.LogError("Music load failed: " + req.error);
+                JsLiveEventsMod.Log.LogError("Music load failed: " + req.error);
                 req.Dispose();
                 yield break;
             }
@@ -384,7 +384,7 @@ namespace AstronomicalEvent
             {
                 clip.name = Path.GetFileNameWithoutExtension(path);
                 UnityEngine.Object.DontDestroyOnLoad(clip);
-                AstronomicalEventMod.Log.LogInfo("Music loaded, " + clip.length + "s");
+                JsLiveEventsMod.Log.LogInfo("Music loaded, " + clip.length + "s");
             }
             done(clip);
         }
@@ -424,7 +424,7 @@ namespace AstronomicalEvent
                 catch (Exception e)
                 {
                     Problems.Add(Path.GetFileName(path) + ": " + e.Message);
-                    AstronomicalEventMod.Log.LogError(e);
+                    JsLiveEventsMod.Log.LogError(e);
                     yield break;
                 }
                 if (!more)
@@ -1033,7 +1033,7 @@ namespace AstronomicalEvent
                     m.Model.transform.localPosition = new Vector3(-b.center.x, -b.min.y, -b.center.z);
                 }
                 m.RendererBounds = b;
-                AstronomicalEventMod.Log.LogInfo(
+                JsLiveEventsMod.Log.LogInfo(
                     "glTF measured: size " + b.size + " joints " + m.Joints.Length + " clips " + m.Clips.Count
                 );
             }

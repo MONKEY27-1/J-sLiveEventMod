@@ -176,7 +176,7 @@ namespace AstronomicalEvent
                 else
                     Status = id + " installed - it appears after the running event stops or the game restarts";
             }
-            AstronomicalEventMod.Log.LogInfo("Installer: " + Status);
+            JsLiveEventsMod.Log.LogInfo("Installer: " + Status);
         }
     }
 }

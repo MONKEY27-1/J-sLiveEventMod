@@ -1,4 +1,4 @@
-R = r'C:\Users\drago\Documents\AstronomicalEventMod' + '\\'
+R = r"C:\Users\drago\Documents\J'sLiveEventsMod" + '\\'
 def edit(fn, pairs):
     s = open(R + fn, encoding='utf-8').read()
     for a, b in pairs:
@@ -25,12 +25,12 @@ edit('AstronomicalAssetLoader.cs', [
                 for (int k = 0; k < d.ActorFiles.Count; k++) { GltfModel gm = null; Status = "loading " + d.ActorIds[k]; yield return LoadGlb(Path.Combine(d.Folder, d.ActorFiles[k]), true, true, m => gm = m); d.ActorModels.Add(gm); }
                 if (!string.IsNullOrEmpty(d.SwordFile)) yield return LoadGlb(Path.Combine(d.Folder, d.SwordFile), false, false, m => d.Sword = m);
                 try { if (!string.IsNullOrEmpty(d.CuesFile)) d.Cues = JNode.Parse(File.ReadAllText(Path.Combine(d.Folder, d.CuesFile))); } catch (Exception e) { Problems.Add("cues " + d.Id + ": " + e.Message); }
-                d.Loaded = true; d.Loading = false; Status = "ready"; AstronomicalEventMod.Log.LogInfo("Event loaded: " + d.Id); yield break;
+                d.Loaded = true; d.Loading = false; Status = "ready"; JsLiveEventsMod.Log.LogInfo("Event loaded: " + d.Id); yield break;
             }
             if (!string.IsNullOrEmpty(d.MusicFile))"""),
 ])
-edit('AstronomicalEventMod.cs', [
- ("        public static AstronomicalEventMod Inst;", "        public static AstronomicalEventMod Inst;\n        public AstronomicalAssetLoader Loader;\n        public static void ParkModel(GameObject g) { if (Inst != null && Inst.Loader != null && g != null) Inst.Loader.Park(g); }"),
+edit("J'sLiveEventsMod.cs", [
+ ("        public static JsLiveEventsMod Inst;", "        public static JsLiveEventsMod Inst;\n        public AstronomicalAssetLoader Loader;\n        public static void ParkModel(GameObject g) { if (Inst != null && Inst.Loader != null && g != null) Inst.Loader.Park(g); }"),
  ("            var loader = new AstronomicalAssetLoader();", "            var loader = new AstronomicalAssetLoader(); Loader = loader;"),
 ])
 edit('AstronomicalCountdown.cs', [

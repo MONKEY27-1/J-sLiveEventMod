@@ -5,7 +5,7 @@ HERE = os.path.dirname(os.path.abspath(__file__)); D = os.path.join(HERE, 'cache
 MP3 = os.path.join(DL, 'Operation Sky Fire (Full In-Game Event Video).mp3'); DUR = 609.3
 S = [(0, 'Fade in'), (5, 'The beam'), (25, 'The cells'), (65, 'The hall'), (115, 'The walkway'), (165, 'Transport tube'), (180, 'The machinery'), (225, 'Transport tube'), (245, 'The deck'), (285, 'The purple chamber'),
      (360, 'The deck'), (410, 'The Cube chamber'), (426, 'The reboot'), (475, 'The deck'), (495, 'The blue Cube'), (510, 'The crystal hall'), (551, 'The backpacks go off'), (570, 'The fall'), (604, 'Operation: Sky Fire')]
-FILES = ['interior', 'view', 'props', 'ufo', 'mothership', 'jones', 'foundation', 'guard']
+FILES = ['interior', 'view', 'props', 'ufo', 'mothership', 'cube', 'jones', 'foundation', 'guard']
 json.dump({'id': 'skyfire', 'name': 'Operation: Sky Fire (2021)', 'kind': 'skyfire', 'music': 'skyfire.mp3', 'lead': 0, 'length': DUR, 'bounds': [s for s, _ in S] + [DUR], 'names': [n for _, n in S],
            'props': [{'id': k, 'glb': k + '.glb', 'lit': False} for k in FILES]}, open(os.path.join(D, 'event.json'), 'w'), indent=1)
 if len(sys.argv) > 1 and sys.argv[1] == 'install':

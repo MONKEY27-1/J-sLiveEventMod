@@ -1,6 +1,6 @@
 # Astronomical Event (local) - project status
 
-Source: C:\Users\drago\Documents\AstronomicalEventMod  |  Build: `dotnet build -c Release`  |  Installed DLL: Gorilla Tag\BepInEx\plugins\AstronomicalEventMod.dll
+Source: C:\Users\drago\Documents\J'sLiveEventsMod  |  Build: `dotnet build -c Release`  |  Installed DLL: Gorilla Tag\BepInEx\plugins\JsLiveEventsMod.dll
 
 ## Runtime (inspected)
 BepInEx 5.4.23.4, Mono, Unity 6000.2.9, net472 plugin, URP. Forest detection: `ZoneManagement.IsInZone(GTZone.forest)`; player position: `GTPlayer.Instance.HeadCenterPosition`. Input: Unity Input System `Keyboard.current` (legacy fallback). Config: BepInEx/config/local.astronomical.event.cfg.
@@ -21,7 +21,7 @@ Launch Gorilla Tag, enter Forest, press P, Start. Check BepInEx/LogOutput.log fo
 
 ## Update: user-supplied assets (built, NOT tested in-game)
 - Music: TravisScottConcert.mp3 (loaded via UnityWebRequest, timeline stretched to its length). Avatar: travis_scott_fortnite_event_animation_1.glb (custom GLB loader, skinned mesh, clip 0 'track1_7473-8320_PRC' sampled from timeline; no textures in file -> flat colours by part). Moon/world: astro_world.glb (textures downscaled to 1024, shown during cosmic sequences).
-- Install layout: plugins\AstronomicalEventMod\AstronomicalEventMod.dll + AstronomicalAssets\ (mp3, 2 glb). The earlier loose plugins\AstronomicalEventMod.dll was moved into that folder.
+- Install layout: plugins\JsLiveEventsMod\JsLiveEventsMod.dll + AstronomicalAssets\ (mp3, 2 glb). The earlier loose plugins\JsLiveEventsMod.dll was moved into that folder.
 - Unverified: avatar facing/scale/pose (config PerformerYaw), shader availability, load-time hitch (assets load once at game start).
 
 ## Update 4: visual-only tree destruction (meteors, lightning, topple, treehouse shatter, floating underwater); music gain boost (EventVolume 0-3, default 2). Census of detected trees written to BepInEx/AstronomicalCensus.txt on each Start. Built, NOT tested in-game; tree detection is name-based (SmallTree*, Treehouse*, TreeBark...) and may need tuning from the census.
@@ -42,7 +42,7 @@ Launch Gorilla Tag, enter Forest, press P, Start. Check BepInEx/LogOutput.log fo
 - **Stage Model (`stage.glb`)**: Converted and centered from `stage_3.glb` with glowing neon blue emissive materials (`light_blue`), metallic trusses (`Bahan`), and sleek dark decks (`alas`).
 - **Persistent Spawn Location**: Added `UseFixedSpawn`, `FixedSpawnX`, `FixedSpawnY`, `FixedSpawnZ`, `FixedSpawnYaw` to config. Players can click `Set Stage Here` in the in-game P menu to lock the event coordinates to their current spot so it spawns there every time. Added `Teleport to Stage` button for instant VR positioning.
 - **Performer Orchestration**: Colossal Travis Scott model is dynamically driven through each sequence in `AstronomicalEffectsManager.cs`, pulsing with 808 kicks, followed by a dedicated tracking spotlight.
-- **Built & Deployed**: DLL built with 0 warnings/errors and deployed to `Gorilla Tag\BepInEx\plugins\AstronomicalEventMod\`. All assets packaged into `AstronomicalAssets\`.
+- **Built & Deployed**: DLL built with 0 warnings/errors and deployed to `Gorilla Tag\BepInEx\plugins\JsLiveEventsMod\`. All assets packaged into `AstronomicalAssets\`.
 
 ## Update 8 (this session): real Travis animation, stage orientation, menu API
 - Inspected another tool's work: its Travis rig retarget was unverified and the installed avatar was a static baked mesh with no animation. Rebuilt it properly.
@@ -321,7 +321,7 @@ Replaces every earlier animation clip (the wave is deleted; the 9 retargeted cli
   previous event's mp3 and the synthesized track is reused; two equal section bounds in an event.json no longer give NaN;
   the countdown sign reuses one font and rebuilds its text only when the number changes; each part of the plugin Update
   runs on its own (one that throws no longer skips the rest that frame).
-- AstronomicalEventMod.csproj now excludes `JClient/**` (the nested J CLIENT sources were picked up by the root build).
+- J'sLiveEventsMod.csproj now excludes `JClient/**` (the nested J CLIENT sources were picked up by the root build).
 - `tools/compile_check/check.sh` builds both projects without the game (Unity 2021.3 reference assemblies + Harmony from
   NuGet, stubs for the Gorilla Tag / BepInEx / Photon / Input System members the code already uses). See its README.
 - J CLIENT: `tools/list_modules.py` handles the formatted sources (after the reformat it only found 156 of 345 modules);
@@ -451,3 +451,12 @@ Replaces every earlier animation clip (the wave is deleted; the 9 retargeted cli
 - Checked on the desktop with screenshots (tools/skyfire_ref has the reference frames): every scene from 0:05 to 10:04, the transport tubes, the Mothership burning over the fall, the crystal hall with saucers + countdown, 13 scene changes with 0 exceptions in LogOutput.log.
 - Things found the hard way: (1) the loader did not keep material names, so glow vs lit could not be told apart: materials named `SF_*` now keep their name (AstronomicalAssetLoader.cs); (2) the map's own sky (the `Standard Sky` / `newsky` dome objects AND `RenderSettings.skybox`, which the desktop camera draws last over everything) hid our sky dome: both are switched off during the event and restored in Cleanup; (3) the desktop "Shoulder Camera" far plane is 1000 m, so the dome is 450 m (it writes no depth, everything draws over it); (4) MB.cyl makes capped solid cylinders and degenerate UVs: the tube wall and rings are built from quads (a ring made with cyl was a solid disc that blocked the tube).
 - NOT verified: VR; sound by ear; fly / free cam; the first-person feel of the walking speeds; what the grey egg-like surface at 6:00 is (shown as the dormant Cube in the purple chamber, then in the blue chamber); when the countdown first appears (shown from 6:59); the squad uses Jones / Foundation / guard models (the recording shows generic player skins); no Slone, guards, or Golden Cube (not visible in the frames).
+
+## Update 58 - Sky Fire second pass (the user's feedback) + the project rename
+- Rename: the source folder, `J'sLiveEventsMod.cs` / `.csproj` and the plugin class `JsLiveEventsMod` replace AstronomicalEventMod (plugin name, GUID `local.astronomical.event`, `JsLiveEventsMod.dll` and the install folder are unchanged).
+- Research (fandom wiki Corruption Cubes / Mothership, Sportskeeda): the reboot makes the room rise like an elevator into the Cube chamber that stores hundreds of purple Cubes with the Golden Cube at its core; Slone's bombs destroy the ship and scatter the Cubes over the island; the strike team is held in the ship's cells (pre-event data mining).
+- You now START IN A HOLDING CELL (0:25): six cells with energy barriers (separate objects, they zap off one by one at 0:36 with an alarm), then the squad sprints out; the abduction (0:05) shows the Mothership coming down over the island with six saucers and the beam into its underside.
+- The map was rebuilt in Blender (`tools/skyfire_world2.py`, uses the helpers of `skyfire_world.py`): conduits, screens, hazard stripes, hex panels; animated parts moved by name from `AstronomicalSkyFire3.cs`: blast doors (open, then slam shut behind you), ceiling pistons, wall fans, steam vents, a conveyor you ride (0:118 - 0:133), a piston door, rotating machine rings, a lift cabin whose shaft slides down (8:15 - 8:30).
+- Cubes: a beveled Cube model (`cube.glb`: frame, face, inset glow panel with runes). Hero cubes (purple chamber, blue / dormant, golden) have their own materials; 481 Cubes sit merged in the rack towers of the new Cube hall (3 columns x 6 tiers x 15 bays x 2 sides, 5 glow groups so a wave of light runs through them), 28 float in the aisle, the golden Cube hangs over its dais, and 70 burning Cubes fall with you in the fall scene.
+- Routes with stops (`routes` in AstronomicalSkyFire3.cs) replace the constant-speed walks; the squad has clip cues per scene (pounding the barriers, pointing, bracing, lever, cheering, panic).
+- Checked on the desktop: screenshots of the abduction, cells, barrier drop, hall doors, belt, machine rooms, blue Cube, lift, Cube hall, explosion and fall; a jump through all 13 scene changes: 0 exceptions. NOT checked: VR, sound by ear, Fly / Free Cam, the lift feel (only the shaft sliding), how the Cube hall performs in VR (481 cubes merged into 7 meshes + 98 clones).

@@ -384,7 +384,7 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Choreography log unreadable: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Choreography log unreadable: " + e.Message);
                 moveName = null;
                 seatT0 = seatT1 = null;
             }
@@ -487,7 +487,7 @@ namespace AstronomicalEvent
                 }
                 catch (Exception ex)
                 {
-                    AstronomicalEventMod.Log.LogWarning("Coaster model failed, using the simple one: " + ex.Message);
+                    JsLiveEventsMod.Log.LogWarning("Coaster model failed, using the simple one: " + ex.Message);
                     coasterPts = coasterUp = null;
                 }
             }
@@ -878,7 +878,7 @@ namespace AstronomicalEvent
                 }
                 catch (Exception e)
                 {
-                    AstronomicalEventMod.Log.LogWarning("Title text failed: " + e.Message);
+                    JsLiveEventsMod.Log.LogWarning("Title text failed: " + e.Message);
                 }
             }
 
@@ -901,7 +901,7 @@ namespace AstronomicalEvent
                 }
                 showClip = avatarModel.FindClipExact("Travis_Show");
                 if (showClip == null)
-                    AstronomicalEventMod.Log.LogWarning("Travis_Show clip missing; clips in file: " + avatarModel.Clips.Count);
+                    JsLiveEventsMod.Log.LogWarning("Travis_Show clip missing; clips in file: " + avatarModel.Clips.Count);
                 else
                     avatarModel.Sample(showClip, 0f);
                 pelvisJoint = null;
@@ -916,7 +916,7 @@ namespace AstronomicalEvent
                 seatOrb = Prim(PrimitiveType.Sphere, root.transform, Vector3.zero, Vector3.one, seatMat).transform;
                 seatOrb.name = "TravisSeat";
                 seatOrb.gameObject.SetActive(false);
-                AstronomicalEventMod.Log.LogInfo(
+                JsLiveEventsMod.Log.LogInfo(
                     "Travis performer ready: joints="
                         + avatarModel.Joints.Length
                         + ", show="
@@ -1111,7 +1111,7 @@ namespace AstronomicalEvent
                 }
                 catch (Exception ex)
                 {
-                    AstronomicalEventMod.Log.LogError("Destruction init failed: " + ex);
+                    JsLiveEventsMod.Log.LogError("Destruction init failed: " + ex);
                     if (destr != null)
                         destr.Dispose();
                     destr = null;
@@ -1126,7 +1126,7 @@ namespace AstronomicalEvent
             }
             catch (Exception ex)
             {
-                AstronomicalEventMod.Log.LogError("Spectacle init failed: " + ex);
+                JsLiveEventsMod.Log.LogError("Spectacle init failed: " + ex);
                 if (spec != null)
                     spec.Dispose();
                 spec = null;
@@ -1138,7 +1138,7 @@ namespace AstronomicalEvent
             }
             catch (Exception ex)
             {
-                AstronomicalEventMod.Log.LogWarning("Launch rings failed: " + ex.Message);
+                JsLiveEventsMod.Log.LogWarning("Launch rings failed: " + ex.Message);
                 rings = null;
             }
             stage.SetActive(false);
@@ -1189,7 +1189,7 @@ namespace AstronomicalEvent
             if (destr != null)
                 destr.ExplodeAll(c);
             megaFlash = 1f;
-            AstronomicalEventMod.Log.LogInfo("Finale explosion");
+            JsLiveEventsMod.Log.LogInfo("Finale explosion");
         }
 
         public void SetPaused(bool p)
@@ -1267,7 +1267,7 @@ namespace AstronomicalEvent
             {
                 lastIdx = i;
                 if (AstronomicalSettings.Debug.Value)
-                    AstronomicalEventMod.Log.LogInfo("Sequence -> " + AstronomicalSequence.Names[i]);
+                    JsLiveEventsMod.Log.LogInfo("Sequence -> " + AstronomicalSequence.Names[i]);
             }
 
             float cosmic =
@@ -1682,7 +1682,7 @@ namespace AstronomicalEvent
                 }
                 catch (Exception ex)
                 {
-                    AstronomicalEventMod.Log.LogError("Spectacle cleanup: " + ex);
+                    JsLiveEventsMod.Log.LogError("Spectacle cleanup: " + ex);
                 }
                 spec = null;
             }
@@ -1694,7 +1694,7 @@ namespace AstronomicalEvent
                 }
                 catch (Exception ex)
                 {
-                    AstronomicalEventMod.Log.LogError("Destruction cleanup: " + ex);
+                    JsLiveEventsMod.Log.LogError("Destruction cleanup: " + ex);
                 }
                 destr = null;
             }

@@ -243,7 +243,7 @@ namespace AstronomicalEvent
             }
             clouds = MakePS("CClouds", 900, 0f, kit.Glow(Color.white, glowTex, 3001));
             part2Dead = false;
-            AstronomicalEventMod.Inst.StartCoroutine(LoadPart2());
+            JsLiveEventsMod.Inst.StartCoroutine(LoadPart2());
             Action<List<Seg>, float, string, float, float, bool> S = (l, t, c, sp, off, loop) =>
                 l.Add(
                     new Seg
@@ -351,7 +351,7 @@ namespace AstronomicalEvent
         // the underground's models are loaded in WAVES while the first part plays (loading them all at build time crashed the game): cave, then one character per wave, then the small props
         System.Collections.IEnumerator LoadPart2()
         {
-            var ld = AstronomicalEventMod.Inst.Loader;
+            var ld = JsLiveEventsMod.Inst.Loader;
             var steps = new[]
             {
                 new[] { "cavern" },
@@ -378,7 +378,7 @@ namespace AstronomicalEvent
                 GC.Collect();
                 yield return new WaitForSeconds(AstronomicalDebug.NoMusic ? 0.3f : 5f);
             }
-            AstronomicalEventMod.Log.LogInfo("Collision: the underground is loaded");
+            JsLiveEventsMod.Log.LogInfo("Collision: the underground is loaded");
         }
 
         void SetupWave(string[] ids)
@@ -529,7 +529,7 @@ namespace AstronomicalEvent
             {
                 guardM.Pivot.transform.SetParent(null, false);
                 guardM.Pivot.SetActive(false);
-                AstronomicalEventMod.ParkModel(guardM.Pivot);
+                JsLiveEventsMod.ParkModel(guardM.Pivot);
             }
             guardM = null;
             if (rifleF != null)
@@ -543,7 +543,7 @@ namespace AstronomicalEvent
                         UnityEngine.Object.Destroy(bc);
                     mm.Pivot.transform.SetParent(null, false);
                     mm.Pivot.SetActive(false);
-                    AstronomicalEventMod.ParkModel(mm.Pivot);
+                    JsLiveEventsMod.ParkModel(mm.Pivot);
                 }
             if (sloneTank != null)
                 UnityEngine.Object.Destroy(sloneTank);
@@ -773,13 +773,13 @@ namespace AstronomicalEvent
                 cabPrev = headWorld;
                 cabHave = true;
                 lastReseat = Time.unscaledTime;
-                AstronomicalEventMod.Log.LogInfo(
+                JsLiveEventsMod.Log.LogInfo(
                     "Collision: seated you at " + headWorld + " (moved " + delta.magnitude.ToString("0") + " m)"
                 );
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Collision: could not seat you: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Collision: could not seat you: " + e.Message);
             }
         }
 
@@ -789,7 +789,7 @@ namespace AstronomicalEvent
             if (reseatTries < 10 && Time.unscaledTime - lastReseat > 0.7f && Vector3.Distance(HeadNow(), headTarget) > 25f)
             {
                 reseatTries++;
-                AstronomicalEventMod.Log.LogWarning(
+                JsLiveEventsMod.Log.LogWarning(
                     "Collision: you were "
                         + Vector3.Distance(HeadNow(), headTarget).ToString("0")
                         + " m from your seat; seating you again ("

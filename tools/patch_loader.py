@@ -1,4 +1,4 @@
-p = r'C:\Users\drago\Documents\AstronomicalEventMod\AstronomicalAssetLoader.cs'
+p = r"C:\Users\drago\Documents\J'sLiveEventsMod\AstronomicalAssetLoader.cs"
 s = open(p, encoding='utf-8').read()
 def rep(a, b):
     global s

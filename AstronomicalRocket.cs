@@ -460,7 +460,7 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Arena fit failed: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Arena fit failed: " + e.Message);
             }
             AstronomicalShowdown.lastFit = sl;
             AstronomicalShowdown.fitOrigin = so;
@@ -523,7 +523,7 @@ namespace AstronomicalEvent
                 }
             }
             else
-                AstronomicalEventMod.Log.LogWarning("Rocket Launch: the rocket model did not load");
+                JsLiveEventsMod.Log.LogWarning("Rocket Launch: the rocket model did not load");
             BuildPath();
             ParseCues(def.Cues);
             lastT = -1f;
@@ -531,7 +531,7 @@ namespace AstronomicalEvent
             pulse = 0f;
             shakeBump = 0f;
             rocketVis = true;
-            AstronomicalEventMod.Log.LogInfo(
+            JsLiveEventsMod.Log.LogInfo(
                 "Rocket Launch built: origin "
                     + origin
                     + ", scale "
@@ -1402,7 +1402,7 @@ namespace AstronomicalEvent
                     }
                     catch (Exception e)
                     {
-                        AstronomicalEventMod.Log.LogWarning("Cue " + c.Type + ": " + e.Message);
+                        JsLiveEventsMod.Log.LogWarning("Cue " + c.Type + ": " + e.Message);
                     }
                 }
             }
@@ -1412,7 +1412,7 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Rocket: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Rocket: " + e.Message);
             }
             PadStep(t, dt, power);
             RiftStep(t, dt, cam);
@@ -1997,7 +1997,7 @@ namespace AstronomicalEvent
                 {
                     rocketModel.Pivot.transform.SetParent(null, false);
                     rocketModel.Pivot.SetActive(false);
-                    AstronomicalEventMod.ParkModel(rocketModel.Pivot);
+                    JsLiveEventsMod.ParkModel(rocketModel.Pivot);
                 }
             }
             catch { }

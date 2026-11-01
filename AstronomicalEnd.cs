@@ -508,7 +508,7 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Arena fit failed: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Arena fit failed: " + e.Message);
             }
             AstronomicalShowdown.lastFit = sl;
             AstronomicalShowdown.fitOrigin = so;
@@ -580,7 +580,7 @@ namespace AstronomicalEvent
                 }
             }
             else
-                AstronomicalEventMod.Log.LogWarning("The End: the rocket model did not load");
+                JsLiveEventsMod.Log.LogWarning("The End: the rocket model did not load");
             if (meteorModel != null && meteorModel.Pivot != null)
             {
                 var b = meteorModel.RendererBounds.size;
@@ -602,7 +602,7 @@ namespace AstronomicalEvent
                 meteorLight = AddLight(plateauT, new Color(0.5f, 0.75f, 1f), 260f * scale, 0f);
             }
             else
-                AstronomicalEventMod.Log.LogWarning("The End: the meteor model did not load");
+                JsLiveEventsMod.Log.LogWarning("The End: the meteor model did not load");
             BuildProps();
             BuildVault();
             BuildFlights();
@@ -615,7 +615,7 @@ namespace AstronomicalEvent
             shatterT = -9f;
             voidSet = false;
             voidMode = false;
-            AstronomicalEventMod.Log.LogInfo(
+            JsLiveEventsMod.Log.LogInfo(
                 "The End built: origin "
                     + origin
                     + ", scale "
@@ -1956,7 +1956,7 @@ namespace AstronomicalEvent
                     }
                     catch (Exception e)
                     {
-                        AstronomicalEventMod.Log.LogWarning("Cue " + c.Type + ": " + e.Message);
+                        JsLiveEventsMod.Log.LogWarning("Cue " + c.Type + ": " + e.Message);
                     }
                 }
             }
@@ -1966,7 +1966,7 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Flyers: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Flyers: " + e.Message);
             }
             PadStep(t, dt, power);
             RiftsStep(t, dt, cam);
@@ -1978,7 +1978,7 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Black hole: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Black hole: " + e.Message);
             }
             if (t - skyT > 0.08f || t < skyT)
             {
@@ -2853,7 +2853,7 @@ namespace AstronomicalEvent
                     {
                         f.T.SetParent(null, false);
                         f.G.SetActive(false);
-                        AstronomicalEventMod.ParkModel(f.G);
+                        JsLiveEventsMod.ParkModel(f.G);
                     }
                     else
                         UnityEngine.Object.Destroy(f.G);
@@ -2862,26 +2862,26 @@ namespace AstronomicalEvent
                 {
                     zpModel.Pivot.transform.SetParent(null, false);
                     zpModel.Pivot.SetActive(false);
-                    AstronomicalEventMod.ParkModel(zpModel.Pivot);
+                    JsLiveEventsMod.ParkModel(zpModel.Pivot);
                 }
                 if (vaultModel != null && vaultModel.Pivot != null)
                 {
                     vaultModel.Pivot.transform.SetParent(null, false);
                     vaultModel.Pivot.SetActive(false);
-                    AstronomicalEventMod.ParkModel(vaultModel.Pivot);
+                    JsLiveEventsMod.ParkModel(vaultModel.Pivot);
                 }
                 if (bhModel != null && bhModel.Pivot != null)
                 {
                     bhHalo(false);
                     bhModel.Pivot.transform.SetParent(null, false);
                     bhModel.Pivot.SetActive(false);
-                    AstronomicalEventMod.ParkModel(bhModel.Pivot);
+                    JsLiveEventsMod.ParkModel(bhModel.Pivot);
                 }
                 if (meteor != null && meteor.G != null)
                 {
                     meteor.T.SetParent(null, false);
                     meteor.G.SetActive(false);
-                    AstronomicalEventMod.ParkModel(meteor.G);
+                    JsLiveEventsMod.ParkModel(meteor.G);
                 }
             }
             catch { }

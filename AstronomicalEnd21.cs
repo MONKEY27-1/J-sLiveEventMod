@@ -101,7 +101,7 @@ namespace AstronomicalEvent
         }
         GltfModel Take(string id, float bright, bool lit = false)
         {
-            var m = def.Prop(id); if (m == null || m.Pivot == null) { AstronomicalEventMod.Log.LogWarning("End21: prop '" + id + "' missing"); return null; }
+            var m = def.Prop(id); if (m == null || m.Pivot == null) { JsLiveEventsMod.Log.LogWarning("End21: prop '" + id + "' missing"); return null; }
             m.Pivot.transform.SetParent(root.transform, false); m.Pivot.SetActive(false); Brighten(m, bright, lit); models.Add(m); return m;
         }
         GameObject Clone(GltfModel m, string name)
@@ -124,7 +124,7 @@ namespace AstronomicalEvent
             {   // face the longest free line of sight (the Forest's spawn is a tree house: the camera there looks at a wall)
                 float best = -1f; Vector3 eye = originW + Vector3.up * 2.2f;
                 for (int k = 0; k < 24; k++) { float a = k * 15f; Vector3 d = Quaternion.Euler(0f, a, 0f) * Vector3.forward; float free = 90f; RaycastHit hh; if (Physics.Raycast(eye, d, out hh, 90f, ~0, QueryTriggerInteraction.Ignore)) free = hh.distance; Vector3 d2 = Quaternion.Euler(0f, a + 8f, 0f) * Vector3.forward; if (Physics.Raycast(eye + Vector3.up * 3f, d2, out hh, 90f, ~0, QueryTriggerInteraction.Ignore)) free = Mathf.Min(free, hh.distance + 15f); if (free > best) { best = free; yaw = a; } }
-                AstronomicalEventMod.Log.LogInfo("End21: open direction " + yaw + " deg, free " + best.ToString("0") + " m");
+                JsLiveEventsMod.Log.LogInfo("End21: open direction " + yaw + " deg, free " + best.ToString("0") + " m");
             }
             root = new GameObject("AstronomicalEnd21"); root.transform.position = originW; root.transform.rotation = Quaternion.Euler(0f, yaw, 0f);
             kit = new WorldKit { Layer = floorLayer }; glowTex = kit.GlowTex();
@@ -136,7 +136,7 @@ namespace AstronomicalEvent
             ambientSave = RenderSettings.ambientLight; ambientSaved = true; fogSave = RenderSettings.fog; RenderSettings.fog = false;       // the Forest's green fog hides everything beyond ~100 m (pyramid, fleet)
             try { if (cam != null) { farSave = cam.farClipPlane; cam.farClipPlane = Mathf.Max(farSave, 6000f); } } catch { }
             lastT = -1f; built = true;
-            AstronomicalEventMod.Log.LogInfo("End21 built at " + originW + ": cube " + (cubeM != null) +  ", caretaker " + (careM != null) + ", ship " + (shipM != null) + ", abductor " + (abdM != null) + ", cradle " + (cradleM != null) + ", pyramid " + (pyrM != null) + ", queen " + (queenM != null));
+            JsLiveEventsMod.Log.LogInfo("End21 built at " + originW + ": cube " + (cubeM != null) +  ", caretaker " + (careM != null) + ", ship " + (shipM != null) + ", abductor " + (abdM != null) + ", cradle " + (cradleM != null) + ", pyramid " + (pyrM != null) + ", queen " + (queenM != null));
         }
 
         void BuildSky()
@@ -235,7 +235,7 @@ namespace AstronomicalEvent
             try
             {
                 var pl = GTPlayer.Instance; var rb = pl.playerRigidBody; Vector3 head = pl.headCollider.transform.position;
-                if (!seated) { if (Vector3.Distance(head, originW) < 3f) { seated = true; return; } Vector3 target = originW + Vector3.up * 1.2f; rb.position += target - head; rb.linearVelocity = Vector3.zero; seated = true;  AstronomicalEventMod.Log.LogInfo("End21: you are inside the force field at " + target); return; }
+                if (!seated) { if (Vector3.Distance(head, originW) < 3f) { seated = true; return; } Vector3 target = originW + Vector3.up * 1.2f; rb.position += target - head; rb.linearVelocity = Vector3.zero; seated = true;  JsLiveEventsMod.Log.LogInfo("End21: you are inside the force field at " + target); return; }
                 Vector3 cen = root.transform.TransformPoint(new Vector3(cx, 0f, cz)); Vector3 flat = head - cen; flat.y = 0f; float lim = (rad > 0f ? rad : SHIELD_R) - 1.6f;
                 if (flat.magnitude > lim) { Vector3 inward = -flat.normalized; rb.position += inward * (flat.magnitude - lim); Vector3 v = rb.linearVelocity; float outv = Vector3.Dot(v, -inward); if (outv > 0f) rb.linearVelocity = v + inward * outv; hitGlow = Mathf.Max(hitGlow, 0.5f); }
             }
@@ -271,7 +271,7 @@ namespace AstronomicalEvent
             var cam = Camera.main; float dt = Mathf.Clamp(Time.unscaledDeltaTime, 0f, 0.1f); bool back = t < lastT - 0.4f; float tp = lastT < 0f ? t : lastT; lastT = t;
             Sc sc = SceneAt(t); if (!p2Ready && sc != Sc.Island) sc = Sc.Island; if (back) { seated = false; glassGone = false; cubeBoom = shieldBoom = false; for (int i = 0; i < mons.Count; i++) { var m = mons[i]; m.Boomed = false; m.Killed = -1f; m.Hp = m.Big ? 10f : 3f; m.Hits = 0; m.HitT = -9f; m.KX = m.KZ = m.VX = m.VZ = 0f; mons[i] = m; } }
             if (cam != null) skyGo.transform.position = cam.transform.position;
-            if (t - skyT > 0.15f || t < skyT) { skyT = t; UpdateSky(t); if (!skyLogged) { skyLogged = true; var smr = skyGo.GetComponent<MeshRenderer>(); AstronomicalEventMod.Log.LogInfo("End21 sky: active " + skyGo.activeInHierarchy + " renderer " + smr.enabled + " pos " + skyGo.transform.position + " col " + skyCols[skyCols.Length / 2] + " shader " + smr.sharedMaterial.shader.name + " queue " + smr.sharedMaterial.renderQueue + " far " + (cam != null ? cam.farClipPlane : 0f)); } }
+            if (t - skyT > 0.15f || t < skyT) { skyT = t; UpdateSky(t); if (!skyLogged) { skyLogged = true; var smr = skyGo.GetComponent<MeshRenderer>(); JsLiveEventsMod.Log.LogInfo("End21 sky: active " + skyGo.activeInHierarchy + " renderer " + smr.enabled + " pos " + skyGo.transform.position + " col " + skyCols[skyCols.Length / 2] + " shader " + smr.sharedMaterial.shader.name + " queue " + smr.sharedMaterial.renderQueue + " far " + (cam != null ? cam.farClipPlane : 0f)); } }
             float rift = Sm(T_RIFT, T_RIFT + 14f, t), fleetK = Sm(T_FLEET, T_FLEET + 8f, t), alive = 1f - Sm(T_CUBE_DIE, T_CUBE_DIE + 0.5f, t), black = Sm(T_CUBE_DIE + 1.5f, T_BLACK, t);
             float ambK = t < T_FAC ? Mathf.Max(0.05f, 1f - black) : 0.55f, sunK = t < T_FAC ? 1f - black : 0.55f;
             if (sc == Sc.Ocean) { float bl = Sm(T_END_VIS - 0.2f, T_END_VIS + 1.5f, t); ambK = Mathf.Lerp(0.4f, 1.15f, bl); sunK = Mathf.Lerp(0.3f, 1.15f, bl); }
@@ -374,7 +374,7 @@ namespace AstronomicalEvent
             try { if (farSave > 0f && Camera.main != null) Camera.main.farClipPlane = farSave; } catch { }
             farSave = -1f; foreach (var kv in origMats) if (kv.Key != null) kv.Key.sharedMaterials = kv.Value; origMats.Clear();
             foreach (var g in clones) if (g != null) UnityEngine.Object.Destroy(g); clones.Clear(); mons.Clear(); ships.Clear(); abds.Clear(); beams.Clear();
-            foreach (var mdl in models) if (mdl != null && mdl.Pivot != null) { foreach (var bc in mdl.Pivot.GetComponentsInChildren<Collider>(true)) UnityEngine.Object.Destroy(bc); mdl.Pivot.transform.SetParent(null, false); mdl.Pivot.SetActive(false); AstronomicalEventMod.ParkModel(mdl.Pivot); }
+            foreach (var mdl in models) if (mdl != null && mdl.Pivot != null) { foreach (var bc in mdl.Pivot.GetComponentsInChildren<Collider>(true)) UnityEngine.Object.Destroy(bc); mdl.Pivot.transform.SetParent(null, false); mdl.Pivot.SetActive(false); JsLiveEventsMod.ParkModel(mdl.Pivot); }
             models.Clear(); cubeM = careM = queenM = shipM = abdM = cradleM = pyrM = null;
             if (flashGo != null) UnityEngine.Object.Destroy(flashGo); flashGo = null; if (skyGo != null) UnityEngine.Object.Destroy(skyGo); skyGo = null; if (root != null) UnityEngine.Object.Destroy(root); root = null;
             if (kit != null) foreach (var o in kit.Owned) if (o != null) UnityEngine.Object.Destroy(o); foreach (var o in owned) if (o != null) UnityEngine.Object.Destroy(o); owned.Clear(); kit = null; built = false; lastT = -1f; skyMesh = null;

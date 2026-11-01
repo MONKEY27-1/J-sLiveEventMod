@@ -6,13 +6,13 @@ using UnityEngine.SceneManagement;
 namespace AstronomicalEvent
 {
     [BepInPlugin("local.astronomical.event", "J'sLiveEventsMod", "0.1.0")]
-    public class AstronomicalEventMod : BaseUnityPlugin
+    public class JsLiveEventsMod : BaseUnityPlugin
     {
         internal static ManualLogSource Log;
         AstronomicalEventManager mgr;
         AstronomicalUI ui;
 
-        public static AstronomicalEventMod Inst;
+        public static JsLiveEventsMod Inst;
         internal AstronomicalAssetLoader Loader;
 
         public static void ParkModel(GameObject g)

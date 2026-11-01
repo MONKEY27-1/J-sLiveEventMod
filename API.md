@@ -1,11 +1,11 @@
 # AstronomicalEventApi - controlling the event from your own menu
 
-The plugin (`local.astronomical.event`, `AstronomicalEventMod.dll`) exposes one public static class,
+The plugin (`local.astronomical.event`, `JsLiveEventsMod.dll`) exposes one public static class,
 `AstronomicalEvent.AstronomicalEventApi`. Everything is primitives/strings/enums, main-thread only,
 and purely local (no networking). Version: `AstronomicalEventApi.ApiVersion` ("1.0").
 
 ## Option A - reference the DLL (recommended)
-In your menu plugin's `.csproj` add a reference to `...\BepInEx\plugins\AstronomicalEventMod\AstronomicalEventMod.dll`
+In your menu plugin's `.csproj` add a reference to `...\BepInEx\plugins\JsLiveEventsMod\JsLiveEventsMod.dll`
 (`<Private>false</Private>`), then:
 
 ```csharp
@@ -32,7 +32,7 @@ public class MyMenu : BaseUnityPlugin
 
 ## Option B - no reference (reflection)
 ```csharp
-var api = Type.GetType("AstronomicalEvent.AstronomicalEventApi, AstronomicalEventMod");
+var api = Type.GetType("AstronomicalEvent.AstronomicalEventApi, JsLiveEventsMod");
 api.GetMethod("Start").Invoke(null, new object[] { -1 });
 float t = (float)api.GetProperty("Time").GetValue(null);
 api.GetProperty("Volume").SetValue(null, 2f);

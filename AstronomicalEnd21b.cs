@@ -53,21 +53,21 @@ namespace AstronomicalEvent
         Vector3 Rm(Vector3 v, float y) { return new Vector3(v.x, v.y + y, v.z); }
 
         // ---------------- loading in waves while the island plays (the facility models arrive first)
-        void P2Start() { p2Dead = false; p2Ready = false; curSc = Sc.Island; if (AstronomicalEventMod.Inst != null) AstronomicalEventMod.Inst.StartCoroutine(LoadP2()); }
+        void P2Start() { p2Dead = false; p2Ready = false; curSc = Sc.Island; if (JsLiveEventsMod.Inst != null) JsLiveEventsMod.Inst.StartCoroutine(LoadP2()); }
         IEnumerator LoadP2()
         {
-            var ld = AstronomicalEventMod.Inst.Loader; var steps = new[] { new[] { "facility", "hall", "gyro" }, new[] { "jones", "rifle" }, new[] { "foundation" }, new[] { "slone" }, new[] { "guard" }, new[] { "gunnar" }, new[] { "hatch", "base" }, new[] { "scientist", "visitor", "zeropoint" }, new[] { "chapter3", "spire" } };
+            var ld = JsLiveEventsMod.Inst.Loader; var steps = new[] { new[] { "facility", "hall", "gyro" }, new[] { "jones", "rifle" }, new[] { "foundation" }, new[] { "slone" }, new[] { "guard" }, new[] { "gunnar" }, new[] { "hatch", "base" }, new[] { "scientist", "visitor", "zeropoint" }, new[] { "chapter3", "spire" } };
             yield return new WaitForSeconds(AstronomicalDebug.NoMusic || lastT >= T_FAC - 40f ? 0.1f : 6f);
             foreach (var st in steps)
             {
                 foreach (var id in st) { if (p2Dead) yield break; yield return ld.LoadProp(def, id); yield return null; }
                 if (p2Dead) yield break; GC.Collect(); yield return new WaitForSeconds(AstronomicalDebug.NoMusic || lastT >= T_FAC - 40f ? 0.05f : 3f);
             }
-            if (p2Dead) yield break; try { P2Setup(); p2Ready = true; AstronomicalEventMod.Log.LogInfo("End21: part 2 is loaded"); } catch (Exception e) { AstronomicalEventMod.Log.LogWarning("End21 P2Setup: " + e.Message + "\n" + e.StackTrace); }
+            if (p2Dead) yield break; try { P2Setup(); p2Ready = true; JsLiveEventsMod.Log.LogInfo("End21: part 2 is loaded"); } catch (Exception e) { JsLiveEventsMod.Log.LogWarning("End21 P2Setup: " + e.Message + "\n" + e.StackTrace); }
         }
         GltfModel Take2(string id, float bright, bool lit)
         {
-            var m = def.Prop(id); if (m == null || m.Pivot == null) { AstronomicalEventMod.Log.LogWarning("End21: prop '" + id + "' missing"); return null; }
+            var m = def.Prop(id); if (m == null || m.Pivot == null) { JsLiveEventsMod.Log.LogWarning("End21: prop '" + id + "' missing"); return null; }
             m.Pivot.transform.SetParent(root.transform, false); m.Pivot.SetActive(false); Brighten(m, bright, lit); models.Add(m); return m;
         }
         Act NewAct(string name, GltfModel m, float scale, bool armed, bool clone, float mir, params float[] vis)
@@ -90,9 +90,9 @@ namespace AstronomicalEvent
         {
             try { NoClip2(true); var pl = GTPlayer.Instance; var rb = pl.playerRigidBody; Vector3 d = headWorld - pl.headCollider.transform.position;
                 // the game's own teleport (what J CLIENT uses) first: with WASD Fly / Free Cam on, moving the rigidbody alone left your head where you had flown to (925 m away in the log) and you stayed there while the scene changed
-                if (d.magnitude > 3f) { try { pl.TeleportTo(pl.transform.position + d, pl.transform.rotation, false, false); } catch (Exception e) { AstronomicalEventMod.Log.LogWarning("End21: TeleportTo failed: " + e.Message); } d = headWorld - pl.headCollider.transform.position; }
-                rb.position += d; rb.linearVelocity = Vector3.zero; lastReseat2 = Time.unscaledTime; carryDbg = 12; reseatHoldPos = headWorld; reseatHoldT = Time.unscaledTime + 1.4f; AstronomicalEventMod.Log.LogInfo("End21: moved you to " + headWorld + " (" + d.magnitude.ToString("0") + " m)"); }
-            catch (Exception e) { AstronomicalEventMod.Log.LogWarning("End21: could not move you: " + e.Message); }
+                if (d.magnitude > 3f) { try { pl.TeleportTo(pl.transform.position + d, pl.transform.rotation, false, false); } catch (Exception e) { JsLiveEventsMod.Log.LogWarning("End21: TeleportTo failed: " + e.Message); } d = headWorld - pl.headCollider.transform.position; }
+                rb.position += d; rb.linearVelocity = Vector3.zero; lastReseat2 = Time.unscaledTime; carryDbg = 12; reseatHoldPos = headWorld; reseatHoldT = Time.unscaledTime + 1.4f; JsLiveEventsMod.Log.LogInfo("End21: moved you to " + headWorld + " (" + d.magnitude.ToString("0") + " m)"); }
+            catch (Exception e) { JsLiveEventsMod.Log.LogWarning("End21: could not move you: " + e.Message); }
         }
         // turn the player so they look along a world direction (the room's +z or the path): GTPlayer.Turn, by reflection (the signature differs between game versions)
         static MethodInfo turnM; static bool turnTried;
@@ -102,7 +102,7 @@ namespace AstronomicalEvent
             {
                 var cam = Camera.main; if (cam == null) return; worldDir.y = 0f; if (worldDir.sqrMagnitude < 0.01f) return; Vector3 f = cam.transform.forward; f.y = 0f; if (f.sqrMagnitude < 0.01f) return;
                 float d = Mathf.DeltaAngle(Mathf.Atan2(f.x, f.z) * Mathf.Rad2Deg, Mathf.Atan2(worldDir.x, worldDir.z) * Mathf.Rad2Deg);
-                if (!turnTried) { turnTried = true; turnM = typeof(GTPlayer).GetMethod("Turn", BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(float) }, null); AstronomicalEventMod.Log.LogInfo("End21: GTPlayer.Turn " + (turnM != null)); }
+                if (!turnTried) { turnTried = true; turnM = typeof(GTPlayer).GetMethod("Turn", BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(float) }, null); JsLiveEventsMod.Log.LogInfo("End21: GTPlayer.Turn " + (turnM != null)); }
                 if (turnM != null && Mathf.Abs(d) > 2f) turnM.Invoke(GTPlayer.Instance, new object[] { d });
             }
             catch { }
@@ -113,10 +113,10 @@ namespace AstronomicalEvent
             {
                 var pl = GTPlayer.Instance; var rb = pl.playerRigidBody; Quaternion q = root.transform.rotation * Quaternion.Euler(0f, yawDeg, 0f); Vector3 local = Quaternion.Inverse(q) * (pl.headCollider.transform.position - anchor);
                 Vector3 c = new Vector3(Mathf.Clamp(local.x, -hx, hx), Mathf.Clamp(local.y, -0.3f, 0.5f), Mathf.Clamp(local.z, zMin, zMax)); if ((c - local).sqrMagnitude > 1e-6f) rb.position += q * (c - local);
-                if (carryDbg > 0 && Time.unscaledTime - carryDbgT > 0.25f) { carryDbg--; carryDbgT = Time.unscaledTime; AstronomicalEventMod.Log.LogInfo("End21 carry: head " + pl.headCollider.transform.position + " anchor " + anchor + " local " + local + " -> " + c + " rb " + rb.position + " kin " + rb.isKinematic + " grav " + rb.useGravity); }
+                if (carryDbg > 0 && Time.unscaledTime - carryDbgT > 0.25f) { carryDbg--; carryDbgT = Time.unscaledTime; JsLiveEventsMod.Log.LogInfo("End21 carry: head " + pl.headCollider.transform.position + " anchor " + anchor + " local " + local + " -> " + c + " rb " + rb.position + " kin " + rb.isKinematic + " grav " + rb.useGravity); }
                 rb.linearVelocity = (rb.linearVelocity - Physics.gravity * dt) * (1f - Mathf.Min(0.6f, 2f * dt));
             }
-            catch (Exception e) { if (!carryErr) { carryErr = true; AstronomicalEventMod.Log.LogWarning("End21 carry: " + e.Message + " " + e.StackTrace); } }
+            catch (Exception e) { if (!carryErr) { carryErr = true; JsLiveEventsMod.Log.LogWarning("End21 carry: " + e.Message + " " + e.StackTrace); } }
         }
 
         // ---------------- the cuts between scenes: a quick dip to black (white for the 7:10 explosion); -1 = part 1 controls the black sphere
@@ -155,7 +155,7 @@ namespace AstronomicalEvent
             foreach (var kv in wps) { Vector3 p = root.transform.InverseTransformPoint(kv.Value.position); if (kv.Key != "WP00") bPts.Add(new Vector3(p.x, p.y > Y_BASE + 0.5f ? p.y - 1f : p.y, p.z)); }
             bCum = new float[bPts.Count]; for (int i = 1; i < bPts.Count; i++) bCum[i] = bCum[i - 1] + Vector3.Distance(Flat(bPts[i]), Flat(bPts[i - 1])); bTotal = bCum.Length > 0 ? bCum[bCum.Length - 1] : 0f;
             ptS = new float[PT_I.Length]; for (int i = 0; i < PT_I.Length; i++) ptS[i] = PT_I[i] < bCum.Length ? bCum[PT_I[i]] : bTotal;
-            AstronomicalEventMod.Log.LogInfo("End21: base path " + bPts.Count + " points, " + bTotal.ToString("0") + " m");
+            JsLiveEventsMod.Log.LogInfo("End21: base path " + bPts.Count + " points, " + bTotal.ToString("0") + " m");
         }
         static Vector3 Flat(Vector3 v) { return new Vector3(v.x, 0f, v.z); }
         // the walking line: the polyline's arc-length position smoothed with a +-3 m window so every corner becomes a curve (nobody clips a wall or cuts a plaza corner)
@@ -212,7 +212,7 @@ namespace AstronomicalEvent
                 float dd = Vector3.Distance(HeadNow(), aw);
                 if ((dd > 30f || dd > 16f || (dd > 9f && HeadNow().y < aw.y - 2.2f)) && reseatTries2 < 6 && Time.unscaledTime - lastReseat2 > 0.7f) { reseatTries2++; Reseat2(aw); }
                 else if (dt > 0f && dd < 16f) Carry3(aw, ayaw, dt, hx, z0, z1);
-                if (dd > 6f && Time.unscaledTime - dbgT > 1f) { dbgT = Time.unscaledTime; AstronomicalEventMod.Log.LogInfo("End21: " + sc + " t=" + t.ToString("0.0") + " you are " + dd.ToString("0.0") + " m from your hold point: head " + HeadNow() + " hold " + aw); }
+                if (dd > 6f && Time.unscaledTime - dbgT > 1f) { dbgT = Time.unscaledTime; JsLiveEventsMod.Log.LogInfo("End21: " + sc + " t=" + t.ToString("0.0") + " you are " + dd.ToString("0.0") + " m from your hold point: head " + HeadNow() + " hold " + aw); }
             }
             else if (Time.unscaledTime < reseatHoldT && dt > 0f) Carry3(reseatHoldPos, 0f, dt, 0.5f, -0.5f, 0.5f);
             CaptionFrame(t);
@@ -232,7 +232,7 @@ namespace AstronomicalEvent
         }
         void OnScene(Sc from, Sc to, float t)
         {
-            AstronomicalEventMod.Log.LogInfo("End21: scene " + from + " -> " + to + " at t=" + t.ToString("0.0") + " ready=" + p2Ready + " head " + HeadNow());
+            JsLiveEventsMod.Log.LogInfo("End21: scene " + from + " -> " + to + " at t=" + t.ToString("0.0") + " ready=" + p2Ready + " head " + HeadNow());
             reseatTries2 = 0;
             if (!IsRoom(from) && from != Sc.Ocean && (IsRoom(to) || to == Sc.Ocean) && !haveHome) { Vector3 hh = HeadNow(); if (hh.y < originW.y + 150f) { homeHead = hh; haveHome = true; } }      // (only when you really are on the island: scrubbing can leave you in a room)
             Vector3 an; float ayaw, hx, z0, z1;
@@ -300,7 +300,7 @@ namespace AstronomicalEvent
                 if (stageFound) break;
             }
             hatchX = stageX; hatchZ = stageZ + 4f;
-            AstronomicalEventMod.Log.LogInfo("End21: the Seven's clearing is at (" + stageX.ToString("0.0") + ", " + stageZ.ToString("0.0") + ") height " + stageY.ToString("0.0") + (stageFound ? "" : " (none found, " + tested + " spots tried: using the spawn)"));
+            JsLiveEventsMod.Log.LogInfo("End21: the Seven's clearing is at (" + stageX.ToString("0.0") + ", " + stageZ.ToString("0.0") + ") height " + stageY.ToString("0.0") + (stageFound ? "" : " (none found, " + tested + " spots tried: using the spawn)"));
         }
         void RoomsFrame(float t, float tp, float dt, Sc sc)
         {

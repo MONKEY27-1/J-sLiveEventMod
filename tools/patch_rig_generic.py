@@ -1,4 +1,4 @@
-p = r'C:\Users\drago\Documents\AstronomicalEventMod\tools\rig.py'
+p = r"C:\Users\drago\Documents\J'sLiveEventsMod\tools\rig.py"
 s = open(p, encoding='utf-8').read()
 def rep(a, b, cnt=1):
     global s
@@ -41,7 +41,7 @@ block = "if ANIM:\n" + "".join(("    " + l if l.strip() else l) for l in block.s
 s = s[:a] + block + "\n" + s[b:]
 open(p, 'w', encoding='utf-8').write(s)
 
-p = r'C:\Users\drago\Documents\AstronomicalEventMod\tools\body.py'
+p = r"C:\Users\drago\Documents\J'sLiveEventsMod\tools\body.py"
 s = open(p, encoding='utf-8').read()
 rep("BASE_P, BASE_DPEL = _base_idle()", "if GENERIC: BASE_P, BASE_DPEL = {j: [r[:] for r in I3] for j in s_joint_list}, [0.0, 0.0, 0.0]      # bind pose is the base for the robot / monster\nelse: BASE_P, BASE_DPEL = _base_idle()")
 rep("from rig import _anim_tracks, _anim_globals, _pose_from_anim, _sample", "if not GENERIC: from rig import _anim_tracks, _anim_globals, _pose_from_anim, _sample")

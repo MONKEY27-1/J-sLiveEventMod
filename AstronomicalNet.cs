@@ -52,16 +52,16 @@ namespace AstronomicalEvent
             if (Time.unscaledTime - lastWarn > 20f)
             {
                 lastWarn = Time.unscaledTime;
-                AstronomicalEventMod.Log.LogWarning("Sync: " + s);
+                JsLiveEventsMod.Log.LogWarning("Sync: " + s);
             }
         }
 
         // ---- sending
         public static void Publish(string cmd, string ev, float cd, int seq)
         {
-            if (!AstronomicalSettings.SyncBroadcast.Value || AstronomicalEventMod.Inst == null)
+            if (!AstronomicalSettings.SyncBroadcast.Value || JsLiveEventsMod.Inst == null)
                 return;
-            AstronomicalEventMod.Inst.StartCoroutine(PublishCo(cmd, ev, cd, seq));
+            JsLiveEventsMod.Inst.StartCoroutine(PublishCo(cmd, ev, cd, seq));
         }
 
         static IEnumerator PublishCo(string cmd, string ev, float cd, int seq)
@@ -99,7 +99,7 @@ namespace AstronomicalEvent
             else
             {
                 Status = "sent " + cmd;
-                AstronomicalEventMod.Log.LogInfo("Sync: broadcast " + cmd + " " + ev);
+                JsLiveEventsMod.Log.LogInfo("Sync: broadcast " + cmd + " " + ev);
             }
             req.Dispose();
         }

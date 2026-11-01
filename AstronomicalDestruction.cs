@@ -179,7 +179,7 @@ namespace AstronomicalEvent
         {
             if (model == null || model.Pivot == null)
             {
-                AstronomicalEventMod.Log.LogWarning("Destruction: tree model missing - no trees to destroy");
+                JsLiveEventsMod.Log.LogWarning("Destruction: tree model missing - no trees to destroy");
                 return;
             }
             float mh = Mathf.Max(0.1f, model.RendererBounds.size.y);
@@ -225,7 +225,7 @@ namespace AstronomicalEvent
                 BuildStanding(g);
             }
             groups.Sort((x, y) => x.dist.CompareTo(y.dist));
-            AstronomicalEventMod.Log.LogInfo(
+            JsLiveEventsMod.Log.LogInfo(
                 "Destruction: spawned " + groups.Count + " trees (" + HouseCount + " treehouse) in " + tries + " tries"
             );
         }

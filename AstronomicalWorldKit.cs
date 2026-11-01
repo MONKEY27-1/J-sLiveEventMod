@@ -443,9 +443,9 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Forest unload: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Forest unload: " + e.Message);
             }
-            AstronomicalEventMod.Log.LogInfo(
+            JsLiveEventsMod.Log.LogInfo(
                 "Forest unloaded: " + rends.Count + " renderers, " + cols.Count + " colliders switched off (" + skipped + " kept)"
             );
         }
@@ -473,7 +473,7 @@ namespace AstronomicalEvent
                 }
                 catch { }
             }
-            AstronomicalEventMod.Log.LogInfo("Forest restored: " + rends.Count + " renderers, " + cols.Count + " colliders");
+            JsLiveEventsMod.Log.LogInfo("Forest restored: " + rends.Count + " renderers, " + cols.Count + " colliders");
             rends.Clear();
             cols.Clear();
         }

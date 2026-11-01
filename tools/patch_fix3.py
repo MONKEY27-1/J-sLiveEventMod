@@ -32,6 +32,6 @@ add = '''            // Jones and the Foundation are at the Zero Point machine i
 c = rep(c, '            AstronomicalDebug.Anchors["facroom"]', add + '            AstronomicalDebug.Anchors["facroom"]')
 wr('AstronomicalEnd21c.cs', c)
 b = rd('AstronomicalEnd21b.cs')
-b = rep(b, "        void OnScene(Sc from, Sc to, float t)\n        {", "        void OnScene(Sc from, Sc to, float t)\n        {\n            AstronomicalEventMod.Log.LogInfo(\"End21: scene \" + from + \" -> \" + to + \" at t=\" + t.ToString(\"0.0\") + \" ready=\" + p2Ready + \" head \" + HeadNow());")
+b = rep(b, "        void OnScene(Sc from, Sc to, float t)\n        {", "        void OnScene(Sc from, Sc to, float t)\n        {\n            JsLiveEventsMod.Log.LogInfo(\"End21: scene \" + from + \" -> \" + to + \" at t=\" + t.ToString(\"0.0\") + \" ready=\" + p2Ready + \" head \" + HeadNow());")
 wr('AstronomicalEnd21b.cs', b)
 print('ok')

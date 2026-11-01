@@ -1,4 +1,4 @@
-R = r'C:\Users\drago\Documents\AstronomicalEventMod' + '\\'
+R = r"C:\Users\drago\Documents\J'sLiveEventsMod" + '\\'
 def edit(fn, pairs, base=R):
     s = open(base + fn, encoding='utf-8').read()
     for a, b in pairs:
@@ -14,8 +14,8 @@ edit('AstronomicalHazards.cs', [
  ("""            var pl = Player(); if (pl == null) return;
             bool on = want && AstronomicalSettings.SwimInFlood.Value && (pl.HeadCenterPosition - anchor).sqrMagnitude < 90f * 90f;
             if (on == swimOn) return;
-            try { pl.forcedUnderwater = on; swimOn = on; AstronomicalEventMod.Log.LogInfo("Flood swimming " + (on ? "on" : "off")); }
-            catch (Exception e) { AstronomicalEventMod.Log.LogWarning("Swim toggle failed: " + e.Message); swimOn = false; }
+            try { pl.forcedUnderwater = on; swimOn = on; JsLiveEventsMod.Log.LogInfo("Flood swimming " + (on ? "on" : "off")); }
+            catch (Exception e) { JsLiveEventsMod.Log.LogWarning("Swim toggle failed: " + e.Message); swimOn = false; }
         }
 
         public static void Reset() { Hits = 0; if (swimOn) { var pl = Player(); try { if (pl != null) pl.forcedUnderwater = false; } catch { } swimOn = false; } }""",
@@ -24,10 +24,10 @@ edit('AstronomicalHazards.cs', [
             bool on = want && AstronomicalSettings.SwimInFlood.Value && (pl.HeadCenterPosition - anchor).sqrMagnitude < 90f * 90f;
             try
             {
-                if (pl.forcedUnderwater != on) { pl.forcedUnderwater = on; AstronomicalEventMod.Log.LogInfo("Flood swimming " + (on ? "on" : "off")); }
+                if (pl.forcedUnderwater != on) { pl.forcedUnderwater = on; JsLiveEventsMod.Log.LogInfo("Flood swimming " + (on ? "on" : "off")); }
                 swimOn = on;
             }
-            catch (Exception e) { AstronomicalEventMod.Log.LogWarning("Swim toggle failed: " + e.Message); }
+            catch (Exception e) { JsLiveEventsMod.Log.LogWarning("Swim toggle failed: " + e.Message); }
         }
 
         // Called every frame while no event is running (and on Stop): if we ever switched swimming on, make sure it really goes off; retries until it does.
@@ -35,10 +35,10 @@ edit('AstronomicalHazards.cs', [
         {
             if (!swimOn) return;
             var pl = Player(); if (pl == null) return;
-            try { pl.forcedUnderwater = false; swimOn = false; AstronomicalEventMod.Log.LogInfo("Flood swimming released"); }
+            try { pl.forcedUnderwater = false; swimOn = false; JsLiveEventsMod.Log.LogInfo("Flood swimming released"); }
             catch (Exception e) { Warn2(e.Message); }
         }
-        static void Warn2(string m) { if (Time.time - lastWarn > 5f) { lastWarn = Time.time; AstronomicalEventMod.Log.LogWarning("Swim release failed: " + m); } }
+        static void Warn2(string m) { if (Time.time - lastWarn > 5f) { lastWarn = Time.time; JsLiveEventsMod.Log.LogWarning("Swim release failed: " + m); } }
 
         public static void Reset() { Hits = 0; Release(); }"""),
 ])
@@ -59,16 +59,16 @@ edit('AstronomicalAssetLoader.cs', [
             catch (Exception e) { Problems.Add("choreo " + d.Id + ": " + e.Message); }
             if (d.Choreo == null && d.Avatar == (bd != null ? bd.Avatar : null) && bd != null) d.Choreo = bd.Choreo;
             d.Loaded = true; d.Loading = false;
-            AstronomicalEventMod.Log.LogInfo("Event loaded: " + d.Id);
+            JsLiveEventsMod.Log.LogInfo("Event loaded: " + d.Id);
         }
 
         IEnumerator LoadMusicTo(string path, Action<AudioClip> done)
         {"""),
- ("            Music = DownloadHandlerAudioClip.GetContent(req);\n            req.Dispose();\n            if (Music != null) { Music.name = \"TravisScottConcert\"; UnityEngine.Object.DontDestroyOnLoad(Music); AstronomicalEventMod.Log.LogInfo(\"Music loaded, \" + Music.length + \"s\"); }",
-  "            var clip = DownloadHandlerAudioClip.GetContent(req);\n            req.Dispose();\n            if (clip != null) { clip.name = Path.GetFileNameWithoutExtension(path); UnityEngine.Object.DontDestroyOnLoad(clip); AstronomicalEventMod.Log.LogInfo(\"Music loaded, \" + clip.length + \"s\"); }\n            done(clip);"),
+ ("            Music = DownloadHandlerAudioClip.GetContent(req);\n            req.Dispose();\n            if (Music != null) { Music.name = \"TravisScottConcert\"; UnityEngine.Object.DontDestroyOnLoad(Music); JsLiveEventsMod.Log.LogInfo(\"Music loaded, \" + Music.length + \"s\"); }",
+  "            var clip = DownloadHandlerAudioClip.GetContent(req);\n            req.Dispose();\n            if (clip != null) { clip.name = Path.GetFileNameWithoutExtension(path); UnityEngine.Object.DontDestroyOnLoad(clip); JsLiveEventsMod.Log.LogInfo(\"Music loaded, \" + clip.length + \"s\"); }\n            done(clip);"),
 ])
-edit('AstronomicalEventMod.cs', [
- ("        void Awake()\n        {", "        public static AstronomicalEventMod Inst;\n        void Awake()\n        {\n            Inst = this;"),
+edit("J'sLiveEventsMod.cs", [
+ ("        void Awake()\n        {", "        public static JsLiveEventsMod Inst;\n        void Awake()\n        {\n            Inst = this;"),
  ("            var loader = new AstronomicalAssetLoader();", "            AstronomicalEvents.Scan(AstronomicalAssetLoader.Dir);\n            var loader = new AstronomicalAssetLoader();"),
  ("            ui = new AstronomicalUI(mgr);", "            ui = new AstronomicalUI(mgr);\n            StartCoroutine(AstronomicalNet.Poll(mgr));"),
  ("""            if (mgr != null && mgr.CountingDown)
@@ -111,7 +111,7 @@ edit('AstronomicalEventManager.cs', [
             if (d == null || State != EventState.Idle || CountingDown) return false;
             if (!d.Loaded)
             {
-                if (!d.Loading && AstronomicalEventMod.Inst != null) AstronomicalEventMod.Inst.StartCoroutine(LoadThenApply(d));
+                if (!d.Loading && JsLiveEventsMod.Inst != null) JsLiveEventsMod.Inst.StartCoroutine(LoadThenApply(d));
                 Message = "Loading event " + d.Name + "...";
                 return false;
             }
@@ -129,7 +129,7 @@ edit('AstronomicalEventManager.cs', [
         {
             if (State != EventState.Idle || CountingDown) return;
             float c = AstronomicalSettings.Countdown.Value;
-            if (c > 0.5f) { CountingDown = true; CountdownLeft = c; pendingSeq = fromSeq; Message = "Event starts in " + Mathf.CeilToInt(c) + " s"; AstronomicalEventMod.Log.LogInfo("Countdown started: " + c + " s"); return; }
+            if (c > 0.5f) { CountingDown = true; CountdownLeft = c; pendingSeq = fromSeq; Message = "Event starts in " + Mathf.CeilToInt(c) + " s"; JsLiveEventsMod.Log.LogInfo("Countdown started: " + c + " s"); return; }
             StartNow(fromSeq);
         }
 """, """        public bool CountingDown; public float CountdownLeft; int pendingSeq; float pendingOffset;
@@ -147,7 +147,7 @@ edit('AstronomicalEventManager.cs', [
             if (countdown > 0.5f)
             {
                 CountingDown = true; CountdownLeft = countdown; pendingSeq = fromSeq; pendingOffset = offset; Message = "Event starts in " + Mathf.CeilToInt(countdown) + " s";
-                AstronomicalEventMod.Log.LogInfo("Countdown started: " + countdown + " s");
+                JsLiveEventsMod.Log.LogInfo("Countdown started: " + countdown + " s");
                 cdText.Show(StageSpot());
                 return;
             }
@@ -166,7 +166,7 @@ edit('AstronomicalEventManager.cs', [
             else if (-remaining < AstronomicalSequence.Total - 10f) StartCore(seq, 0f, -remaining, false);
             else return;
             Message = "Joined event from another player";
-            AstronomicalEventMod.Log.LogInfo("Sync: joined " + evId + " (remaining " + remaining.ToString("0.0") + ")");
+            JsLiveEventsMod.Log.LogInfo("Sync: joined " + evId + " (remaining " + remaining.ToString("0.0") + ")");
         }
 
         public void StopFromNet(string evId)

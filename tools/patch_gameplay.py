@@ -1,5 +1,5 @@
 import re
-R = r'C:\Users\drago\Documents\AstronomicalEventMod' + '\\'
+R = r"C:\Users\drago\Documents\J'sLiveEventsMod" + '\\'
 def edit(fn, pairs):
     s = open(R + fn, encoding='utf-8').read()
     for a, b in pairs:

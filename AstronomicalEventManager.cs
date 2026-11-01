@@ -120,8 +120,8 @@ namespace AstronomicalEvent
                 return false;
             if (!d.Loaded)
             {
-                if (!d.Loading && AstronomicalEventMod.Inst != null)
-                    AstronomicalEventMod.Inst.StartCoroutine(LoadThenApply(d));
+                if (!d.Loading && JsLiveEventsMod.Inst != null)
+                    JsLiveEventsMod.Inst.StartCoroutine(LoadThenApply(d));
                 Message = "Loading event " + d.Name + "...";
                 return false;
             }
@@ -210,7 +210,7 @@ namespace AstronomicalEvent
                 pendingSeq = fromSeq;
                 pendingOffset = offset;
                 Message = "Event starts in " + Mathf.CeilToInt(countdown) + " s";
-                AstronomicalEventMod.Log.LogInfo("Countdown started: " + countdown + " s");
+                JsLiveEventsMod.Log.LogInfo("Countdown started: " + countdown + " s");
                 cdText.Show(StageSpot());
                 return;
             }
@@ -244,7 +244,7 @@ namespace AstronomicalEvent
             else
                 return;
             Message = "Joined event from another player";
-            AstronomicalEventMod.Log.LogInfo("Sync: joined " + evId + " (remaining " + remaining.ToString("0.0") + ")");
+            JsLiveEventsMod.Log.LogInfo("Sync: joined " + evId + " (remaining " + remaining.ToString("0.0") + ")");
         }
 
         string pendJoin;
@@ -331,7 +331,7 @@ namespace AstronomicalEvent
             }
             InitAudio();
             InForest = CheckForest();
-            AstronomicalEventMod.Log.LogInfo("Forest detected: " + InForest);
+            JsLiveEventsMod.Log.LogInfo("Forest detected: " + InForest);
             if (!InForest && !AstronomicalSettings.BypassForestCheck.Value && !AnyMap)
             {
                 Message = "Forest not detected - refusing to spawn into an unknown area.";
@@ -345,7 +345,7 @@ namespace AstronomicalEvent
                 if (AstronomicalSettings.UseFixedSpawn.Value && !HasSavedStage)
                 {
                     SaveStageHere();
-                    AstronomicalEventMod.Log.LogInfo("Stage location saved for all future starts: " + AstronomicalApiPos());
+                    JsLiveEventsMod.Log.LogInfo("Stage location saved for all future starts: " + AstronomicalApiPos());
                 }
                 if (
                     AstronomicalSettings.UseFixedSpawn.Value
@@ -398,11 +398,11 @@ namespace AstronomicalEvent
                 audioStarted = false;
                 State = EventState.Running;
                 Message = "";
-                AstronomicalEventMod.Log.LogInfo("Event started at t=" + T + " anchor=" + a);
+                JsLiveEventsMod.Log.LogInfo("Event started at t=" + T + " anchor=" + a);
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogError("Start failed: " + e);
+                JsLiveEventsMod.Log.LogError("Start failed: " + e);
                 Message = "Start failed: " + e.Message;
                 Stop();
             }
@@ -449,7 +449,7 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning(e.Message);
+                JsLiveEventsMod.Log.LogWarning(e.Message);
             }
             try
             {
@@ -461,10 +461,10 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Cleanup: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Cleanup: " + e.Message);
             }
             if (State != EventState.Idle)
-                AstronomicalEventMod.Log.LogInfo("Event stopped");
+                JsLiveEventsMod.Log.LogInfo("Event stopped");
             State = EventState.Idle;
             T = 0;
             audioStarted = false;
@@ -508,7 +508,7 @@ namespace AstronomicalEvent
                 if (T >= AstronomicalSequence.Total)
                 {
                     T = AstronomicalSequence.Total;
-                    AstronomicalEventMod.Log.LogInfo("Timeline finished");
+                    JsLiveEventsMod.Log.LogInfo("Timeline finished");
                     if (AstronomicalSettings.AutoCleanup.Value)
                     {
                         Stop();
@@ -531,7 +531,7 @@ namespace AstronomicalEvent
                         {
                             nextRestart = Time.unscaledTime + 0.5f;
                             Audio.PlayAt(T);
-                            AstronomicalEventMod.Log.LogWarning("Music had stopped; restarted at t=" + T.ToString("0.0"));
+                            JsLiveEventsMod.Log.LogWarning("Music had stopped; restarted at t=" + T.ToString("0.0"));
                         }
                     }
                     else if (AstronomicalSettings.Speed.Value == 1f)
@@ -575,7 +575,7 @@ namespace AstronomicalEvent
                 {
                     lastApplyError = e.Message;
                     lastApplyErrorAt = Time.unscaledTime;
-                    AstronomicalEventMod.Log.LogError(e);
+                    JsLiveEventsMod.Log.LogError(e);
                 }
             }
         }

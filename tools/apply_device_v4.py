@@ -23,7 +23,7 @@ new = '''        GltfModel officeM; Material[] officeGlow;
                 foreach (var n in new[] { "Shell", "Furniture" }) MeshCol(Node(officeM, n));
                 var gl = Node(officeM, "Glow"); if (gl != null) { var r = gl.GetComponentInChildren<Renderer>(true); if (r != null) officeGlow = r.sharedMaterials; }       // glow materials in slot order: 0 / 1 screens, 2 window, 3 ceiling panels, 4 lamp
             }
-            else AstronomicalEventMod.Log.LogWarning("Device: office model missing");
+            else JsLiveEventsMod.Log.LogWarning("Device: office model missing");
             foreach (var p in new[] { new Vector3(0f, 2.7f, 1.6f), new Vector3(-2f, 2.7f, -1.2f), new Vector3(2f, 2.7f, -1.2f) }) { var l = new GameObject("OfficeLight").AddComponent<Light>(); l.transform.SetParent(T, false); l.transform.localPosition = p; l.type = LightType.Point; l.range = 10f; l.intensity = 1.5f * Mathf.Max(0.5f, Lit); l.color = new Color(1f, 0.96f, 0.88f); l.shadows = LightShadows.None; }
             officeFlash = new GameObject("OfficeStormLight").AddComponent<Light>(); officeFlash.transform.SetParent(T, false); officeFlash.transform.localPosition = new Vector3(3.9f, 1.5f, 0.4f); officeFlash.type = LightType.Point; officeFlash.range = 8f; officeFlash.color = new Color(0.6f, 0.5f, 1f); officeFlash.intensity = 0.5f; officeFlash.shadows = LightShadows.None;
             jonesM = def.Prop("jones");

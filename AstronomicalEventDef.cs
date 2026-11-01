@@ -139,7 +139,7 @@ namespace AstronomicalEvent
                         }
                         if (d.Bounds == null || (string.IsNullOrEmpty(d.MusicFile) && d.Kind != "showdown"))
                         {
-                            AstronomicalEventMod.Log.LogWarning("Event '" + id + "' needs music + length/bounds; skipped");
+                            JsLiveEventsMod.Log.LogWarning("Event '" + id + "' needs music + length/bounds; skipped");
                             continue;
                         }
                         d.Length = d.Bounds[d.Bounds.Length - 1];
@@ -184,17 +184,17 @@ namespace AstronomicalEvent
                                 d.SeqNames[k] = (string)j["names"][k];
                         }
                         All.Add(d);
-                        AstronomicalEventMod.Log.LogInfo("Event found: " + id + " (" + d.Name + ")");
+                        JsLiveEventsMod.Log.LogInfo("Event found: " + id + " (" + d.Name + ")");
                     }
                     catch (Exception e)
                     {
-                        AstronomicalEventMod.Log.LogWarning("Event folder " + sub + ": " + e.Message);
+                        JsLiveEventsMod.Log.LogWarning("Event folder " + sub + ": " + e.Message);
                     }
                 }
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Event scan failed: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Event scan failed: " + e.Message);
             }
             SortAll();
         }
@@ -237,7 +237,7 @@ namespace AstronomicalEvent
             }
             catch (Exception e)
             {
-                AstronomicalEventMod.Log.LogWarning("Event sort: " + e.Message);
+                JsLiveEventsMod.Log.LogWarning("Event sort: " + e.Message);
             }
         }
     }
