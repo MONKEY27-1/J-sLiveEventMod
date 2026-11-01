@@ -98,7 +98,7 @@ namespace AstronomicalEvent
             waveTex = kit.Tex(64, 64, (x, y) => { float a = Mathf.Sin(x * 0.4f + y * 0.15f) * 0.5f + 0.5f, b = Mathf.Sin(y * 0.55f - x * 0.2f) * 0.5f + 0.5f, c = Mathf.Sin((x + y) * 0.9f) * 0.5f + 0.5f, w = (a + b + c) / 3f; return new Color(0.82f + 0.18f * w, 0.86f + 0.14f * w, 0.9f + 0.1f * w, 1f); });
             oceanMat = new Material(kit.Flat(new Color(0.03f, 0.09f, 0.2f))); oceanMat.mainTexture = waveTex; try { oceanMat.SetFloat("_Cull", 0f); } catch { } owned.Add(oceanMat);
             oceanGo = new GameObject("EOcean"); oceanGo.transform.SetParent(root.transform, false); oceanGo.AddComponent<MeshFilter>().sharedMesh = MakeDisc(4200f, 72, 22f); var mr = oceanGo.AddComponent<MeshRenderer>(); mr.sharedMaterial = oceanMat; mr.shadowCastingMode = ShadowCastingMode.Off; mr.receiveShadows = false; oceanGo.SetActive(false);
-            SeaBuild();
+            SeaBuild(); FinaleBuild();
             // (no collider on the sea: rising from underwater through a solid plane threw the rig about)
             rockTex = kit.Tex(32, 32, (x, y) => { float n = Mathf.PerlinNoise(x * 0.23f, y * 0.23f) * 0.6f + Mathf.PerlinNoise(x * 0.7f, y * 0.7f) * 0.4f; return new Color(0.55f + 0.3f * n, 0.5f + 0.28f * n, 0.45f + 0.25f * n, 1f); });
             coneMat = kit.Lit(Color.white, MakeRockTex(), 0.55f);
@@ -207,7 +207,7 @@ namespace AstronomicalEvent
         {
             bool on = sc == Sc.Ocean; if (oceanGo == null) return; if (oceanGo.activeSelf != on) oceanGo.SetActive(on);
             if (titleGo != null && titleGo.activeSelf != (on && t > 659.5f)) titleGo.SetActive(on && t > 659.5f);
-            if (!on) return;
+            if (!on) { FinaleFrame(t, tp, dt, false); return; }
             float flashK = Sm(T_END_VIS - 0.3f, T_END_VIS + 1.2f, t);
             // the sea follows you (it is a big flat disc); its colour opens up after the flash
             Vector3 cp = cam != null ? cam.transform.position : HeadNow(); SeaFrame(t, cp);
@@ -226,7 +226,7 @@ namespace AstronomicalEvent
                 int nn = (int)(220f * dt * Parts) + 1;
                 for (int k = 0; k < nn; k++) { float a = UnityEngine.Random.value * 6.2832f, rr = UnityEngine.Random.Range(0.55f, 1f) * ISLE_R, dep = UnityEngine.Random.value; Vector3 lp = new Vector3(Mathf.Cos(a) * rr * (1f - 0.6f * dep), -2f - ISLE_D * dep, Mathf.Sin(a) * rr * (1f - 0.6f * dep)); Vector3 wp = isle.transform.TransformPoint(lp); if (wp.y < root.transform.position.y + WY + 3f) continue; Emit(fx, wp, new Vector3(UnityEngine.Random.Range(-1f, 1f), -UnityEngine.Random.Range(6f, 22f), UnityEngine.Random.Range(-1f, 1f)), new Color(0.85f, 0.95f, 1f, 0.7f), UnityEngine.Random.Range(0.8f, 3.2f), UnityEngine.Random.Range(1.2f, 2.6f)); }
             }
-            QueenInWater(t, tp, dt);
+            QueenInWater(t, tp, dt); FinaleFrame(t, tp, dt, true);
             // underwater: bubbles round you until you break the surface (9:25)
             if (t < T_OCEAN + 11f && UnityEngine.Random.value < dt * 80f) { Vector3 hp = HeadNow(); Emit(dust, hp + UnityEngine.Random.insideUnitSphere * 3f, new Vector3(0f, UnityEngine.Random.Range(1.5f, 3.5f), 0f), new Color(0.6f, 0.85f, 1f, 0.5f), UnityEngine.Random.Range(0.06f, 0.2f), UnityEngine.Random.Range(2f, 4f)); }
             if (!paused && tp < T_END_VIS && t >= T_END_VIS) { Sfx(sThunder, W(new Vector3(0f, 200f, ISLE_Z)), 1f, 0.8f, 0.5f); Sfx(sBig, W(new Vector3(0f, 100f, ISLE_Z)), 0.9f, 0.7f, 0.5f); flashLamp.transform.position = W(new Vector3(0f, 30f, 0f)); flashLamp.color = Color.white; flashLamp.intensity = Lit * 25f; shake = Mathf.Max(shake, 1.5f); }

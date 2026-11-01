@@ -42,8 +42,8 @@ namespace AstronomicalEvent
         }
 
         // ---- scene captions: a small line of text that fades in at the start of each scene (4:30 facility ... 10:03 the island turns)
-        static readonly float[] CAP_T = { 271f, 333f, 357f, 401f, 435.5f, 509f, 557f, 606f };
-        static readonly string[] CAP_S = { "I.O. FACILITY", "THE HALLS", "ZERO POINT CONTROL", "THE ISLAND", "BENEATH THE ISLAND", "THE ZERO POINT CHAMBER", "THE SEA", "THE ISLAND TURNS" };
+        static readonly float[] CAP_T = { 271f, 333f, 357f, 401f, 435.5f, 509f, 557f, 574.5f, 606f, 610f };
+        static readonly string[] CAP_S = { "I.O. FACILITY", "THE HALLS", "ZERO POINT CONTROL", "THE ISLAND", "BENEATH THE ISLAND", "THE ZERO POINT CHAMBER", "THE SEA", "THE QUEEN LEAVES HER TOWER", "THE ISLAND TURNS", "THE QUEEN IS THROWN" };
         GameObject capGo; TextMesh capTx;
         void CaptionBuild()
         {

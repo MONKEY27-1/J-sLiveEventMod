@@ -438,3 +438,7 @@ Replaces every earlier animation clip (the wave is deleted; the 9 retargeted cli
 - The log (BepInEx/LogOutput.log of the user's run) showed WASD Fly + Free Cam toggled during the chamber: at 9:15 the head stayed at (-175, 913, 49) and every "moved you ... (925 m)" only moved the rigidbody, never the head, so the player stayed 925 m away at chamber height while the ocean scene played around an empty sky (and again at the flip).
 - `Reseat2` now calls the game's own `GTPlayer.TeleportTo` (what J CLIENT's teleport uses) first, then nudges the rigidbody by any residual; periodic re-seats are limited to 6 tries and the hold clamp is skipped when you are > 16 m away (you are deliberately flying), so Fly no longer fights the hold.
 - Desktop regression: transitions at 6:43, 7:10 and 9:15 all report "(0 m)" residual after the teleport; no "you are N m from your hold point" spam. Not re-tested with an actual fly session or VR.
+
+## Update 56 — finale polish (AstronomicalEnd21i.cs)
+- Five blue-white tethers from the sky pull the island over (10:03 - 10:27); a golden pillar follows the Cube Queen from the moment she is thrown until she dies; a looping sea ambience (muffled and low under the water at 9:15, normal after) plus 12 thunder claps while the sky burns (9:17 - 10:18); captions "THE QUEEN LEAVES HER TOWER" (9:34) and "THE QUEEN IS THROWN" (10:10).
+- Screenshots (camu) checked the pillar on the falling and sinking Queen. Tethers and the sound bed were not seen/heard by me.
