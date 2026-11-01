@@ -403,3 +403,4 @@ Replaces every earlier animation clip (the wave is deleted; the 9 retargeted cli
 - Scene captions fade in at each scene start; the facility has red alarm pulsing after the breach; lights stutter when the place shakes; monitors scroll and the vitals trace sweeps.
 - Bug fixed: the burning-sky effect threw IndexOutOfRange every frame when the event was started a second time in the same session (stale puff lists) - lists are reset in SkyFxBuild.
 - Verified by screenshots + log (0 exceptions over facility, ocean, island scenes). Sound is NOT verified by ear (cannot hear from here). Not tested in VR.
+- Update 49b: the rock slab under the old island is only 18 m thick (ISLE_D).

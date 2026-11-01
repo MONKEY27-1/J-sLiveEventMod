@@ -13,7 +13,7 @@ namespace AstronomicalEvent
     {
         const float OC_PX = -150f, OC_PY = -12.3f, OC_PZ = 1150f, OC_S = 5.2f;
         const float C3S = 2.58f; // Chapter 3 (prepared to 200 m across) scaled to the old island's 516 m diameter
-        const float WY = -0.3f, ISLE_Z = 520f, ISLE_R = 258f, ISLE_D = 70f, ISLE_S = 1.45f;      // the old island: radius 258 m, a 150 m crystal rock slab under it, shown 1.45x bigger and 520 m away so it towers over you (reference screenshot)
+        const float WY = -0.3f, ISLE_Z = 520f, ISLE_R = 258f, ISLE_D = 18f, ISLE_S = 1.45f;      // the old island: radius 258 m, a 150 m crystal rock slab under it, shown 1.45x bigger and 520 m away so it towers over you (reference screenshot)
         GameObject oceanGo, isle, isleCone, isleDisc, waterGo, titleGo; Material oceanMat, waterMat, coneMat, discMat; Texture2D waveTex, rockTex; TextMesh[] titleTx; Transform c3T;
         struct IsleDraw { public Mesh Mesh; public int Sub; public Material Mat; public Matrix4x4 Rel; }
         Vector3 isleCenterSum; int isleCenterN; readonly List<IsleDraw> isleDraws = new List<IsleDraw>(); bool isleBuilt, mapHidden; int isleSkipped;
