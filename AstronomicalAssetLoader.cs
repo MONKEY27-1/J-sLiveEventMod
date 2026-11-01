@@ -275,6 +275,7 @@ namespace AstronomicalEvent
                 || d.Kind == "butterfly"
                 || d.Kind == "collision"
                 || d.Kind == "end21"
+                || d.Kind == "skyfire"
             )
             {
                 if (!string.IsNullOrEmpty(d.MusicFile))
@@ -707,6 +708,7 @@ namespace AstronomicalEvent
                     // Foliage cards need their alpha channel; Sprites/Default is alpha-blended, double-sided and always present in the build.
                     bool cutout = tex && (name.Contains("leaves") || name.Contains("leaf") || (am != null && am != "OPAQUE"));
                     var m = new Material(cutout ? Pick("Sprites/Default", sh.name) : sh);
+                    string rawName = (string)ms[i]["name"]; if (rawName != null && rawName.StartsWith("SF_")) m.name = rawName;      // Sky Fire's room materials keep their names (glow vs lit)
                     m.SetFloat("_Cull", 0f);
                     var pbr = ms[i]["pbrMetallicRoughness"];
                     Color c = Color.white;
