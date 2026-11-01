@@ -211,6 +211,7 @@ namespace AstronomicalEvent
                 if (dd > 6f && Time.unscaledTime - dbgT > 1f) { dbgT = Time.unscaledTime; AstronomicalEventMod.Log.LogInfo("End21: " + sc + " t=" + t.ToString("0.0") + " you are " + dd.ToString("0.0") + " m from your hold point: head " + HeadNow() + " hold " + aw); }
             }
             else if (Time.unscaledTime < reseatHoldT && dt > 0f) Carry3(reseatHoldPos, 0f, dt, 0.5f, -0.5f, 0.5f);
+            CaptionFrame(t);
             // ---- rooms, lights, effects
             RoomsFrame(t, tp, dt, sc);
             // ---- the actors
@@ -236,6 +237,26 @@ namespace AstronomicalEvent
         void Place(GltfModel m, float y, bool on)
         {
             if (m == null) return; if (m.Pivot.activeSelf != on) m.Pivot.SetActive(on); if (!on) return; m.Pivot.transform.localRotation = Quaternion.identity; PlaceByFile(m, new Vector3(0f, y, 0f));
+        }
+        // the monitors: screens scroll (text lines roll, the vitals trace sweeps) - collected from the room models' materials by name at load
+        readonly List<Material> screenMats = new List<Material>(), ecgMats = new List<Material>();
+        void CollectScreens(GltfModel mdl)
+        {
+            if (mdl == null) return;
+            foreach (var kv in origMats)
+            {
+                if (kv.Key == null || !kv.Key.transform.IsChildOf(mdl.Pivot.transform)) continue; var now = kv.Key.sharedMaterials;
+                for (int i = 0; i < kv.Value.Length && i < now.Length; i++)
+                {
+                    string nm = kv.Value[i] != null ? kv.Value[i].name : ""; if (nm == "ECG") { if (!ecgMats.Contains(now[i])) ecgMats.Add(now[i]); }
+                    else if (nm == "Green" || nm == "Blue" || nm == "Orange" || nm == "ScrG" || nm == "ScrB" || nm == "ScrO" || nm == "ScrR") { if (!screenMats.Contains(now[i])) screenMats.Add(now[i]); }
+                }
+            }
+        }
+        void ScreensFrame(float t, Sc sc)
+        {
+            if (!IsRoom(sc)) return; for (int i = 0; i < screenMats.Count; i++) if (screenMats[i] != null) screenMats[i].mainTextureOffset = new Vector2(0f, Mathf.Repeat(t * (0.08f + 0.03f * (i % 4)), 1f));
+            for (int i = 0; i < ecgMats.Count; i++) if (ecgMats[i] != null) ecgMats[i].mainTextureOffset = new Vector2(Mathf.Repeat(t * 0.5f, 1f), 0f);
         }
         Vector3 hallLight; float baseGyro = 1f; float hatchX = 0f, hatchZ = 4f;
         // the floor near YOUR floor: a ray from 5 m above the spawn point down (the plain GroundY starts in the sky and finds the hill / canopy above a spawn room like the Forest's stump room)
@@ -274,11 +295,13 @@ namespace AstronomicalEvent
             Color lc1 = new Color(1f, 0.32f, 0.22f), lc2 = new Color(0.7f, 0.85f, 1f); Vector3 p1 = Vector3.zero, p2 = Vector3.zero; float i1 = 0f, i2 = 0f; Color amb = RenderSettings.ambientLight;
             switch (sc)
             {
-                case Sc.Fac: p1 = new Vector3(0f, Y_FAC + 5.5f, 0f); p2 = new Vector3(0f, Y_FAC + 6.2f, 4f); i1 = 2.2f + 0.5f * Mathf.Sin(t * 5f); i2 = 1.8f; amb = new Color(0.45f, 0.3f, 0.3f); break;
+                case Sc.Fac: { p1 = new Vector3(0f, Y_FAC + 5.5f, 0f); p2 = new Vector3(0f, Y_FAC + 6.2f, 4f); i1 = 2.2f + 0.5f * Mathf.Sin(t * 5f); i2 = 1.8f; amb = new Color(0.45f, 0.3f, 0.3f); if (t > 295.9f) { float al = Mathf.Max(0f, Mathf.Sin(t * 7f)); i1 = 1.6f + 2.4f * al; i2 = 1.2f + 0.6f * (1f - al); lc1 = new Color(1f, 0.12f, 0.08f); amb = Color.Lerp(amb, new Color(0.6f, 0.15f, 0.12f), al); } break; }
                 case Sc.Hall: { float z = HallZ(t) + 2f; p1 = new Vector3(0f, Y_HALL + 3f, z); p2 = new Vector3(0f, Y_HALL + 3f, z + 6f); lc1 = z < 17f ? new Color(0.3f, 1f, 0.5f) : new Color(1f, 0.25f, 0.18f); lc2 = z < 17f ? new Color(0.5f, 1f, 0.7f) : new Color(1f, 0.5f, 0.2f); i1 = 2.4f; i2 = 1.6f; amb = z < 17f ? new Color(0.25f, 0.45f, 0.3f) : new Color(0.45f, 0.2f, 0.18f); break; }
                 case Sc.Gyro: p1 = new Vector3(0f, Y_GYRO + 8f, 4f); p2 = new Vector3(0f, Y_GYRO + 3f, -3f); lc1 = new Color(0.7f, 0.4f, 1f); lc2 = new Color(0.9f, 0.9f, 1f); i1 = 3f + 0.8f * Mathf.Sin(t * 7f); i2 = 1.5f; amb = new Color(0.32f, 0.25f, 0.5f); break;
                 case Sc.Base: { float yy; float sA = BaseS(t); Vector3 p = PathAt(sA, out yy); Color rc = BaseColor(t); p1 = new Vector3(p.x, Y_BASE + 3f, p.z); p2 = new Vector3(p.x, Y_BASE + 2.5f, p.z - 6f); lc1 = rc; lc2 = Color.Lerp(rc, Color.white, 0.5f); i1 = 2.4f; i2 = 1.2f; amb = rc * 0.5f; if (t >= T_CHAM - 2f) { p1 = new Vector3(bChc.x, Y_BASE + 14f, bChc.z + 6f); p2 = new Vector3(bChc.x, Y_BASE + 4f, bChc.z - 10f); i1 = 4f; i2 = 2f; lc1 = new Color(0.7f, 0.4f, 1f); } break; }
             }
+            if (IsRoom(sc) && shake > 0.4f) { float fl = Mathf.PerlinNoise(t * 24f, 3f) > 0.4f ? 1f : 0.2f; i1 *= fl; i2 *= fl; }      // the lights stutter when the place shakes
+            ScreensFrame(t, sc);
             facLight.transform.position = W(p1); facLight2.transform.position = W(p2); facLight.color = lc1; facLight2.color = lc2; facLight.intensity = Lit * i1; facLight2.intensity = Lit * i2; facLight.range = 44f; facLight2.range = 44f;
             if (IsRoom(sc)) RenderSettings.ambientLight = amb;
             // ---- doors: the blast door (4:56), the security door (4:34 Slone, 5:06 the guard)
@@ -375,6 +398,7 @@ namespace AstronomicalEvent
             float gs = a.Name == "Foundation" ? 0.95f : (a.Name.StartsWith("Guard") ? 0.9f : 0.85f); float ks = gs * Mathf.Abs(a.Gun.lossyScale.x); var tr = a.Rifle.transform; tr.rotation = a.Gun.rotation; tr.localScale = Vector3.one * ks; if (a.RMod != null) tr.position += a.Gun.position - a.RMod.position;
             bool fire = clip == "Fire" || clip == "FireK"; float ph = Mathf.Repeat(ct, 2.4f); int idx = fire && ph < 0.9f ? (int)(ph / 0.1f) : -1; if (idx < 0) { a.Shot = -1; return; }
             if (idx == a.Shot || paused || dt <= 0f) return; a.Shot = idx; Vector3 target = a.Aim != null ? a.Aim() : a.Go.transform.position + a.Go.transform.forward * 30f; Vector3 mz = a.Gun.position + a.Gun.rotation * new Vector3(0f, 0.12f * ks, 0.77f * ks), dir = (target - mz).normalized;
+            Sfx(sShot, mz, 0.3f, 1f, 0.07f);
             for (int q = 0; q < 6; q++) Emit(fx, mz, a.Gun.rotation * new Vector3(UnityEngine.Random.Range(-0.4f, 0.4f), UnityEngine.Random.Range(-0.4f, 0.4f), UnityEngine.Random.Range(4f, 12f)), new Color(1f, UnityEngine.Random.Range(0.7f, 0.95f), 0.4f, 0.9f), UnityEngine.Random.Range(0.12f, 0.32f), UnityEngine.Random.Range(0.08f, 0.18f));
             Emit(fx, mz, Vector3.zero, new Color(1f, 0.9f, 0.5f, 1f), 0.9f, 0.05f); Emit(fx, mz + dir * 0.8f, dir * 150f + UnityEngine.Random.insideUnitSphere * 1.2f, new Color(1f, 0.85f, 0.4f, 1f), 0.3f, Mathf.Clamp((target - mz).magnitude / 150f, 0.1f, 1.2f));
         }
@@ -383,7 +407,7 @@ namespace AstronomicalEvent
         {
             p2Dead = true; foreach (var g in p2Clones) if (g != null) UnityEngine.Object.Destroy(g); p2Clones.Clear(); acts.Clear();
             if (curSc != Sc.Island && curSc != Sc.Surface) { try { Reseat2(haveHome ? homeHead : originW + Vector3.up * 1.9f); } catch { } } curSc = Sc.Island; NoClip2(false); OceanCleanup();
-            spireM = facM = hallM = gyroM = hatchM = baseM = ch3M = jonM = fouM = slnM = gunM = sciM = visM = grdM = rifM = zpM2 = null; doorL = doorR = doorS = hatchCover = baseGlass = baseSwirl = null; giant = null; giantGo = null; giantLight = null; p2Ready = false; glassGone = false; doorsInit = false; coverInit = false; haveHome = false;
+            spireM = facM = hallM = gyroM = hatchM = baseM = ch3M = jonM = fouM = slnM = gunM = sciM = visM = grdM = rifM = zpM2 = null; doorL = doorR = doorS = hatchCover = baseGlass = baseSwirl = null; giant = null; giantGo = null; giantLight = null; screenMats.Clear(); ecgMats.Clear(); p2Ready = false; glassGone = false; doorsInit = false; coverInit = false; haveHome = false;
         }
     }
 }

@@ -54,7 +54,7 @@ namespace AstronomicalEvent
                     if (RaySphere(o, d, p + Vector3.up * (h * 0.68f), h * 0.2f, out s) && s < best) { best = s; ba = a; bi = -1; }
                 }
             }
-            bool hitSomething = bi >= 0 || ba != null; Vector3 hit = o + d * (hitSomething ? best : 90f); AddBolt(o + d * 0.1f, hit);
+            bool hitSomething = bi >= 0 || ba != null; Vector3 hit = o + d * (hitSomething ? best : 90f); AddBolt(o + d * 0.1f, hit); Sfx(sZap, o, 0.45f, 1f, 0.06f);
             for (int k = 0; k < 4; k++) Emit(fx, o + d * 0.15f, d * UnityEngine.Random.Range(2f, 6f) + UnityEngine.Random.insideUnitSphere * 0.6f, new Color(0.5f, 0.95f, 1f, 1f), UnityEngine.Random.Range(0.05f, 0.14f), 0.12f);
             if (!hitSomething) return;
             for (int k = 0; k < 18; k++) Emit(fx, hit, UnityEngine.Random.onUnitSphere * UnityEngine.Random.Range(3f, 9f) - d * 2f, Color.Lerp(new Color(0.5f, 0.95f, 1f, 1f), Color.white, UnityEngine.Random.value), UnityEngine.Random.Range(0.12f, 0.5f), UnityEngine.Random.Range(0.25f, 0.7f));

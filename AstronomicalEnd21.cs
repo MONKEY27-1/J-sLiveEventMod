@@ -130,7 +130,7 @@ namespace AstronomicalEvent
             kit = new WorldKit { Layer = floorLayer }; glowTex = kit.GlowTex();
             lineTex = kit.Tex(4, 32, (x, yy) => { float v = Mathf.Abs((yy + 0.5f) / 16f - 1f); return new Color(1, 1, 1, Mathf.Pow(1f - v, 1.6f)); }, TextureWrapMode.Clamp);
             AstronomicalDebug.L2W = v => W(v); AstronomicalDebug.Anchors.Clear(); AstronomicalDebug.Anchors["cube"] = () => W(new Vector3(0f, 4f, 9f)); AstronomicalDebug.Anchors["pyr"] = () => pyrM != null && pyrM.Pivot != null ? pyrM.Pivot.transform.position + Vector3.up * 120f : Vector3.zero; AstronomicalDebug.Anchors["queen"] = () => queenGo != null ? queenGo.transform.position : Vector3.zero; AstronomicalDebug.Anchors["ship"] = () => ships.Count > 0 && ships[0] != null ? ships[0].transform.position : Vector3.zero; AstronomicalDebug.Anchors["mon"] = () => { foreach (var m in mons) if (m.Go != null && m.Go.activeSelf) return m.Go.transform.position + Vector3.up * 3f; return W(new Vector3(0f, 3f, 60f)); };
-            BuildSky(); BuildEffects(); BuildModels(); P2Start(); AstronomicalDebug.FireHook = (o, d) => Shoot(o, d);
+            BuildSky(); BuildEffects(); SfxInit(); BuildModels(); P2Start(); AstronomicalDebug.FireHook = (o, d) => Shoot(o, d);
             var fg = GameObject.CreatePrimitive(PrimitiveType.Sphere); UnityEngine.Object.Destroy(fg.GetComponent<Collider>()); fg.name = "AstronomicalEnd21Flash"; fg.transform.localScale = Vector3.one * 2.4f;
             flashMat = kit.Glow(new Color(0f, 0f, 0f, 0f), null, 3500); var fr = fg.GetComponent<Renderer>(); fr.sharedMaterial = flashMat; fr.shadowCastingMode = ShadowCastingMode.Off; fr.allowOcclusionWhenDynamic = false; flashGo = fg; flashGo.SetActive(false);
             ambientSave = RenderSettings.ambientLight; ambientSaved = true; fogSave = RenderSettings.fog; RenderSettings.fog = false;       // the Forest's green fog hides everything beyond ~100 m (pyramid, fleet)
@@ -246,6 +246,7 @@ namespace AstronomicalEvent
         void Boom(Vector3 wp, float size, float power, Color? tint = null)
         {
             Color a = tint ?? new Color(1f, 0.55f, 0.15f);
+            Sfx(size > 14f ? sBig : sBoom, wp, Mathf.Clamp(0.22f + size / 22f, 0.22f, 1f), Mathf.Clamp(1.25f - size * 0.025f, 0.55f, 1.2f), size > 14f ? 0.25f : 0.06f);
             for (int k = 0; k < (int)(70 * Parts + 20); k++) { Vector3 d = UnityEngine.Random.onUnitSphere; d.y = Mathf.Abs(d.y); Emit(fx, wp, d * UnityEngine.Random.Range(4f, 24f) * size * 0.3f, Color.Lerp(a, new Color(1f, 0.9f, 0.5f), UnityEngine.Random.value), size * UnityEngine.Random.Range(0.4f, 1.2f), UnityEngine.Random.Range(0.8f, 1.8f)); }
             for (int k = 0; k < 16; k++) Emit(dust, wp + UnityEngine.Random.insideUnitSphere * size, new Vector3(UnityEngine.Random.Range(-3f, 3f), UnityEngine.Random.Range(2f, 9f), UnityEngine.Random.Range(-3f, 3f)), new Color(0.35f, 0.3f, 0.28f, 0.6f), size * 2.4f, UnityEngine.Random.Range(2f, 4f));
             flashLamp.transform.position = wp; flashLamp.color = Color.Lerp(a, Color.white, 0.3f); flashLamp.intensity = Lit * 8f * power;
@@ -367,7 +368,7 @@ namespace AstronomicalEvent
 
         public void Cleanup()
         {
-            try { P2Cleanup(); } catch { } AstronomicalDebug.FireHook = null; boltPool.Clear(); boltAge.Clear();
+            try { P2Cleanup(); } catch { } SfxCleanup(); AstronomicalDebug.FireHook = null; boltPool.Clear(); boltAge.Clear();
             if (ambientSaved) { RenderSettings.ambientLight = ambientSave; RenderSettings.fog = fogSave; ambientSaved = false; }
             try { if (farSave > 0f && Camera.main != null) Camera.main.farClipPlane = farSave; } catch { }
             farSave = -1f; foreach (var kv in origMats) if (kv.Key != null) kv.Key.sharedMaterials = kv.Value; origMats.Clear();

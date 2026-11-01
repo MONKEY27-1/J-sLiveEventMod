@@ -13,6 +13,9 @@ bpy.ops.object.join(); o = bpy.context.view_layer.objects.active; print('JOINED 
 bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT'); bpy.ops.mesh.remove_doubles(threshold=0.001); bpy.ops.object.mode_set(mode='OBJECT')
 for v in o.data.vertices: v.co = (v.co.x, v.co.z, -v.co.y)            # file +z (the map's up) -> Blender +Z
 import bmesh
+import numpy as np
+co = np.array([tuple(v.co) for v in o.data.vertices]); zmin = np.percentile(co[:, 2], 25); sel = co[co[:, 2] > zmin]; A = np.c_[sel[:, 0], sel[:, 1], np.ones(len(sel))]; ca = np.linalg.lstsq(A, sel[:, 2], rcond=None)[0]; nrm = mathutils.Vector((-ca[0], -ca[1], 1.0)).normalized(); qlev = nrm.rotation_difference(mathutils.Vector((0, 0, 1))); print('LEVEL tilt deg', math.degrees(math.acos(max(-1, min(1, nrm.z)))))
+for v in o.data.vertices: v.co = qlev @ v.co
 bm = bmesh.new(); bm.from_mesh(o.data); xs0 = [v.co.x for v in bm.verts]; ys0 = [v.co.y for v in bm.verts]; ccx, ccy = (min(xs0) + max(xs0)) / 2, (min(ys0) + max(ys0)) / 2; rad = min(max(xs0) - min(xs0), max(ys0) - min(ys0)) / 2 * 0.985
 bad = [f for f in bm.faces if math.hypot(f.calc_center_median().x - ccx, f.calc_center_median().y - ccy) > rad]; bmesh.ops.delete(bm, geom=bad, context='FACES'); bm.to_mesh(o.data); bm.free(); print('CULLED', len(bad))
 n0 = len(o.data.polygons); ratio = min(1.0, target / max(n0 * 1.0, 1))
@@ -24,5 +27,20 @@ o.data.update(); bb = [mathutils.Vector(c) for c in o.bound_box]; xs = [v.x for 
 cx, cy = (min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2; top = max(zs); dia = max(max(xs) - min(xs), max(ys) - min(ys)); print('BBOX x', min(xs), max(xs), 'y', min(ys), max(ys), 'z', min(zs), max(zs), 'dia', dia)
 k = 200.0 / dia
 for v in o.data.vertices: v.co = ((v.co.x - cx) * k, (v.co.y - cy) * k, (v.co.z - top) * k)
+# ---- make the relief sheet a SOLID chunk: extrude its outline down 16 m below its lowest point (a rock skirt) and close it with a flat bottom, so it can sit flush on the slab with no gap
+import bmesh
+bm = bmesh.new(); bm.from_mesh(o.data); bm.edges.ensure_lookup_table(); bnd = [e for e in bm.edges if e.is_boundary]; nf0 = len(bm.faces)
+zb = min(v.co.z for v in bm.verts) - 1.2
+ex = bmesh.ops.extrude_edge_only(bm, edges=bnd); newv = [e for e in ex['geom'] if isinstance(e, bmesh.types.BMVert)]
+for v in newv: v.co.z = zb
+bm.edges.ensure_lookup_table(); bot = [e for e in bm.edges if e.is_boundary]; print('SKIRT boundary edges', len(bnd), 'bottom edges', len(bot), 'zb', zb)
+capf = []
+try: capf = [f for f in bmesh.ops.triangle_fill(bm, edges=bot, use_beauty=True)['geom'] if isinstance(f, bmesh.types.BMFace)]
+except Exception as ex_: print('fill failed', ex_)
+rock = bpy.data.materials.new('RockSkirt'); rock.use_nodes = True; bsdf = rock.node_tree.nodes.get('Principled BSDF'); bsdf.inputs['Base Color'].default_value = (0.3, 0.26, 0.4, 1.0); bsdf.inputs['Roughness'].default_value = 0.9
+o.data.materials.append(rock); ri = len(o.data.materials) - 1
+bm.faces.ensure_lookup_table()
+for f in capf: f.material_index = ri          # only the flat bottom is rock: the skirt's walls keep the map's own materials / texture (the outline texels stretch down like a cut-away)
+bm.to_mesh(o.data); bm.free(); print('SOLID faces', len(o.data.polygons))
 o.location = (0, 0, 0); o.rotation_euler = (0, 0, 0); o.scale = (1, 1, 1)
 bpy.ops.export_scene.gltf(filepath=out, export_format='GLB', export_image_format='JPEG', export_jpeg_quality=80, export_apply=True); print('WROTE', out)

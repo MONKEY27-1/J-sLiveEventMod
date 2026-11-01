@@ -15,6 +15,7 @@ namespace AstronomicalEvent
 
         void SkyFxBuild()
         {
+            puffs.Clear(); puffOrder.Clear();      // (the event can be started again in the same game session: nothing from the last run may be left in these lists)
             cloudTex = kit.Tex(64, 64, (x, y) =>
             {
                 float dx = (x - 31.5f) / 31.5f, dy = (y - 31.5f) / 31.5f, r = Mathf.Sqrt(dx * dx + dy * dy); float n = 0.62f + 0.38f * Mathf.PerlinNoise(x * 0.17f + 3f, y * 0.17f + 9f); float a = Mathf.Clamp01((1f - r) * 1.6f) * n; a = a * a * (3f - 2f * a); return new Color(1f, 1f, 1f, a);
@@ -22,7 +23,7 @@ namespace AstronomicalEvent
             cloudMat = new Material(kit.Glow(Color.white, cloudTex, 2900)); owned.Add(cloudMat);
             System.Random rnd = new System.Random(11); Func<float> R01 = () => (float)rnd.NextDouble();
             for (int i = 0; i < 460; i++) puffs.Add(new Puff { A = R01() * Mathf.PI * 2f, Rad = 0.8f + 0.42f * R01() * R01() + 0.1f * (R01() - 0.5f), H = (R01() - 0.5f) * 2f, Size = Mathf.Lerp(0.1f, 0.3f, R01() * R01()), Seed = R01() * 50f, Heat = R01() });
-            int n2 = puffs.Count; cloudV = new Vector3[n2 * 4]; cloudC = new Color[n2 * 4]; cloudUV = new Vector2[n2 * 4]; cloudT = new int[n2 * 6]; puffD = new float[n2];
+            int n2 = puffs.Count; cloudV = new Vector3[n2 * 4]; cloudC = new Color[n2 * 4]; cloudUV = new Vector2[n2 * 4]; cloudT = new int[n2 * 6]; puffPos = new Vector3[n2]; puffD = new float[n2];
             for (int i = 0; i < n2; i++) { cloudUV[i * 4] = new Vector2(0, 0); cloudUV[i * 4 + 1] = new Vector2(1, 0); cloudUV[i * 4 + 2] = new Vector2(1, 1); cloudUV[i * 4 + 3] = new Vector2(0, 1); puffOrder.Add(i); }
             cloudMesh = new Mesh(); cloudMesh.MarkDynamic(); cloudMesh.bounds = new Bounds(Vector3.zero, Vector3.one * 20000f); owned.Add(cloudMesh);
             cloudGo = new GameObject("ECloudBand"); cloudGo.transform.SetParent(root.transform, false); cloudGo.AddComponent<MeshFilter>().sharedMesh = cloudMesh; var mr = cloudGo.AddComponent<MeshRenderer>(); mr.sharedMaterial = cloudMat; mr.shadowCastingMode = ShadowCastingMode.Off; mr.allowOcclusionWhenDynamic = false; cloudGo.SetActive(false);
@@ -63,7 +64,7 @@ namespace AstronomicalEvent
             }
             if (paused || dt <= 0f) return; float rate = oc ? 3.0f : 1.6f; rate *= Mathf.Clamp01(k); nextStrike -= dt; if (nextStrike <= 0f) { nextStrike = UnityEngine.Random.Range(0.1f, 2f / Mathf.Max(0.3f, rate)); Strike(t, cp, u, v, tilt, R, oc); }
         }
-        readonly Vector3[] puffPos = new Vector3[520];
+        Vector3[] puffPos = new Vector3[0];
 
         void KillBolt(Bolt b) { b.On = false; foreach (var l in b.L) l.enabled = false; }
         void Strike(float t, Vector3 cp, Vector3 u, Vector3 v, Vector3 tilt, float R, bool oc)
@@ -79,7 +80,7 @@ namespace AstronomicalEvent
             float w = (oc ? 9f : 2.2f) * UnityEngine.Random.Range(0.75f, 1.35f); SetBoltLine(b.L[0], pts, w); SetBoltLine(b.L[1], pts, w * 3.2f);
             int bi = UnityEngine.Random.Range(4, 10); var bp = new Vector3[7]; Vector3 bd = (dir + (pa * UnityEngine.Random.Range(-1f, 1f) + pb * UnityEngine.Random.Range(-0.5f, 0.5f)) * 0.9f).normalized; for (int i = 0; i < 7; i++) bp[i] = pts[bi] + bd * (len * 0.035f * i) + (pa * UnityEngine.Random.Range(-1f, 1f)) * jit * 0.5f * (i > 0 ? 1f : 0f);
             SetBoltLine(b.L[2], bp, w * 0.6f); int bi2 = UnityEngine.Random.Range(8, 13); var bp2 = new Vector3[5]; Vector3 bd2 = (dir + (pa * UnityEngine.Random.Range(-1f, 1f)) * 0.8f).normalized; for (int i = 0; i < 5; i++) bp2[i] = pts[bi2] + bd2 * (len * 0.03f * i) + (pb * UnityEngine.Random.Range(-1f, 1f)) * jit * 0.4f * (i > 0 ? 1f : 0f);
-            SetBoltLine(b.L[3], bp2, w * 0.5f); b.T0 = t; b.Life = UnityEngine.Random.Range(0.18f, 0.5f); b.On = true;
+            SetBoltLine(b.L[3], bp2, w * 0.5f); b.T0 = t; b.Life = UnityEngine.Random.Range(0.18f, 0.5f); b.On = true; Sfx(sThunder, e, oc ? 0.7f : 0.45f, UnityEngine.Random.Range(0.8f, 1.15f), 0.4f);
             if (e.y <= seaY + 2f && UnityEngine.Random.value < 0.5f) { for (int i = 0; i < 14; i++) Emit(fx, e, new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(0.5f, 1.4f), UnityEngine.Random.Range(-1f, 1f)) * UnityEngine.Random.Range(4f, 14f), new Color(1f, 0.85f, 0.5f, 1f), oc ? UnityEngine.Random.Range(1.5f, 4f) : UnityEngine.Random.Range(0.4f, 1.2f), UnityEngine.Random.Range(0.4f, 1f)); }
         }
         static void SetBoltLine(LineRenderer l, Vector3[] pts, float w) { l.positionCount = pts.Length; l.SetPositions(pts); l.widthMultiplier = w; l.numCornerVertices = 2; l.enabled = true; }

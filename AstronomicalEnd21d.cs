@@ -13,10 +13,10 @@ namespace AstronomicalEvent
     {
         const float OC_PX = -150f, OC_PY = -12.3f, OC_PZ = 1150f, OC_S = 5.2f;
         const float C3S = 2.58f; // Chapter 3 (prepared to 200 m across) scaled to the old island's 516 m diameter
-        const float WY = -0.3f, ISLE_Z = 520f, ISLE_R = 258f, ISLE_D = 150f, ISLE_S = 1.45f;      // the old island: radius 258 m, a 150 m crystal rock slab under it, shown 1.45x bigger and 520 m away so it towers over you (reference screenshot)
+        const float WY = -0.3f, ISLE_Z = 520f, ISLE_R = 258f, ISLE_D = 70f, ISLE_S = 1.45f;      // the old island: radius 258 m, a 150 m crystal rock slab under it, shown 1.45x bigger and 520 m away so it towers over you (reference screenshot)
         GameObject oceanGo, isle, isleCone, isleDisc, waterGo, titleGo; Material oceanMat, waterMat, coneMat, discMat; Texture2D waveTex, rockTex; TextMesh[] titleTx; Transform c3T;
         struct IsleDraw { public Mesh Mesh; public int Sub; public Material Mat; public Matrix4x4 Rel; }
-        readonly List<IsleDraw> isleDraws = new List<IsleDraw>(); bool isleBuilt, mapHidden; int isleSkipped;
+        Vector3 isleCenterSum; int isleCenterN; readonly List<IsleDraw> isleDraws = new List<IsleDraw>(); bool isleBuilt, mapHidden; int isleSkipped;
         Vector3 floodC;
 
         // the player's head height in the ocean scene: deep under the water at first, rising to float at the surface by 9:25
@@ -112,7 +112,7 @@ namespace AstronomicalEvent
                 if (f != null) { tm.font = f; var tr2 = g.GetComponent<MeshRenderer>(); if (tr2 != null && f.material != null) { tr2.sharedMaterial = new Material(f.material); tr2.sharedMaterial.renderQueue = 4000; owned.Add(tr2.sharedMaterial); } }
                 titleTx[i] = tm;
             }
-            titleGo.SetActive(false);
+            titleGo.SetActive(false); CaptionBuild();
         }
         void OceanCleanup()
         {
@@ -124,7 +124,7 @@ namespace AstronomicalEvent
         // copy the map: every mesh renderer within 270 m (static-batched ones too: their combined mesh holds world-space vertices, drawn with an identity matrix and the sub-mesh range of the renderer)
         void BuildIsland()
         {
-            if (isleBuilt) return; isleBuilt = true; isleDraws.Clear();
+            if (isleBuilt) return; isleBuilt = true; isleDraws.Clear(); isleCenterSum = Vector3.zero; isleCenterN = 0;
             isle = new GameObject("EIsle"); isle.transform.SetParent(root.transform, false); isle.transform.position = originW; isle.transform.rotation = root.transform.rotation;
             Matrix4x4 w2h = isle.transform.worldToLocalMatrix; int batched = 0, plain = 0; var seen = new HashSet<long>();
             try
@@ -136,7 +136,7 @@ namespace AstronomicalEvent
                 {
                     if (r == null || !r.enabled || !r.gameObject.activeInHierarchy) continue; var b = r.bounds; if (b.size.sqrMagnitude > 1000000f) continue; float d2 = (b.center - originW).sqrMagnitude; if (d2 > r2) continue;
                     bool keep = false; for (var q = r.transform; q != null; q = q.parent) { if (skip.Contains(q)) { keep = true; break; } string n = q.name; if (n.StartsWith("JClient", StringComparison.Ordinal) || n.StartsWith("Astronomical", StringComparison.Ordinal) || n.StartsWith("BepInEx", StringComparison.Ordinal)) { keep = true; break; } }
-                    if (keep) { isleSkipped++; continue; } list.Add(new KeyValuePair<float, MeshRenderer>(d2, r));
+                    if (keep) { isleSkipped++; continue; } list.Add(new KeyValuePair<float, MeshRenderer>(d2, r)); isleCenterSum += b.center - originW; isleCenterN++;
                 }
                 list.Sort((x, y) => x.Key.CompareTo(y.Key));
                 foreach (var kv in list)
@@ -151,6 +151,7 @@ namespace AstronomicalEvent
                 }
             }
             catch (Exception e) { AstronomicalEventMod.Log.LogWarning("End21 island copy: " + e.Message); }
+            if (isleCenterN > 0) { Vector3 ctr = isleCenterSum / isleCenterN; ctr.y = 0f; Vector3 lc = isle.transform.InverseTransformVector(ctr); Matrix4x4 sh = Matrix4x4.Translate(new Vector3(-lc.x, 0f, -lc.z)); for (int i = 0; i < isleDraws.Count; i++) { var dd = isleDraws[i]; dd.Rel = sh * dd.Rel; isleDraws[i] = dd; } AstronomicalEventMod.Log.LogInfo("End21: the map copy was " + lc.magnitude.ToString("0") + " m off the island's axis: re-centred"); }
             AstronomicalEventMod.Log.LogInfo("End21: the island copy has " + isleDraws.Count + " draws (" + batched + " from static batches, " + plain + " plain, " + isleSkipped + " skipped)");
             // the rock underside and a plain ground disc under everything (so the island has a surface even where the copy is thin)
             isleCone = new GameObject("EIsleCone"); isleCone.transform.SetParent(isle.transform, false); Mesh spk; isleCone.AddComponent<MeshFilter>().sharedMesh = MakeRock(ISLE_R, ISLE_D, 70f, 26, 96, 7, out spk); var spo = new GameObject("EIsleSpikes"); spo.transform.SetParent(isle.transform, false); spo.AddComponent<MeshFilter>().sharedMesh = spk; var spr = spo.AddComponent<MeshRenderer>(); spr.sharedMaterial = kit.Glow(Color.white, null, 3004); spr.shadowCastingMode = ShadowCastingMode.Off; var cr = isleCone.AddComponent<MeshRenderer>(); cr.sharedMaterial = coneMat; cr.shadowCastingMode = ShadowCastingMode.Off;
@@ -158,7 +159,7 @@ namespace AstronomicalEvent
             if (ch3M != null)
             {
                 var p = ch3M.Pivot; p.SetActive(true); p.transform.SetParent(isle.transform, false); float sc = C3S; p.transform.localScale = Vector3.one * sc; p.transform.localRotation = Quaternion.Euler(0f, 0f, 180f);
-                p.transform.localPosition = new Vector3(0f, -2f - ISLE_D + 14f * C3S, 0f); c3T = p.transform;      // Chapter 3 is a relief SHEET (0 - 27 m above its lowest vertex, median 14 m): sink it 14 m into the slab so the low half is buried in the rock and the land grows out of the bottom face      // the model's pivot is at its LOWEST point (feet-centred loader): that point sits on the slab's bottom face and the island grows away from it (flipped 180 with the island it ends upright)      // the island's seabed sits inside the cone's narrow end, its mountains reach 50 m past the tip: after the roll it stands on top, its coast (about 27 m above its seabed) is at sea level when h = -75
+                p.transform.localPosition = new Vector3(0f, -2f - ISLE_D + 0.5f, 0f); c3T = p.transform;      // now a SOLID chunk (tools/prep_chapter3.py closes the sheet with a 16 m rock skirt and a flat bottom): its flat bottom (the pivot, its lowest point) is pressed onto the slab's bottom face; the land grows away from it      // Chapter 3 is a relief SHEET (0 - 27 m above its lowest vertex, median 14 m): sink it 14 m into the slab so the low half is buried in the rock and the land grows out of the bottom face      // the model's pivot is at its LOWEST point (feet-centred loader): that point sits on the slab's bottom face and the island grows away from it (flipped 180 with the island it ends upright)      // the island's seabed sits inside the cone's narrow end, its mountains reach 50 m past the tip: after the roll it stands on top, its coast (about 27 m above its seabed) is at sea level when h = -75
             }
         }
         // the map goes while the ocean scene runs (and comes back if you scrub out of it)
@@ -176,7 +177,7 @@ namespace AstronomicalEvent
         {
             float flash = T_END_VIS + 0.2f; float h, roll;
             if (t < flash) { h = 0.5f; roll = 0f; }
-            else { roll = 90f + 90f * Sm(T_END_VIS + 1.5f, T_END_VIS + 25f, t); h = Mathf.Lerp(ISLE_R * ISLE_S + 12f, ISLE_S * (3f * C3S - 2f - ISLE_D), Sm(T_END_VIS + 2.5f, T_END_VIS + 50f, t)); }
+            else { roll = 90f + 90f * Sm(T_END_VIS + 1.5f, T_END_VIS + 25f, t); h = Mathf.Lerp(ISLE_R * ISLE_S + 12f, ISLE_S * (-(2f + ISLE_D) - 2.7f * C3S), Sm(T_END_VIS + 2.5f, T_END_VIS + 50f, t)); }
             float z = ISLE_Z + 20f * Sm(T_END_VIS + 18f, T_END_VIS + 50f, t);        // after the flip the island drifts towards you: Chapter 3 is what stays on the sea
             pos = new Vector3(0f, WY + h, z); rollDeg = roll;
         }
@@ -191,7 +192,7 @@ namespace AstronomicalEvent
             PlaceGo(queenGo, pos, scale, Quaternion.Euler(tilt, 180f + 12f * Mathf.Sin(t * 0.8f), 8f * Mathf.Sin(t * 1.7f) * sink), true);
             string qc = t < QT0 ? "H_Float" : t < QT1 ? "H_Retreat" : (t < QT1 + 8f ? "H_Hit" : "H_Rage"); float lt = t < QT0 ? t : t < QT1 ? Mathf.Min(t - QT0, 3.9f) : (t < QT1 + 8f ? (t - QT1) % 1.6f : (t - QT1 - 8f) % 3f); PlayClip(queenRig, queenM, qc, lt);
             if (paused || dt <= 0f) return; Vector3 wp = W(new Vector3(pos.x, WY, pos.z));
-            if (tp < QT1 && t >= QT1) { AddRipple(22f, 85f, QT1, 2.4f, 16f, 22f, 24f, 45f); AddRipple(22f, 85f, QT1 + 0.4f, 1.1f, 11f, 11f, 14f, 30f); flashLamp.transform.position = wp + Vector3.up * 6f; flashLamp.color = new Color(0.7f, 0.85f, 1f); flashLamp.intensity = Lit * 18f; shake = Mathf.Max(shake, 1.5f); for (int k = 0; k < 260; k++) { float a = UnityEngine.Random.value * 6.2832f, r = UnityEngine.Random.Range(0f, 14f); Emit(fx, wp + new Vector3(Mathf.Cos(a) * r, 0.3f, Mathf.Sin(a) * r), new Vector3(Mathf.Cos(a) * r * 0.5f, UnityEngine.Random.Range(8f, 34f), Mathf.Sin(a) * r * 0.5f), new Color(0.8f, 0.95f, 1f, 0.9f), UnityEngine.Random.Range(0.6f, 2.2f), UnityEngine.Random.Range(1.2f, 2.6f)); } }
+            if (tp < QT1 && t >= QT1) { Sfx(sSplash, wp, 1f, 0.7f, 0.2f); Sfx(sBoom, wp, 0.8f, 0.8f, 0.2f); AddRipple(22f, 85f, QT1, 2.4f, 16f, 22f, 24f, 45f); AddRipple(22f, 85f, QT1 + 0.4f, 1.1f, 11f, 11f, 14f, 30f); flashLamp.transform.position = wp + Vector3.up * 6f; flashLamp.color = new Color(0.7f, 0.85f, 1f); flashLamp.intensity = Lit * 18f; shake = Mathf.Max(shake, 1.5f); for (int k = 0; k < 260; k++) { float a = UnityEngine.Random.value * 6.2832f, r = UnityEngine.Random.Range(0f, 14f); Emit(fx, wp + new Vector3(Mathf.Cos(a) * r, 0.3f, Mathf.Sin(a) * r), new Vector3(Mathf.Cos(a) * r * 0.5f, UnityEngine.Random.Range(8f, 34f), Mathf.Sin(a) * r * 0.5f), new Color(0.8f, 0.95f, 1f, 0.9f), UnityEngine.Random.Range(0.6f, 2.2f), UnityEngine.Random.Range(1.2f, 2.6f)); } }
             if (t > QT1 && t < QT2 - 2f && UnityEngine.Random.value < dt * 40f) { float a = UnityEngine.Random.value * 6.2832f, r = UnityEngine.Random.Range(2f, 11f); Emit(fx, wp + new Vector3(Mathf.Cos(a) * r, 0.2f, Mathf.Sin(a) * r), new Vector3(0f, UnityEngine.Random.Range(3f, 12f), 0f), new Color(0.6f, 0.9f, 1f, 0.8f), UnityEngine.Random.Range(0.3f, 1.2f), UnityEngine.Random.Range(0.6f, 1.4f)); if (UnityEngine.Random.value < 0.4f) Emit(fx, wp + Vector3.up * 3f, UnityEngine.Random.onUnitSphere * 8f, new Color(1f, 0.6f, 0.95f, 1f), UnityEngine.Random.Range(0.3f, 0.9f), 0.8f); }
             if (tp < QT2 - 1f && t >= QT2 - 1f) { flashLamp.transform.position = wp + Vector3.up * 2f; flashLamp.color = new Color(1f, 0.7f, 0.95f); flashLamp.intensity = Lit * 25f; shake = Mathf.Max(shake, 1.8f); for (int k = 0; k < 300; k++) { var v = UnityEngine.Random.onUnitSphere; v.y = Mathf.Abs(v.y); Emit(fx, wp + Vector3.up * 1.5f, v * UnityEngine.Random.Range(6f, 36f), new Color(1f, UnityEngine.Random.Range(0.5f, 0.9f), 1f, 1f), UnityEngine.Random.Range(0.5f, 1.8f), UnityEngine.Random.Range(1f, 2.4f)); } }
         }
@@ -221,8 +222,9 @@ namespace AstronomicalEvent
             QueenInWater(t, tp, dt);
             // underwater: bubbles round you until you break the surface (9:25)
             if (t < T_OCEAN + 11f && UnityEngine.Random.value < dt * 80f) { Vector3 hp = HeadNow(); Emit(dust, hp + UnityEngine.Random.insideUnitSphere * 3f, new Vector3(0f, UnityEngine.Random.Range(1.5f, 3.5f), 0f), new Color(0.6f, 0.85f, 1f, 0.5f), UnityEngine.Random.Range(0.06f, 0.2f), UnityEngine.Random.Range(2f, 4f)); }
-            if (!paused && tp < T_END_VIS && t >= T_END_VIS) { flashLamp.transform.position = W(new Vector3(0f, 30f, 0f)); flashLamp.color = Color.white; flashLamp.intensity = Lit * 25f; shake = Mathf.Max(shake, 1.5f); }
-            if (!paused && tp < T_END_VIS + 2.5f && t >= T_END_VIS + 2.5f) shake = Mathf.Max(shake, 1.2f);
+            if (!paused && tp < T_END_VIS && t >= T_END_VIS) { Sfx(sThunder, W(new Vector3(0f, 200f, ISLE_Z)), 1f, 0.8f, 0.5f); Sfx(sBig, W(new Vector3(0f, 100f, ISLE_Z)), 0.9f, 0.7f, 0.5f); flashLamp.transform.position = W(new Vector3(0f, 30f, 0f)); flashLamp.color = Color.white; flashLamp.intensity = Lit * 25f; shake = Mathf.Max(shake, 1.5f); }
+            if (!paused && tp < T_END_VIS + 2.5f && t >= T_END_VIS + 2.5f) { shake = Mathf.Max(shake, 1.2f); Sfx(sRumble, W(new Vector3(0f, 150f, ISLE_Z)), 1f, 0.85f, 1f); Sfx(sSplash, W(new Vector3(0f, 3f, ISLE_Z - 200f)), 1f, 0.6f, 0.5f); }
+            if (!paused && tp < T_END_VIS + 26f && t >= T_END_VIS + 26f) { Sfx(sSplash, W(new Vector3(0f, 3f, ISLE_Z)), 1f, 0.55f, 0.5f); Sfx(sBig, W(new Vector3(0f, 20f, ISLE_Z)), 0.8f, 0.8f, 0.5f); }
             if (t > T_END_VIS + 3f && t < T_END_VIS + 52f) shake = Mathf.Max(shake, 0.35f * (1f - Sm(T_END_VIS + 3f, T_END_VIS + 52f, t)));      // the whole island moving: a faint tremor in the water
             // the title card follows your view
             if (titleGo != null && titleGo.activeSelf && cam != null)
