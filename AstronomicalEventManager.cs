@@ -31,6 +31,7 @@ namespace AstronomicalEvent
         public readonly AstronomicalCollision CollisionScene = new AstronomicalCollision();
         public readonly AstronomicalEnd21 End21Scene = new AstronomicalEnd21();
         public readonly AstronomicalSkyFire SkyFireScene = new AstronomicalSkyFire();
+        public readonly AstronomicalZero ZeroScene = new AstronomicalZero();
 
         IEventScene PickScene()
         {
@@ -63,6 +64,8 @@ namespace AstronomicalEvent
                 return End21Scene;
             if (k == "skyfire")
                 return SkyFireScene;
+            if (k == "zerocrisis")
+                return ZeroScene;
             return Effects;
         }
 
@@ -155,6 +158,7 @@ namespace AstronomicalEvent
                         || AstronomicalEvents.Selected.Kind == "collision"
                         || AstronomicalEvents.Selected.Kind == "end21"
                         || AstronomicalEvents.Selected.Kind == "skyfire"
+                        || AstronomicalEvents.Selected.Kind == "zerocrisis"
                     );
             }
         }
@@ -688,6 +692,7 @@ namespace AstronomicalEvent
                     : kind == "butterfly" ? ButterflyScene.TryViewpoint(out pos, out yaw)
                     : kind == "end21" ? End21Scene.TryViewpoint(out pos, out yaw)
                     : kind == "skyfire" ? SkyFireScene.TryViewpoint(out pos, out yaw)
+                    : kind == "zerocrisis" ? ZeroScene.TryViewpoint(out pos, out yaw)
                     : kind == "collision" ? CollisionScene.TryViewpoint(out pos, out yaw)
                     : Showdown.TryViewpoint(out pos, out yaw)
                 )

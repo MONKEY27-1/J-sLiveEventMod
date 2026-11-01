@@ -217,6 +217,7 @@ namespace AstronomicalEvent
             { "collision", "2022-06-04" },
             { "end21", "2021-12-04" },
             { "skyfire", "2021-09-12" },
+            { "zerocrisis", "2021-03-16" },
         };
 
         static void SortAll()
