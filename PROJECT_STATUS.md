@@ -429,3 +429,7 @@ Replaces every earlier animation clip (the wave is deleted; the 9 retargeted cli
 ## Update 53 - chair seat lowered, Jones + Foundation in the chamber, smaller chamber
 - Seat pan lowered to 0.34 m (the hips were sinking into it). Chamber radius 38 -> 30 m, wall height 31 -> 26, dome at 26. Jones (works the Zero Point machine) and the Foundation (guards the entrance, then fires at the Caretaker) stand on the machine's platform from 8:30 to 9:13 (clones "JonesC" / "FoundationC").
 - "You spawn in the chamber after the chamber / when the island flips" NOT reproduced: in my runs Base -> Ocean at 9:15 lands at the sea (logged). Scene changes are now logged ("End21: scene A -> B at t=.. ready=.. head ..") so a user log can show it. Suspects: J CLIENT free cam / WASD fly while the hold is on, and part 2 not finished loading.
+
+## Update 54 — the Cube Queen is flipped off the map
+- The Queen no longer falls out of her tower into the sea on her own. She leaves the orb at 9:32, hovers 60 m over the old map (island-local), and when the Seven flips the island (10:03.5) she is thrown off it: a 7.5 s ballistic fall with a full tumble into the sea at (30, 250), splash + ripples, then she sinks over 13 s and dies in the final flash (about 10:21). Code: `QueenInWater` / `IsleAnchor` in `AstronomicalEnd21d.cs`, patch `tools/patch_queen_flip.py`.
+- Verified on the desktop with screenshots at 10:09 (thrown), 10:13 (landed upright), 10:23 (sinking). Not checked in VR.
