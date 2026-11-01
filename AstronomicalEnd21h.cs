@@ -52,6 +52,12 @@ namespace AstronomicalEvent
             if (f != null) { capTx.font = f; var r = g.GetComponent<MeshRenderer>(); if (r != null && f.material != null) { r.sharedMaterial = new Material(f.material); r.sharedMaterial.renderQueue = 4000; owned.Add(r.sharedMaterial); } }
             capGo.SetActive(false);
         }
+        bool loadingShown;
+        void LoadingText(bool on)
+        {
+            if (capGo == null) return; if (on) { var cam = Camera.main; if (cam == null) return; capGo.SetActive(true); loadingShown = true; capTx.text = "LOADING THE END..."; capTx.color = new Color(1f, 1f, 1f, 0.9f); capGo.transform.position = cam.transform.position + cam.transform.forward * 4f; capGo.transform.rotation = Quaternion.LookRotation(cam.transform.forward, Vector3.up); }
+            else if (loadingShown) { loadingShown = false; capGo.SetActive(false); }
+        }
         void CaptionFrame(float t)
         {
             if (capGo == null) return; int k = -1; for (int i = 0; i < CAP_T.Length; i++) if (t >= CAP_T[i] && t < CAP_T[i] + 4.2f) k = i;

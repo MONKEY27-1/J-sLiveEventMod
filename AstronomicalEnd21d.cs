@@ -99,7 +99,7 @@ namespace AstronomicalEvent
             oceanMat = new Material(kit.Flat(new Color(0.03f, 0.09f, 0.2f))); oceanMat.mainTexture = waveTex; try { oceanMat.SetFloat("_Cull", 0f); } catch { } owned.Add(oceanMat);
             oceanGo = new GameObject("EOcean"); oceanGo.transform.SetParent(root.transform, false); oceanGo.AddComponent<MeshFilter>().sharedMesh = MakeDisc(4200f, 72, 22f); var mr = oceanGo.AddComponent<MeshRenderer>(); mr.sharedMaterial = oceanMat; mr.shadowCastingMode = ShadowCastingMode.Off; mr.receiveShadows = false; oceanGo.SetActive(false);
             SeaBuild();
-            var bc = oceanGo.AddComponent<BoxCollider>(); bc.size = new Vector3(260f, 1f, 260f); bc.center = new Vector3(0f, -0.5f, 0f); oceanGo.layer = floorLayer;
+            // (no collider on the sea: rising from underwater through a solid plane threw the rig about)
             rockTex = kit.Tex(32, 32, (x, y) => { float n = Mathf.PerlinNoise(x * 0.23f, y * 0.23f) * 0.6f + Mathf.PerlinNoise(x * 0.7f, y * 0.7f) * 0.4f; return new Color(0.55f + 0.3f * n, 0.5f + 0.28f * n, 0.45f + 0.25f * n, 1f); });
             coneMat = kit.Lit(Color.white, MakeRockTex(), 0.55f);
             discMat = new Material(kit.Flat(Color.white)); discMat.mainTexture = kit.Tex(128, 128, (x, y) => { float n = Mathf.PerlinNoise(x * 0.05f + 3f, y * 0.05f) * 0.55f + Mathf.PerlinNoise(x * 0.22f, y * 0.22f + 5f) * 0.45f; Color c = Color.Lerp(new Color(0.16f, 0.2f, 0.1f), new Color(0.42f, 0.3f, 0.12f), n); c = Color.Lerp(c, new Color(0.3f, 0.42f, 0.18f), Mathf.Clamp01((n - 0.55f) * 3f)); c.a = 1f; return c; }); try { discMat.SetFloat("_Cull", 0f); } catch { } owned.Add(discMat);
@@ -112,7 +112,7 @@ namespace AstronomicalEvent
                 if (f != null) { tm.font = f; var tr2 = g.GetComponent<MeshRenderer>(); if (tr2 != null && f.material != null) { tr2.sharedMaterial = new Material(f.material); tr2.sharedMaterial.renderQueue = 4000; owned.Add(tr2.sharedMaterial); } }
                 titleTx[i] = tm;
             }
-            titleGo.SetActive(false); CaptionBuild();
+            titleGo.SetActive(false);
         }
         void OceanCleanup()
         {

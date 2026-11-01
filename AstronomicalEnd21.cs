@@ -130,7 +130,7 @@ namespace AstronomicalEvent
             kit = new WorldKit { Layer = floorLayer }; glowTex = kit.GlowTex();
             lineTex = kit.Tex(4, 32, (x, yy) => { float v = Mathf.Abs((yy + 0.5f) / 16f - 1f); return new Color(1, 1, 1, Mathf.Pow(1f - v, 1.6f)); }, TextureWrapMode.Clamp);
             AstronomicalDebug.L2W = v => W(v); AstronomicalDebug.Anchors.Clear(); AstronomicalDebug.Anchors["cube"] = () => W(new Vector3(0f, 4f, 9f)); AstronomicalDebug.Anchors["pyr"] = () => pyrM != null && pyrM.Pivot != null ? pyrM.Pivot.transform.position + Vector3.up * 120f : Vector3.zero; AstronomicalDebug.Anchors["queen"] = () => queenGo != null ? queenGo.transform.position : Vector3.zero; AstronomicalDebug.Anchors["ship"] = () => ships.Count > 0 && ships[0] != null ? ships[0].transform.position : Vector3.zero; AstronomicalDebug.Anchors["mon"] = () => { foreach (var m in mons) if (m.Go != null && m.Go.activeSelf) return m.Go.transform.position + Vector3.up * 3f; return W(new Vector3(0f, 3f, 60f)); };
-            BuildSky(); BuildEffects(); SfxInit(); BuildModels(); P2Start(); AstronomicalDebug.FireHook = (o, d) => Shoot(o, d);
+            BuildSky(); BuildEffects(); SfxInit(); CaptionBuild(); BuildModels(); P2Start(); AstronomicalDebug.FireHook = (o, d) => Shoot(o, d);
             var fg = GameObject.CreatePrimitive(PrimitiveType.Sphere); UnityEngine.Object.Destroy(fg.GetComponent<Collider>()); fg.name = "AstronomicalEnd21Flash"; fg.transform.localScale = Vector3.one * 2.4f;
             flashMat = kit.Glow(new Color(0f, 0f, 0f, 0f), null, 3500); var fr = fg.GetComponent<Renderer>(); fr.sharedMaterial = flashMat; fr.shadowCastingMode = ShadowCastingMode.Off; fr.allowOcclusionWhenDynamic = false; flashGo = fg; flashGo.SetActive(false);
             ambientSave = RenderSettings.ambientLight; ambientSaved = true; fogSave = RenderSettings.fog; RenderSettings.fog = false;       // the Forest's green fog hides everything beyond ~100 m (pyramid, fleet)
@@ -269,7 +269,7 @@ namespace AstronomicalEvent
         {
             if (!built || root == null) return;
             var cam = Camera.main; float dt = Mathf.Clamp(Time.unscaledDeltaTime, 0f, 0.1f); bool back = t < lastT - 0.4f; float tp = lastT < 0f ? t : lastT; lastT = t;
-            Sc sc = SceneAt(t); if (back) { seated = false; glassGone = false; cubeBoom = shieldBoom = false; for (int i = 0; i < mons.Count; i++) { var m = mons[i]; m.Boomed = false; m.Killed = -1f; m.Hp = m.Big ? 10f : 3f; m.Hits = 0; m.HitT = -9f; m.KX = m.KZ = m.VX = m.VZ = 0f; mons[i] = m; } }
+            Sc sc = SceneAt(t); if (!p2Ready && sc != Sc.Island) sc = Sc.Island; if (back) { seated = false; glassGone = false; cubeBoom = shieldBoom = false; for (int i = 0; i < mons.Count; i++) { var m = mons[i]; m.Boomed = false; m.Killed = -1f; m.Hp = m.Big ? 10f : 3f; m.Hits = 0; m.HitT = -9f; m.KX = m.KZ = m.VX = m.VZ = 0f; mons[i] = m; } }
             if (cam != null) skyGo.transform.position = cam.transform.position;
             if (t - skyT > 0.15f || t < skyT) { skyT = t; UpdateSky(t); if (!skyLogged) { skyLogged = true; var smr = skyGo.GetComponent<MeshRenderer>(); AstronomicalEventMod.Log.LogInfo("End21 sky: active " + skyGo.activeInHierarchy + " renderer " + smr.enabled + " pos " + skyGo.transform.position + " col " + skyCols[skyCols.Length / 2] + " shader " + smr.sharedMaterial.shader.name + " queue " + smr.sharedMaterial.renderQueue + " far " + (cam != null ? cam.farClipPlane : 0f)); } }
             float rift = Sm(T_RIFT, T_RIFT + 14f, t), fleetK = Sm(T_FLEET, T_FLEET + 8f, t), alive = 1f - Sm(T_CUBE_DIE, T_CUBE_DIE + 0.5f, t), black = Sm(T_CUBE_DIE + 1.5f, T_BLACK, t);
@@ -293,7 +293,7 @@ namespace AstronomicalEvent
             if (!shieldBoom && t >= T_BREAK && !paused) { shieldBoom = true; Boom(W(cubeC + Vector3.up * 14f), 22f, 1.6f, new Color(0.4f, 0.9f, 1f)); }
             if (!cubeBoom && t >= T_CUBE_DIE && !paused) { cubeBoom = true; Boom(W(cubeC), 30f, 3.2f, new Color(0.3f, 0.9f, 1f)); for (int k = 0; k < 300; k++) { var d = UnityEngine.Random.onUnitSphere; Emit(fx, W(cubeC) + d * 3f, d * UnityEngine.Random.Range(10f, 50f), new Color(0.2f + 0.3f * UnityEngine.Random.value, 0.95f, 1f, 1f), UnityEngine.Random.Range(0.6f, 3f), UnityEngine.Random.Range(1.5f, 3.5f)); } shake = 3f; flashLamp.intensity = Lit * 30f; }
             // you are brought into the force field at 0:00 and kept inside until it breaks
-            if (t < T_BREAK && !paused) KeepInside(t); else if (sc == Sc.Surface && !paused) { seated = true; KeepInside(t, stageX, stageZ, 16f); }
+            if (t < T_BREAK && !paused) KeepInside(t); else if (sc == Sc.Surface && !paused) { seated = true; float mg = Sm(418f, 426f, t); KeepInside(t, Mathf.Lerp(stageX, hatchX, mg), Mathf.Lerp(stageZ, hatchZ - 2f, mg), Mathf.Lerp(16f, 5f, mg)); }
             if (!paused && tp < 210f && t >= 210f) { flashLamp.transform.position = W(cubeC + Vector3.up * 4f); flashLamp.color = new Color(0.4f, 0.8f, 1f); flashLamp.intensity = Lit * 22f; hitGlow = 1f; shake = Mathf.Max(shake, 1f); for (int k = 0; k < 160; k++) { float a2 = k / 160f * 6.2832f; Emit(fx, W(cubeC), new Vector3(Mathf.Cos(a2), 0.15f * Mathf.Sin(k), Mathf.Sin(a2)) * UnityEngine.Random.Range(14f, 30f), new Color(0.3f, 0.9f, 1f, 1f), UnityEngine.Random.Range(0.6f, 1.6f), UnityEngine.Random.Range(1.2f, 2.4f)); } }      // 3:30: a bright blue energy burst round the cube
             // ----- the Cube Queen's pyramid (always in the distance), her energy orb on top, the rift above it
             bool oc = sc == Sc.Ocean; Vector3 pyrP = oc ? new Vector3(OC_PX, OC_PY, OC_PZ) : new Vector3(40f, GroundY(40f, 650f), 650f); float pyrS = oc ? OC_S : 1.3f, apex = 150f * pyrS;      // in the ocean the Queen's tower rises straight out of the sea (the reference: a huge spire under a burning ring)
@@ -361,6 +361,7 @@ namespace AstronomicalEvent
             }
             // ----- after the cube is gone: black until the next milestone
             WeaponFrame(t, dt, sc); Color bcol; float pb = P2Black(t, out bcol); if (pb >= 0f) black = pb; else bcol = Color.black; P2Frame(t, dt, tp, cam);
+            bool loadingNow = !p2Ready && t >= T_FAC - 0.3f; if (loadingNow) { black = 1f; bcol = Color.black; } LoadingText(loadingNow);
             Black(black, cam, bcol); flashLamp.intensity = Mathf.Max(0f, flashLamp.intensity - dt * 20f * Lit);
             if (!paused && dt > 0f) { rumbleT += dt; if (rumbleT > 0.12f) { rumbleT = 0f; float v = Mathf.Max(shake * 0.4f, 0f); if (v > 0.05f) { try { var gt = GorillaTagger.Instance; if (gt != null) { gt.StartVibration(true, Mathf.Clamp01(v), 0.14f); gt.StartVibration(false, Mathf.Clamp01(v), 0.14f); } } catch { } } } }
             shake = Mathf.Max(0f, shake - dt * 1.4f);

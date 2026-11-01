@@ -55,7 +55,7 @@ if kind == 'facility':
     for x, z, h in ((10.5, 6.5, 1.0), (10.5, 4.8, 1.0), (10.5, 5.7, 2.1)): bx(x, h / 2, z, 1.4, h, 1.4, S_ if h < 2 else WLL, 1.0)
     for z in (7.5, 6.0): b.cyl(Z(10.9, 0.6, z), 0.5, 1.2, A_, 10)
     # ---- Jones's scanner chair: Jones sits reclined facing the door (-z); seat top 0.44, back leans away from him (+z)
-    bx(0, 0.22, 3.05, 0.9, 0.44, 0.9, D_, 1.0, top=S_)                                    # seat block
+    bx(0, 0.2, 3.25, 0.5, 0.4, 0.5, D_, 1.0); bx(0, 0.42, 3.15, 0.9, 0.1, 0.9, D_, 1.0, top=S_)         # a pedestal and a thin seat pan: the legs hang free in front (z < 2.7)
     for sx in (-0.5, 0.5): bx(sx, 0.62, 3.0, 0.1, 0.1, 0.7, D_, 1.0)                    # armrests
     bx(0, 0.02, 3.05, 1.3, 0.04, 1.6, A_, 1.0)                                              # a hazard-yellow floor plate
     bk = MB([DK, STE, CYA]); bk.box((0, 0, 0.55), (0.9, 0.12, 1.1), 0, 1.0, top=1); bk.box((0, 0.0, 1.18), (0.34, 0.16, 0.26), 1, 1.0); o = bk.build('ChairBack'); o.location = Z(0, 0.44, 3.4); o.rotation_euler = (math.radians(24), 0, 0)
@@ -90,6 +90,33 @@ if kind == 'facility':
     for x, z, h in ((-10.5, -6.5, 1.0), (-10.5, -4.8, 1.0), (-10.5, -5.7, 2.1)): bx(x, h / 2, z - 2.5, 1.4, h, 1.4, S_ if h < 2 else WLL, 1.0)
     bx(0, 0.01, -8.0, 6.4, 0.04, 2.0, A_, 1.0)
     b.build('Facility')
+
+    # ---- the wreck: ceiling panels hanging at angles, fallen beams, rubble, a toppled rack and scorch marks round the blast door (shown from 4:56)
+    import random, mathutils
+    R_ = random.Random(5); wk = MB([FL, WL, CE, RED, AMB, GRN, BLU, ORG, STE, DK, WH, ECG, CYA])
+    def wbox(c, s, rot, m):
+        e = mathutils.Euler(rot, 'XYZ').to_matrix(); h = [(sx * s[0] / 2, sy * s[1] / 2, sz * s[2] / 2) for sx in (-1, 1) for sy in (-1, 1) for sz in (-1, 1)]
+        P = {}; i = 0
+        for sx in (-1, 1):
+            for sy in (-1, 1):
+                for sz in (-1, 1):
+                    v = e @ mathutils.Vector((sx * s[0] / 2, sy * s[1] / 2, sz * s[2] / 2)); P[(sx, sy, sz)] = (c[0] + v.x, c[1] + v.y, c[2] + v.z)
+        for ax, sg in ((0, -1), (0, 1), (1, -1), (1, 1), (2, -1), (2, 1)):
+            keys = [k for k in P if k[ax] == sg]; q = []
+            o1, o2 = [a for a in range(3) if a != ax]
+            for (u, vv) in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
+                k = [0, 0, 0]; k[ax] = sg; k[o1] = u; k[o2] = vv; q.append(P[tuple(k)])
+            wk.quad(q[0], q[1], q[2], q[3], m, [(0, 0), (1, 0), (1, 1), (0, 1)]); wk.quad(q[3], q[2], q[1], q[0], m, [(0, 1), (1, 1), (1, 0), (0, 0)])
+    for i in range(9):    # hanging ceiling panels (unity x, y, z -> blender (x, -z, y))
+        x = R_.uniform(-5.2, 5.2); z = R_.uniform(-8.6, -0.5); y = R_.uniform(5.2, 6.7); wbox((x, -z, y), (R_.uniform(1.6, 2.8), R_.uniform(1.4, 2.4), 0.14), (math.radians(R_.uniform(20, 60)) * R_.choice((-1, 1)), math.radians(R_.uniform(-25, 25)), math.radians(R_.uniform(0, 90))), R_.choice((F_, 8, 9)) if False else 8)
+    for i in range(6):    # fallen beams
+        x = R_.uniform(-4.5, 4.5); z = R_.uniform(-8.6, -1.5); wbox((x, -z, 0.28), (0.34, R_.uniform(2.4, 4.2), 0.34), (math.radians(R_.uniform(-8, 8)), math.radians(R_.uniform(-8, 8)), math.radians(R_.uniform(0, 180))), 9)
+    for i in range(34):   # rubble
+        x = R_.uniform(-5.5, 5.5); z = R_.uniform(-9.2, -1.0); s = R_.uniform(0.15, 0.75); wbox((x, -z, s * 0.4), (s, s * R_.uniform(0.6, 1.4), s * 0.7), (math.radians(R_.uniform(0, 40)), math.radians(R_.uniform(0, 40)), math.radians(R_.uniform(0, 180))), R_.choice((8, 9, 1)))
+    wbox((-9.4, 3.2, 1.0), (1.4, 1.8, 2.6), (0.0, math.radians(38), math.radians(8)), 9); wbox((-9.2, 3.2, 2.0), (0.06, 1.4, 1.7), (0.0, math.radians(38), math.radians(8)), 5)      # a toppled rack, its screen smashed
+    wbox((0.5, 6.0, 0.03), (5.0, 3.6, 0.02), (0, 0, math.radians(15)), 9); wbox((-3.2, 2.4, 0.03), (3.0, 2.6, 0.02), (0, 0, math.radians(-30)), 9)                                        # scorch marks
+    wbox((-3.1, 9.0, 4.6), (0.4, 0.4, 3.6), (math.radians(28), 0, math.radians(-12)), 9); wbox((3.2, 8.9, 4.2), (0.4, 0.4, 3.4), (math.radians(-24), math.radians(10), 0), 9)     # the door frame pillars leaning in
+    wk.build('Wreck')
     for name, sx in (('DoorL', -1.5), ('DoorR', 1.5)):
         d = MB([DK, RED]); d.box(Z(sx, 2.2, -9.0), (3.0, 0.35, 4.4), 0, 1.0); d.box(Z(sx, 3.3, -8.8), (2.4, 0.05, 0.2), 1, 1.0); d.build(name)
     d = MB([DK, RED, CYA]); d.box(Z(12.0, 1.7, -4.0), (0.3, 2.4, 3.4), 0, 1.0); d.box(Z(11.8, 3.0, -4.0), (0.05, 1.6, 0.2), 1, 1.0); d.box(Z(11.8, 1.7, -4.0), (0.05, 0.05, 2.2), 2, 1.0); d.build('DoorS')

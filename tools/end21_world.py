@@ -97,6 +97,16 @@ def ring_obj(name, radius, tube, mat, loc, axis='z', seg=48, tseg=8, rot=None):
     if axis == 'z': o.rotation_euler = (math.pi / 2, 0, 0)          # blender torus axis is Z; stand it up so it faces unity +z (= blender -y)
     elif axis == 'x': o.rotation_euler = (0, math.pi / 2, 0)
     return o
+
+def rwall(cx, cz, R, y0, y1, segs, mat, skip=None, tile=3.0):
+    """a closed round wall of `segs` flat panels that really follow the circle (two faces each, so it is solid from both sides); skip(deg) leaves doorways"""
+    import math as _m
+    for k in range(segs):
+        a0 = k * 2 * _m.pi / segs; a1 = (k + 1) * 2 * _m.pi / segs
+        if skip is not None and skip(_m.degrees((a0 + a1) / 2) % 360.0): continue
+        p0 = Bz(cx + _m.cos(a0) * R, y0, cz + _m.sin(a0) * R); p1 = Bz(cx + _m.cos(a1) * R, y0, cz + _m.sin(a1) * R); p2 = Bz(cx + _m.cos(a1) * R, y1, cz + _m.sin(a1) * R); p3 = Bz(cx + _m.cos(a0) * R, y1, cz + _m.sin(a0) * R)
+        u0 = k * (2 * _m.pi * R / segs) / tile; u1 = (k + 1) * (2 * _m.pi * R / segs) / tile; v1 = (y1 - y0) / tile; uv = [(u0, 0), (u1, 0), (u1, v1), (u0, v1)]
+        b.quad(p0, p1, p2, p3, mat, uv); b.quad(p3, p2, p1, p0, mat, [uv[3], uv[2], uv[1], uv[0]])
 if kind == 'hall':
     # ---- the green server hall
     room(0, 8, 8, 16, 4.0, MWG, [('zm', 0, 3.0, 3.0), ('zp', 0, 4.0, 3.0)], strip=LG)
@@ -124,10 +134,7 @@ if kind == 'hall':
 elif kind == 'gyro':
     R = 15.0
     b.cyl(Bz(0, -0.15, 0), R + 0.5, 0.3, MF, 40); b.cyl(Bz(0, 16.15, 0), R + 0.5, 0.3, MC, 40)
-    for k in range(40):                                                                                                         # the round wall of dark purple panels with two doorways (+-x)
-        a = (k + 0.5) * 2 * math.pi / 40; x, z = math.cos(a) * R, math.sin(a) * R
-        if abs(math.degrees(a) - 0) < 11 or abs(math.degrees(a) - 180) < 11: continue
-        b.box(Bz(x, 8.0, z), (2.4, 0.5, 16.0), MWP, 2.0)
+    rwall(0, 0, R, 0.0, 16.0, 60, MWP, lambda d: min(d, 360 - d) < 19 or abs(d - 180) < 19)       # solid round wall, two doorways (+-x)
     for sgn in (-1, 1):
         bx(sgn * (R - 0.2), 2.0, 5.0, 0.4, 4.0, 0.5, LW, 1.0); bx(sgn * (R - 0.2), 2.0, -5.0, 0.4, 4.0, 0.5, LW, 1.0); bx(sgn * (R - 0.2), 4.2, 0, 0.5, 0.4, 10.5, LW, 1.0)             # door frames, lit white-blue
     for k in range(26):                                                                                                         # purple crystal clusters on the floor edge and walls
@@ -233,10 +240,7 @@ elif kind == 'base':
     # ---------------- the Zero Point chamber (a round hall) attached to the end of the hazy corridor (heading z)
     CR = 38.0; ccx, ccz = px, pz + CR
     b.cyl(Bz(ccx, -0.2, ccz), CR + 0.5, 0.4, MF, 48)
-    for k in range(48):
-        a = (k + 0.5) * 2 * math.pi / 48; x, z = ccx + math.cos(a) * CR, ccz + math.sin(a) * CR
-        if abs(math.degrees(a) - 270) < 5.2: continue                                                                           # the entrance (south, the -z pole)
-        b.box(Bz(x, 15.5, z), (3.2, 0.6, 31.0), MWP, 2.0)
+    rwall(ccx, ccz, CR, 0.0, 31.0, 96, MWP, lambda d: abs(d - 270) < 5.5)      # solid round wall, the entrance in the south
     for k in range(16):                                                                                                         # crystals and pillars round the walls
         a = k * 2 * math.pi / 16 + 0.2; x, z = ccx + math.cos(a) * (CR - 3.0), ccz + math.sin(a) * (CR - 3.0)
         if abs(math.degrees(a) - 270) < 14: continue

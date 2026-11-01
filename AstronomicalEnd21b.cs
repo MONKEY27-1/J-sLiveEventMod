@@ -18,7 +18,7 @@ namespace AstronomicalEvent
     internal sealed partial class AstronomicalEnd21
     {
         const float T_FAC = 270f, T_HALL = 332f, T_GYRO = 356f, T_SURF = 400f, T_BASE = 430f, T_CHAM = 508f, T_FLOOD = 550f, T_OCEAN = 555f, T_END_VIS = 603.5f;
-        const float Y_FAC = 700f, Y_HALL = 760f, Y_GYRO = 820f, Y_BASE = 900f;
+        const float Y_PLAT_OFF = 0.7f, Y_FAC = 700f, Y_HALL = 760f, Y_GYRO = 820f, Y_BASE = 900f;
         enum Sc { Island, Fac, Hall, Gyro, Surface, Base, Ocean }
         static Sc SceneAt(float t) { if (t < T_FAC) return Sc.Island; if (t < T_HALL) return Sc.Fac; if (t < T_GYRO) return Sc.Hall; if (t < T_SURF) return Sc.Gyro; if (t < T_BASE) return Sc.Surface; if (t < T_OCEAN) return Sc.Base; return Sc.Ocean; }
         static bool IsRoom(Sc s) { return s == Sc.Fac || s == Sc.Hall || s == Sc.Gyro || s == Sc.Base; }
@@ -57,11 +57,11 @@ namespace AstronomicalEvent
         IEnumerator LoadP2()
         {
             var ld = AstronomicalEventMod.Inst.Loader; var steps = new[] { new[] { "facility", "hall", "gyro" }, new[] { "jones", "rifle" }, new[] { "foundation" }, new[] { "slone" }, new[] { "guard" }, new[] { "gunnar" }, new[] { "hatch", "base" }, new[] { "scientist", "visitor", "zeropoint" }, new[] { "chapter3", "spire" } };
-            yield return new WaitForSeconds(AstronomicalDebug.NoMusic ? 0.5f : 6f);
+            yield return new WaitForSeconds(AstronomicalDebug.NoMusic || lastT >= T_FAC - 40f ? 0.1f : 6f);
             foreach (var st in steps)
             {
                 foreach (var id in st) { if (p2Dead) yield break; yield return ld.LoadProp(def, id); yield return null; }
-                if (p2Dead) yield break; GC.Collect(); yield return new WaitForSeconds(AstronomicalDebug.NoMusic ? 0.3f : 3f);
+                if (p2Dead) yield break; GC.Collect(); yield return new WaitForSeconds(AstronomicalDebug.NoMusic || lastT >= T_FAC - 40f ? 0.05f : 3f);
             }
             if (p2Dead) yield break; try { P2Setup(); p2Ready = true; AstronomicalEventMod.Log.LogInfo("End21: part 2 is loaded"); } catch (Exception e) { AstronomicalEventMod.Log.LogWarning("End21 P2Setup: " + e.Message + "\n" + e.StackTrace); }
         }
@@ -206,7 +206,7 @@ namespace AstronomicalEvent
             {
                 Vector3 aw = W(an);
                 float dd = Vector3.Distance(HeadNow(), aw);
-                if (dd > 30f && reseatTries2 < 8 && Time.unscaledTime - lastReseat2 > 0.7f) { reseatTries2++; Reseat2(aw); }
+                if ((dd > 30f || dd > 16f || (dd > 9f && HeadNow().y < aw.y - 2.2f)) && reseatTries2 < 40 && Time.unscaledTime - lastReseat2 > 0.7f) { reseatTries2++; Reseat2(aw); }
                 else if (dt > 0f) Carry3(aw, ayaw, dt, hx, z0, z1);
                 if (dd > 6f && Time.unscaledTime - dbgT > 1f) { dbgT = Time.unscaledTime; AstronomicalEventMod.Log.LogInfo("End21: " + sc + " t=" + t.ToString("0.0") + " you are " + dd.ToString("0.0") + " m from your hold point: head " + HeadNow() + " hold " + aw); }
             }
@@ -258,6 +258,7 @@ namespace AstronomicalEvent
             if (!IsRoom(sc)) return; for (int i = 0; i < screenMats.Count; i++) if (screenMats[i] != null) screenMats[i].mainTextureOffset = new Vector2(0f, Mathf.Repeat(t * (0.08f + 0.03f * (i % 4)), 1f));
             for (int i = 0; i < ecgMats.Count; i++) if (ecgMats[i] != null) ecgMats[i].mainTextureOffset = new Vector2(Mathf.Repeat(t * 0.5f, 1f), 0f);
         }
+        Transform wreck;
         Vector3 hallLight; float baseGyro = 1f; float hatchX = 0f, hatchZ = 4f;
         // the floor near YOUR floor: a ray from 5 m above the spawn point down (the plain GroundY starts in the sky and finds the hill / canopy above a spawn room like the Forest's stump room)
         float GroundNear(float x, float z)
@@ -304,6 +305,7 @@ namespace AstronomicalEvent
             ScreensFrame(t, sc);
             facLight.transform.position = W(p1); facLight2.transform.position = W(p2); facLight.color = lc1; facLight2.color = lc2; facLight.intensity = Lit * i1; facLight2.intensity = Lit * i2; facLight.range = 44f; facLight2.range = 44f;
             if (IsRoom(sc)) RenderSettings.ambientLight = amb;
+            if (wreck != null) { bool wv = sc == Sc.Fac && t > 295.9f; if (wreck.gameObject.activeSelf != wv) wreck.gameObject.SetActive(wv); }
             // ---- doors: the blast door (4:56), the security door (4:34 Slone, 5:06 the guard)
             if (sc == Sc.Fac && doorL != null && doorR != null)
             {
@@ -407,7 +409,7 @@ namespace AstronomicalEvent
         {
             p2Dead = true; foreach (var g in p2Clones) if (g != null) UnityEngine.Object.Destroy(g); p2Clones.Clear(); acts.Clear();
             if (curSc != Sc.Island && curSc != Sc.Surface) { try { Reseat2(haveHome ? homeHead : originW + Vector3.up * 1.9f); } catch { } } curSc = Sc.Island; NoClip2(false); OceanCleanup();
-            spireM = facM = hallM = gyroM = hatchM = baseM = ch3M = jonM = fouM = slnM = gunM = sciM = visM = grdM = rifM = zpM2 = null; doorL = doorR = doorS = hatchCover = baseGlass = baseSwirl = null; giant = null; giantGo = null; giantLight = null; screenMats.Clear(); ecgMats.Clear(); p2Ready = false; glassGone = false; doorsInit = false; coverInit = false; haveHome = false;
+            spireM = facM = hallM = gyroM = hatchM = baseM = ch3M = jonM = fouM = slnM = gunM = sciM = visM = grdM = rifM = zpM2 = null; doorL = doorR = doorS = hatchCover = baseGlass = baseSwirl = null; wreck = null; giant = null; giantGo = null; giantLight = null; screenMats.Clear(); ecgMats.Clear(); p2Ready = false; glassGone = false; doorsInit = false; coverInit = false; haveHome = false;
         }
     }
 }

@@ -404,3 +404,12 @@ Replaces every earlier animation clip (the wave is deleted; the 9 retargeted cli
 - Bug fixed: the burning-sky effect threw IndexOutOfRange every frame when the event was started a second time in the same session (stale puff lists) - lists are reset in SkyFxBuild.
 - Verified by screenshots + log (0 exceptions over facility, ocean, island scenes). Sound is NOT verified by ear (cannot hear from here). Not tested in VR.
 - Update 49b: the rock slab under the old island is only 18 m thick (ISLE_D).
+
+## Update 50 - fixes from the user's own test run
+- Jones' legs through the chair: the solid seat block is now a thin pan on a pedestal (legs hang free); Recline puts his hands on the arm rests.
+- Round walls (gyro room, Zero Point chamber) were axis-aligned boxes with gaps (see-through): now continuous double-faced panels (rwall in end21_world.py).
+- Jones / Foundation stood IN the raised gyro platform (0.7 m): they now stand on it (Y_PLAT_OFF). Facility end scene re-spaced so Jones, Slone and the Foundation no longer overlap.
+- The lab is wrecked after the breach (4:56): hanging ceiling panels, fallen beams, rubble, toppled rack, scorch marks, leaning pillars ("Wreck" object, no colliders) + falling sparks.
+- The Scientist and the Visitor walk to the hatch and go down the stairs (6:59 - 7:09) and the player clamp circle slides to the hatch, so you follow them.
+- "Things don't load / I spawn outside / rig clips" near the end: part 2 loads in the background; if the event is at part 2 before it is ready (slow PC / skipped ahead) the ocean scene's pieces showed over the real map. Now: black "LOADING THE END..." screen until ready, the loader skips its waits when t >= 4:00, the 'you are not in your room' check is stricter (reseat if >16 m away or >2.2 m below the hold point, up to 40 tries), and the sea no longer has a solid collider (rising from underwater through it threw the rig around).
+- NOT fixed / not verified: 'textures clip' in general (some coplanar detail), the goofy fight animations beyond the Recline pose, VR.
