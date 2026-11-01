@@ -340,6 +340,18 @@ def c_death(t):
     kneel = P(B0, lean=0.45, nod=0.4, pel=(0, -0.55, -0.1), fl=(FX, 0.0, 0.3), fr=(-FX, 0.2, -0.25), hl=(0.2, -0.9, 0.3, 0.7), hr=(0.2, -0.9, 0.3, 0.7), el=(0.8, -0.6, -0.2), er=(0.8, -0.6, -0.2))
     dn = P(B0, pel=(0, -0.8, -0.9), ppitch=-1.4, lean=-0.1, fl=(FX, 0.03, -0.06), fr=(-FX + 0.05, 0.03, -0.5), kr=(0.2, 1.0, 0.1), hl=(0.4, -0.9, -0.12, 0.97), hr=(-0.37, -0.88, 0.3, 0.62), el=(0.8, -0.3, -0.5), er=(0.9, -0.4, 0.0), nod=-0.1, turn=0.45, tilt=0.12, roll=0.0)
     return kf([(0.0, c_ready(0)), (0.15, impact), (0.7, stag), (1.3, kneel), (2.3, dn), (12.0, dn)], t)
+
+# ---- THE END pose pass 2: arms that read (no more surrender / zombie poses)
+def c_pin(t):   # holds someone back: both arms out at chest height, elbows down, leaning in
+    w = 0.03 * sn(t, 1.3); return P(IDLE, gun=BACK, hl=(0.12, 0.12 + w, 1.0, 0.82), hr=(0.12, 0.02 - w, 1.0, 0.78), el=(0.6, -0.5, -0.2), er=(0.6, -0.5, -0.2), lean=0.28, pel=(0, -0.08, 0.1), fl=(FX, 0, 0.35), fr=(-FX, 0, -0.3), nod=0.12, twist=-0.08)
+def c_unmask(t):   # both hands up to the helmet, lift it away, then lower it to the side and look up
+    h = P(IDLE, gun=BACK, hl=(0.1, 0.65, 0.75, 0.58), hr=(0.1, 0.65, 0.75, 0.58), el=(1.0, 0.3, -0.2), er=(1.0, 0.3, -0.2), nod=0.12, lean=0.04)
+    pull = P(IDLE, gun=BACK, hl=(0.5, 0.45, 0.75, 0.9), hr=(0.5, 0.45, 0.75, 0.9), el=(1.0, 0.0, -0.1), er=(1.0, 0.0, -0.1), nod=-0.1, lean=-0.06)
+    off = P(IDLE, gun=BACK, hl=(0.25, -1.0, 0.1, 0.97), hr=(0.2, -1.0, 0.1, 0.97), el=(0.8, -0.2, -0.1), er=(0.8, -0.2, -0.1), nod=-0.28, lean=-0.12)
+    return kf([(0.0, c_idle(0)), (0.8, h), (1.6, h), (2.2, pull), (3.0, off), (5.0, add(off, nod=0.03))], t)
+def c_hit(t):   # flinch: weight rocks back, arms pulled in, torso twists away
+    k = ramp(t, 0.0, 0.1) * (1 - ramp(t, 0.1, 1.4)); return lerp_pose(c_ready(t), P(READY, gun=LOW, gl=0.0, gr=0.0, lean=-0.3, nod=-0.25, pel=(0, -0.05, -0.1), fl=(FX, 0, 0.28), fr=(-FX, 0, -0.3), hl=(0.25, 0.0, 0.8, 0.45), hr=(0.25, 0.0, 0.8, 0.45), el=(0.9, -0.3, -0.2), er=(0.9, -0.3, -0.2), twist=0.3), k)
+def c_brace(t): return P(READY, gun=BACK, gl=0.0, gr=0.0, hl=(-0.45, 0.45, 0.8, 0.55), hr=(-0.45, 0.45, 0.8, 0.55), el=(0.5, 0.4, -0.3), er=(0.5, 0.4, -0.3), lean=0.18, pel=(0, -0.12, 0.0), fl=(FX + 0.1, 0, 0.2), fr=(-FX - 0.1, 0, -0.2), nod=0.2)
 CLIPS = {'Idle': c_idle, 'Ready': c_ready, 'Alert': c_alert, 'Aim': c_aim, 'Fire': c_fire, 'FireK': c_firek, 'Hold': c_hold, 'Crouch': c_crouch, 'Peek': c_peek, 'Kneel': c_kneel, 'Reload': c_reload, 'Walk': c_walk, 'Run': c_run, 'WalkS': c_walks, 'Climb': c_climb,
          'Beckon': c_beckon, 'Point': c_point, 'Look': c_look, 'Wake': c_wake, 'Shove': c_shove, 'Throw': c_throw, 'Talk': c_talk, 'Plead': c_plead, 'Shrug': c_shrug, 'Hit': c_hit, 'Stagger': c_stagger, 'Dodge': c_dodge, 'Cheer': c_cheer, 'Fistbump': c_fistbump,
          'Fall': c_fall, 'Land': c_land, 'Jump': c_jump, 'Brace': c_brace, 'Smug': c_smug, 'STalk': c_stalk, 'Panic': c_panic, 'Crushed': c_crushed, 'Recline': c_recline, 'Sneak': c_sneak, 'Pin': c_pin, 'RunAim': c_run_aim, 'Jog': c_jog, 'JogAim': c_jog_aim, 'Sit': c_sit, 'SitLook': c_sitlook, 'Console': c_console, 'Lever': c_lever, 'Unmask': c_unmask, 'Punch': c_punch, 'Shield': c_shield, 'Death': c_death, 'FallBumpR': c_fallbump('r'), 'FallBumpL': c_fallbump('l')}

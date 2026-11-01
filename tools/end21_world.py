@@ -32,7 +32,8 @@ CRY = solid('Crystal', 0.55, 0.28, 1.0); CRY2 = solid('Crystal2', 0.35, 0.5, 1.0
 M = [FLOOR, WBLUE, WRED, WPUR, WGRN, CEIL, STEEL, DARK, CYAN, REDL, AMB, PINK, PURP, WHITE, GREENL, SG, SB, SO, SR, CRY, CRY2]
 (MF, MWB, MWR, MWP, MWG, MC, MS, MD, LC, LR, LA, LP, LPU, LW, LG, XG, XB, XO, XR, MCR, MCR2) = range(21)
 b = MB(M)
-def bx(x, y, z, w, h, d, m, tile=3.0, top=None): b.box(Bz(x, y, z), (w, d, h), m, tile, top=top)          # unity: centre x, y, z; size width (x), height (y), depth (z)
+BOXLOG = []
+def bx(x, y, z, w, h, d, m, tile=3.0, top=None): BOXLOG.append((x, y, z, w, h, d, m)); b.box(Bz(x, y, z), (w, d, h), m, tile, top=top)          # unity: centre x, y, z; size width (x), height (y), depth (z)
 def cylv(x, y, z, r, h, m, seg=12, r2=None): b.cyl(Bz(x, y, z), r, h, m, seg, r2=r2)                         # a vertical cylinder centred at y
 def walls_x(z, x0, x1, y0, h, m, gaps=(), th=0.3, oh=3.0):      # a wall along x at depth z from x0 to x1 with gaps [(c, w)] (doorways of height oh)
     cuts = sorted([(c - w / 2, c + w / 2) for c, w in gaps]); cur = x0
@@ -86,6 +87,27 @@ def detail(cx, cz, w, d, h, y0, openings, strip, wm):
             box(u, y0 + 1.7, 0.1, 1.5, 0.9, 0.05, MD); box(u, y0 + 1.7, 0.14, 1.3, 0.7, 0.04, mat)             # a screen in a dark frame
             box(u + 2.0, y0 + 1.5, 0.12, 0.5, 0.5, 0.1, LA, 1.0)                                               # a wall lamp
         box(0, y0 + h - 0.3, 0.45, L - 0.6, 0.12, 0.8, MS)                                                       # ceiling cable tray
+
+def _audit():
+    if not os.environ.get('AUDIT'): return
+    import numpy as np
+    A = np.array([(x - w / 2, x + w / 2, y - h / 2, y + h / 2, z - d / 2, z + d / 2, m) for x, y, z, w, h, d, m in BOXLOG], float); n = len(A); found = {}
+    for ax in range(3):                     # 0 x, 1 y, 2 z
+        o = [i for i in range(3) if i != ax]
+        for side in (0, 1):                 # min face / max face (same facing)
+            pl = A[:, ax * 2 + side]
+            order = np.argsort(pl); pls = pl[order]
+            for ii in range(n):
+                i = order[ii]; jj = ii + 1
+                while jj < n and pls[jj] - pls[ii] < 0.012:
+                    j = order[jj]; jj += 1
+                    ov = [min(A[i, o[k] * 2 + 1], A[j, o[k] * 2 + 1]) - max(A[i, o[k] * 2], A[j, o[k] * 2]) for k in range(2)]
+                    if ov[0] > 0.05 and ov[1] > 0.05 and ov[0] * ov[1] > 0.02 and A[i, 6] != A[j, 6] or (ov[0] > 0.05 and ov[1] > 0.05 and ov[0] * ov[1] > 0.02 and abs(pls[jj - 1] - pls[ii]) > 0.0005):
+                        key = ('xyz'[ax], side, round(float(pl[i]), 2)); found.setdefault(key, []).append((i, int(j), round(ov[0] * ov[1], 2)))
+    print('AUDIT same-direction coplanar overlapping faces:', sum(len(v) for v in found.values()), 'in', len(found), 'planes')
+    for k, v in sorted(found.items(), key=lambda kv: -len(kv[1]))[:14]:
+        i, j, ar = v[0]; print('AUDIT', k, len(v), 'pairs; e.g. boxes', BOXLOG[i][:6], 'vs', BOXLOG[j][:6], 'overlap m2', ar)
+import atexit; atexit.register(_audit)
 WPS = []
 def wp(x, y, z): WPS.append((x, y, z))
 def ring_obj(name, radius, tube, mat, loc, axis='z', seg=48, tseg=8, rot=None):
@@ -117,14 +139,14 @@ if kind == 'hall':
             bx(side * 3.0, 2.6, z, 1.5, 0.12, 1.9, LG, 1.0)
     for k in range(5): bx(0, 3.3, 2 + k * 3.2, 7, 0.1, 0.2, MS)                                                                  # cable trays across the ceiling
     # ---- the red hall (4 m wide) with doorways, screens and an alcove
-    room(0, 30, 4, 28, 3.6, MWR, [('zm', 0, 4.0, 3.0), ('zp', 0, 4.0, 3.0), ('xp', -6, 3.0, 3.0)], strip=LR)
+    room(0, 30.15, 4, 27.7, 3.6, MWR, [('zm', 0, 4.0, 3.0), ('zp', 0, 4.0, 3.0), ('xp', -6, 3.0, 3.0)], strip=LR)
     for k in range(7):
         z = 18 + k * 3.8; bx(-1.93, 1.9, z, 0.08, 1.0, 1.6, XR if k % 2 == 0 else XO, 1.0)                                         # wall displays
         bx(1.93, 1.0, z + 1.0, 0.2, 2.0, 0.25, MS, 1.0)                                                                           # door pillars / pipes
     room(5.5, 24, 7, 5, 3.4, MWR, [('xm', 0, 3.0, 3.0)], strip=LA)                                                                # the alcove to peek out of (x +2 .. +9, z 21.5 .. 26.5)
     bx(5.5, 0.5, 24.8, 1.6, 1.0, 1.0, MD); bx(5.5, 1.1, 25.2, 1.2, 0.5, 0.1, XO, 1.0)
     # ---- the guards' lit room at the far end (z 44 - 52) and the sealed door to the gyro chamber
-    room(0, 48, 8, 8, 3.8, MWB, [('zm', 0, 4.0, 3.0)], strip=LW)
+    room(0, 48.15, 8, 7.7, 3.8, MWB, [('zm', 0, 4.0, 3.0)], strip=LW)
     bx(0, 1.9, 51.9, 7, 3.2, 0.15, MD); bx(2.5, 1.5, 51.7, 0.7, 0.9, 0.12, XO, 1.0); bx(-2.5, 1.5, 51.7, 0.7, 0.9, 0.12, XB, 1.0); bx(0, 3.0, 51.6, 3.0, 0.15, 0.1, LR, 1.0)
     for k, z in enumerate((15.0, 28.0, 40.0)): bx(0, 1.7, z, 4, 0.4, 0.3, MD); bx(0, 1.0, z, 0.3, 2.0, 0.3, MS)                                         # door frames across the hall
     for z in (10, 22, 34, 44.5): wp(0, 0, z)
@@ -195,9 +217,9 @@ elif kind == 'base':
                 u = -ln / 2 + 2 + k * 4.0; along(u, 0, h - 0.4, w - 0.2, 0.18, 0.3, MS); along(u, -w / 2 + 0.2, h / 2, 0.2, h, 0.3, MS)
                 along(u, w / 2 - 0.2, h / 2, 0.2, h, 0.3, MS)                                                                  # ribs
             for s_ in (-1, 1): along(0, s_ * (w / 2 - 0.3), 0.5, 0.25, 0.5, ln - 1, MD)                                         # cable runs along the foot of the walls
-            if name == 'blue_corr2': along(0, w / 2 - 0.08, 1.9, 0.06, 1.8, 3.0, XB); along(2.0, -w / 2 + 0.08, 1.6, 0.06, 2.4, 6.0, SB if False else XB)   # a lit window panel (8:10)
+            if name == 'blue_corr2': along(0, w / 2 - 0.2, 1.9, 0.06, 1.8, 3.0, XB); along(2.0, -w / 2 + 0.2, 1.6, 0.06, 2.4, 6.0, XB)   # a lit window panel (8:10)
         if name == 'red_hall':
-            for k in range(4): along(-ln / 2 + 2 + k * 3.8, -w / 2 + 0.1, 1.9, 0.08, 1.0, 1.5, XR if k % 2 == 0 else XO)       # wall displays (7:45)
+            for k in range(4): along(-ln / 2 + 2 + k * 3.8, -w / 2 + 0.2, 1.9, 0.08, 1.0, 1.5, XR if k % 2 == 0 else XO)       # wall displays (7:45)
         if name == 'device':
             dz0 = 5.6 if hd == 'x' else 0.0; dx0 = 0.0 if hd == 'x' else 5.6; dcx, dcz = cx + dx0, cz + dz0      # the device stands to one side of the walking lane
             cylv(dcx, 0.1, dcz, 3.3, 0.2, MS, 32); cylv(dcx, 0.25, dcz, 2.6, 0.1, LP, 32); cylv(dcx, 0.32, dcz, 1.7, 0.1, LR, 32)
@@ -206,7 +228,7 @@ elif kind == 'base':
             cylv(dcx, 1.6, dcz, 0.5, 2.6, LR, 14); cylv(dcx, 3.4, dcz, 0.7, 0.9, LP, 14)
             for sgn in (-1, 1): along(sgn * 6.0, sgn * 6.8, 0.8, 2.0, 1.6, 2.0, MD); along(sgn * 6.0, sgn * 6.8, 1.7, 2.1, 0.1, 2.1, LA)
         if name == 'window':
-            along(0, w / 2 - 0.1, 2.4, 7.0, 3.0, 0.1, XB); along(0, w / 2 - 0.14, 2.4, 7.3, 3.3, 0.1, MD)                                   # the big window (7:50): blue-lit
+            along(0, w / 2 - 0.2, 2.4, 7.0, 3.0, 0.1, XB); along(0, w / 2 - 0.18, 2.4, 7.4, 3.4, 0.04, MD)                                   # the big window (7:50): blue-lit
             along(-3, -w / 2 + 0.6, 0.6, 2.0, 1.2, 1.2, MD); along(-3, -w / 2 + 0.6, 1.3, 1.6, 0.1, 0.8, XO)
         if name == 'machinery':
             for k in range(5):
@@ -219,13 +241,13 @@ elif kind == 'base':
             for s_ in (-1, 1):
                 for k in range(3): along(-4 + k * 4.0, s_ * (w / 2 - 1.0), 0.55, 2.4, 1.1, 1.2, MD); along(-4 + k * 4.0, s_ * (w / 2 - 1.5), 1.5, 2.2, 0.8, 0.1, [XG, XR, XO][k])
             along(0, 4.6, 0.5, 3.0, 1.0, 1.6, MS); along(0, 4.6, 1.1, 2.6, 0.1, 1.2, LR)
-            along(0, w / 2 - 0.1, 2.6, 10.0, 1.4, 0.1, XB)
+            along(0, w / 2 - 0.2, 2.6, 10.0, 1.4, 0.1, XB)
         if name == 'hazy':
             pass
         # path points: the start edge, the piece end; the corner plaza centre follows
         wp(*( (px, 0, pz + ln * 0.4) if hd == 'z' else (px + ln * 0.4, 0, pz) ))
-        if hd == 'z': px, pz = ex, ez
-        else: px, pz = ex, ez
+        if hd == 'z': px, pz = ex, ez + 0.3
+        else: px, pz = ex + 0.3, ez
         if i + 1 < len(PIECES):
             nhd = PIECES[i + 1][4]
             if nhd != hd:                                                                                                          # a corner plaza
@@ -233,8 +255,8 @@ elif kind == 'base':
                 else: pcx, pcz = px + PL / 2, pz; ins, outs = 'xm', 'zp'
                 room(pcx, pcz, PL, PL, 3.6, theme[0], [(ins, 0, 4.0, 3.0), (outs, 0, 4.0, 3.0)], strip=theme[1])
                 wp(pcx, 0, pcz)
-                if hd == 'z': px, pz = pcx + PL / 2, pcz          # the next piece (heading x) starts on the plaza's +x edge
-                else: px, pz = pcx, pcz + PL / 2                  # (heading z) starts on the +z edge
+                if hd == 'z': px, pz = pcx + PL / 2 + 0.3, pcz          # the next piece (heading x) starts on the plaza's +x edge
+                else: px, pz = pcx, pcz + PL / 2 + 0.3                  # (heading z) starts on the +z edge
             else:
                 pass
     # ---------------- the Zero Point chamber (a round hall) attached to the end of the hazy corridor (heading z)

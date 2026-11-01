@@ -33,14 +33,15 @@ namespace AstronomicalEvent
             if (rifM != null) rifM.Pivot.SetActive(false);
             facLight = new GameObject("EFacLight").AddComponent<Light>(); facLight.transform.SetParent(root.transform, false); facLight.type = LightType.Point; facLight.range = 44f; facLight.intensity = 0f; facLight.shadows = LightShadows.None;
             facLight2 = new GameObject("EFacLight2").AddComponent<Light>(); facLight2.transform.SetParent(root.transform, false); facLight2.type = LightType.Point; facLight2.range = 44f; facLight2.intensity = 0f; facLight2.shadows = LightShadows.None;
-            if (facM != null) { Colliders(facM.Pivot); foreach (var tw in facM.Pivot.GetComponentsInChildren<Transform>(true)) if (tw.name == "Wreck") { wreck = tw; var wc = tw.GetComponent<MeshCollider>(); if (wc != null) UnityEngine.Object.Destroy(wc); tw.gameObject.SetActive(false); } foreach (var t in facM.Pivot.GetComponentsInChildren<Transform>(true)) { if (t.name == "DoorL") doorL = t; else if (t.name == "DoorR") doorR = t; else if (t.name == "DoorS") doorS = t; } }
-            if (hallM != null) Colliders(hallM.Pivot);
-            if (gyroM != null) { Colliders(gyroM.Pivot); gyroR = CRig.Of(gyroM, gyroM.Pivot); }
+            if (facM != null) {      // NO colliders in the rooms: you are carried (gravity off, clamped to a small box); with colliders the body capsule was shoved out through the BOTTOM of the thin floors (head 0.8 m under the floor: 'I spawn under the area')
+                 foreach (var tw in facM.Pivot.GetComponentsInChildren<Transform>(true)) if (tw.name == "Wreck") { wreck = tw; var wc = tw.GetComponent<MeshCollider>(); if (wc != null) UnityEngine.Object.Destroy(wc); tw.gameObject.SetActive(false); } foreach (var t in facM.Pivot.GetComponentsInChildren<Transform>(true)) { if (t.name == "DoorL") doorL = t; else if (t.name == "DoorR") doorR = t; else if (t.name == "DoorS") doorS = t; } }
+            
+            if (gyroM != null) { gyroR = CRig.Of(gyroM, gyroM.Pivot); }
             if (hatchM != null) { Colliders(hatchM.Pivot); foreach (var t in hatchM.Pivot.GetComponentsInChildren<Transform>(true)) if (t.name == "Cover") hatchCover = t; }
             if (baseM != null)
             {
                 baseM.Pivot.SetActive(true); PlaceByFile(baseM, new Vector3(0f, Y_BASE, 0f));
-                foreach (var mf in baseM.Pivot.GetComponentsInChildren<MeshFilter>(true)) { if (mf.sharedMesh == null || mf.name == "Glass" || mf.name == "Swirl") continue; var mc = mf.gameObject.GetComponent<MeshCollider>(); if (mc == null) mc = mf.gameObject.AddComponent<MeshCollider>(); mc.sharedMesh = mf.sharedMesh; mf.gameObject.layer = floorLayer; }
+                
                 baseR = CRig.Of(baseM, baseM.Pivot); BuildPath(); if (baseGlass != null) { var gmat = kit.Glow(new Color(0.55f, 0.85f, 1f, 0.06f), null, 3000); gmat.mainTexture = null; try { gmat.SetFloat("_Cull", 0f); } catch { } foreach (var gr in baseGlass.GetComponentsInChildren<Renderer>(true)) { var sm = new Material[gr.sharedMaterials.Length]; for (int i = 0; i < sm.Length; i++) sm[i] = gmat; gr.sharedMaterials = sm; } } baseM.Pivot.SetActive(false);
             }
             if (zpM2 != null) zpR2 = CRig.Of(zpM2, zpM2.Pivot);

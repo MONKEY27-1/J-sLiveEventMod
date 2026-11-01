@@ -88,7 +88,7 @@ namespace AstronomicalEvent
         }
         void Reseat2(Vector3 headWorld)
         {
-            try { NoClip2(true); var pl = GTPlayer.Instance; var rb = pl.playerRigidBody; Vector3 d = headWorld - pl.headCollider.transform.position; rb.position += d; rb.linearVelocity = Vector3.zero; lastReseat2 = Time.unscaledTime; reseatHoldPos = headWorld; reseatHoldT = Time.unscaledTime + 1.4f; AstronomicalEventMod.Log.LogInfo("End21: moved you to " + headWorld + " (" + d.magnitude.ToString("0") + " m)"); }
+            try { NoClip2(true); var pl = GTPlayer.Instance; var rb = pl.playerRigidBody; Vector3 d = headWorld - pl.headCollider.transform.position; rb.position += d; rb.linearVelocity = Vector3.zero; lastReseat2 = Time.unscaledTime; carryDbg = 12; reseatHoldPos = headWorld; reseatHoldT = Time.unscaledTime + 1.4f; AstronomicalEventMod.Log.LogInfo("End21: moved you to " + headWorld + " (" + d.magnitude.ToString("0") + " m)"); }
             catch (Exception e) { AstronomicalEventMod.Log.LogWarning("End21: could not move you: " + e.Message); }
         }
         // turn the player so they look along a world direction (the room's +z or the path): GTPlayer.Turn, by reflection (the signature differs between game versions)
@@ -110,6 +110,7 @@ namespace AstronomicalEvent
             {
                 var pl = GTPlayer.Instance; var rb = pl.playerRigidBody; Quaternion q = root.transform.rotation * Quaternion.Euler(0f, yawDeg, 0f); Vector3 local = Quaternion.Inverse(q) * (pl.headCollider.transform.position - anchor);
                 Vector3 c = new Vector3(Mathf.Clamp(local.x, -hx, hx), Mathf.Clamp(local.y, -0.3f, 0.5f), Mathf.Clamp(local.z, zMin, zMax)); if ((c - local).sqrMagnitude > 1e-6f) rb.position += q * (c - local);
+                if (carryDbg > 0 && Time.unscaledTime - carryDbgT > 0.25f) { carryDbg--; carryDbgT = Time.unscaledTime; AstronomicalEventMod.Log.LogInfo("End21 carry: head " + pl.headCollider.transform.position + " anchor " + anchor + " local " + local + " -> " + c + " rb " + rb.position + " kin " + rb.isKinematic + " grav " + rb.useGravity); }
                 rb.linearVelocity = (rb.linearVelocity - Physics.gravity * dt) * (1f - Mathf.Min(0.6f, 2f * dt));
             }
             catch (Exception e) { if (!carryErr) { carryErr = true; AstronomicalEventMod.Log.LogWarning("End21 carry: " + e.Message + " " + e.StackTrace); } }
@@ -217,6 +218,14 @@ namespace AstronomicalEvent
             // ---- the actors
             foreach (var a in acts) ActFrame(a, t, dt, sc);
             SceneFx(t, tp, dt, sc, cam);
+        }
+        int carryDbg = 12; float carryDbgT; GameObject safeFloor;
+        void SafetyFloor(Sc sc, float t)
+        {
+            bool on = IsRoom(sc) && sc != Sc.Ocean; if (safeFloor == null) { if (!on) return; safeFloor = new GameObject("ESafetyFloor"); safeFloor.transform.SetParent(root.transform, false); var bc = safeFloor.AddComponent<BoxCollider>(); bc.size = new Vector3(70f, 0.6f, 70f); safeFloor.layer = floorLayer; }
+            if (safeFloor.activeSelf != on) safeFloor.SetActive(on); if (!on) return;
+            float y = sc == Sc.Fac ? Y_FAC : sc == Sc.Hall ? Y_HALL : sc == Sc.Gyro ? Y_GYRO : Y_BASE; Vector3 an; float ay, hx, z0, z1; float ax = 0f, az = 0f; if (SceneAnchor(t, sc, out an, out ay, out hx, out z0, out z1)) { ax = an.x; az = an.z; }
+            safeFloor.transform.localPosition = new Vector3(ax, y - 0.06f - 0.3f, az); safeFloor.transform.localRotation = Quaternion.identity;      // its top face is 6 cm under the real floor
         }
         void OnScene(Sc from, Sc to, float t)
         {
@@ -409,7 +418,7 @@ namespace AstronomicalEvent
         {
             p2Dead = true; foreach (var g in p2Clones) if (g != null) UnityEngine.Object.Destroy(g); p2Clones.Clear(); acts.Clear();
             if (curSc != Sc.Island && curSc != Sc.Surface) { try { Reseat2(haveHome ? homeHead : originW + Vector3.up * 1.9f); } catch { } } curSc = Sc.Island; NoClip2(false); OceanCleanup();
-            spireM = facM = hallM = gyroM = hatchM = baseM = ch3M = jonM = fouM = slnM = gunM = sciM = visM = grdM = rifM = zpM2 = null; doorL = doorR = doorS = hatchCover = baseGlass = baseSwirl = null; wreck = null; giant = null; giantGo = null; giantLight = null; screenMats.Clear(); ecgMats.Clear(); p2Ready = false; glassGone = false; doorsInit = false; coverInit = false; haveHome = false;
+            spireM = facM = hallM = gyroM = hatchM = baseM = ch3M = jonM = fouM = slnM = gunM = sciM = visM = grdM = rifM = zpM2 = null; doorL = doorR = doorS = hatchCover = baseGlass = baseSwirl = null; if (safeFloor != null) UnityEngine.Object.Destroy(safeFloor); safeFloor = null; wreck = null; giant = null; giantGo = null; giantLight = null; screenMats.Clear(); ecgMats.Clear(); p2Ready = false; glassGone = false; doorsInit = false; coverInit = false; haveHome = false;
         }
     }
 }

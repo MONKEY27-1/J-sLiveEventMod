@@ -239,6 +239,20 @@ namespace AstronomicalEvent
                     AstronomicalEventMod.Inst.StartCoroutine(ShootBurst(fa2, (int)F(a, 2, 1f), F(a, 3, 0.2f)));
                     break;
                 }
+                case "floor": // floor [dy]: what is under your head (first solid collider within 8 m), and under the first 4 anchors' rooms
+                {
+                    try
+                    {
+                        Vector3 hp = GorillaLocomotion.GTPlayer.Instance.headCollider.transform.position; RaycastHit fh;
+                        try { var bcc = GorillaLocomotion.GTPlayer.Instance.bodyCollider; Say("  body capsule: bounds y " + bcc.bounds.min.y.ToString("0.00") + " .. " + bcc.bounds.max.y.ToString("0.00") + " centre " + bcc.bounds.center + " head y " + hp.y.ToString("0.00") + " (feet are " + (hp.y - bcc.bounds.min.y).ToString("0.00") + " below the head)"); } catch (Exception e0) { Say("  no body capsule: " + e0.Message); }
+                        float dy0 = F(a, 1, 0.5f); foreach (var hh in Physics.RaycastAll(hp + Vector3.up * dy0, Vector3.down, 12f, ~0, QueryTriggerInteraction.Ignore)) Say("  hit " + hh.collider.name + " (" + hh.collider.GetType().Name + ", layer " + hh.collider.gameObject.layer + ", conv " + (hh.collider is MeshCollider && ((MeshCollider)hh.collider).convex) + ") y " + hh.point.y.ToString("0.00") + " n.y " + hh.normal.y.ToString("0.00"));
+                        if (Physics.Raycast(hp + Vector3.up * 0.5f, Vector3.down, out fh, 8f, ~0, QueryTriggerInteraction.Ignore)) Say("floor under head: " + fh.collider.name + " (" + fh.collider.GetType().Name + ") at y " + fh.point.y.ToString("0.00") + ", head y " + hp.y.ToString("0.00") + " normal " + fh.normal.ToString("0.00"));
+                        else Say("NOTHING solid within 8 m under the head at " + hp);
+                        foreach (var dx in new[] { -3f, 3f }) foreach (var dz in new[] { -3f, 3f }) { Vector3 q = hp + new Vector3(dx, 0.5f, dz); if (Physics.Raycast(q, Vector3.down, out fh, 8f, ~0, QueryTriggerInteraction.Ignore)) Say("  at " + dx + "," + dz + ": " + fh.collider.name + " y " + fh.point.y.ToString("0.00")); else Say("  at " + dx + "," + dz + ": nothing"); }
+                    }
+                    catch (Exception e) { Say("floor: " + e.Message); }
+                    break;
+                }
                 case "tweak":
                 {
                     int i = (int)F(a, 1);
