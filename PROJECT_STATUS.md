@@ -433,3 +433,8 @@ Replaces every earlier animation clip (the wave is deleted; the 9 retargeted cli
 ## Update 54 — the Cube Queen is flipped off the map
 - The Queen no longer falls out of her tower into the sea on her own. She leaves the orb at 9:32, hovers 60 m over the old map (island-local), and when the Seven flips the island (10:03.5) she is thrown off it: a 7.5 s ballistic fall with a full tumble into the sea at (30, 250), splash + ripples, then she sinks over 13 s and dies in the final flash (about 10:21). Code: `QueenInWater` / `IsleAnchor` in `AstronomicalEnd21d.cs`, patch `tools/patch_queen_flip.py`.
 - Verified on the desktop with screenshots at 10:09 (thrown), 10:13 (landed upright), 10:23 (sinking). Not checked in VR.
+
+## Update 55 — "you spawn in the chamber / in the sky after the chamber and when the island flips" (found in the user's own log)
+- The log (BepInEx/LogOutput.log of the user's run) showed WASD Fly + Free Cam toggled during the chamber: at 9:15 the head stayed at (-175, 913, 49) and every "moved you ... (925 m)" only moved the rigidbody, never the head, so the player stayed 925 m away at chamber height while the ocean scene played around an empty sky (and again at the flip).
+- `Reseat2` now calls the game's own `GTPlayer.TeleportTo` (what J CLIENT's teleport uses) first, then nudges the rigidbody by any residual; periodic re-seats are limited to 6 tries and the hold clamp is skipped when you are > 16 m away (you are deliberately flying), so Fly no longer fights the hold.
+- Desktop regression: transitions at 6:43, 7:10 and 9:15 all report "(0 m)" residual after the teleport; no "you are N m from your hold point" spam. Not re-tested with an actual fly session or VR.

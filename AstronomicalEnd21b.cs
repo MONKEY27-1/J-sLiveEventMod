@@ -88,7 +88,10 @@ namespace AstronomicalEvent
         }
         void Reseat2(Vector3 headWorld)
         {
-            try { NoClip2(true); var pl = GTPlayer.Instance; var rb = pl.playerRigidBody; Vector3 d = headWorld - pl.headCollider.transform.position; rb.position += d; rb.linearVelocity = Vector3.zero; lastReseat2 = Time.unscaledTime; carryDbg = 12; reseatHoldPos = headWorld; reseatHoldT = Time.unscaledTime + 1.4f; AstronomicalEventMod.Log.LogInfo("End21: moved you to " + headWorld + " (" + d.magnitude.ToString("0") + " m)"); }
+            try { NoClip2(true); var pl = GTPlayer.Instance; var rb = pl.playerRigidBody; Vector3 d = headWorld - pl.headCollider.transform.position;
+                // the game's own teleport (what J CLIENT uses) first: with WASD Fly / Free Cam on, moving the rigidbody alone left your head where you had flown to (925 m away in the log) and you stayed there while the scene changed
+                if (d.magnitude > 3f) { try { pl.TeleportTo(pl.transform.position + d, pl.transform.rotation, false, false); } catch (Exception e) { AstronomicalEventMod.Log.LogWarning("End21: TeleportTo failed: " + e.Message); } d = headWorld - pl.headCollider.transform.position; }
+                rb.position += d; rb.linearVelocity = Vector3.zero; lastReseat2 = Time.unscaledTime; carryDbg = 12; reseatHoldPos = headWorld; reseatHoldT = Time.unscaledTime + 1.4f; AstronomicalEventMod.Log.LogInfo("End21: moved you to " + headWorld + " (" + d.magnitude.ToString("0") + " m)"); }
             catch (Exception e) { AstronomicalEventMod.Log.LogWarning("End21: could not move you: " + e.Message); }
         }
         // turn the player so they look along a world direction (the room's +z or the path): GTPlayer.Turn, by reflection (the signature differs between game versions)
@@ -207,8 +210,8 @@ namespace AstronomicalEvent
             {
                 Vector3 aw = W(an);
                 float dd = Vector3.Distance(HeadNow(), aw);
-                if ((dd > 30f || dd > 16f || (dd > 9f && HeadNow().y < aw.y - 2.2f)) && reseatTries2 < 40 && Time.unscaledTime - lastReseat2 > 0.7f) { reseatTries2++; Reseat2(aw); }
-                else if (dt > 0f) Carry3(aw, ayaw, dt, hx, z0, z1);
+                if ((dd > 30f || dd > 16f || (dd > 9f && HeadNow().y < aw.y - 2.2f)) && reseatTries2 < 6 && Time.unscaledTime - lastReseat2 > 0.7f) { reseatTries2++; Reseat2(aw); }
+                else if (dt > 0f && dd < 16f) Carry3(aw, ayaw, dt, hx, z0, z1);
                 if (dd > 6f && Time.unscaledTime - dbgT > 1f) { dbgT = Time.unscaledTime; AstronomicalEventMod.Log.LogInfo("End21: " + sc + " t=" + t.ToString("0.0") + " you are " + dd.ToString("0.0") + " m from your hold point: head " + HeadNow() + " hold " + aw); }
             }
             else if (Time.unscaledTime < reseatHoldT && dt > 0f) Carry3(reseatHoldPos, 0f, dt, 0.5f, -0.5f, 0.5f);
