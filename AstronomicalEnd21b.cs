@@ -229,6 +229,7 @@ namespace AstronomicalEvent
         }
         void OnScene(Sc from, Sc to, float t)
         {
+            AstronomicalEventMod.Log.LogInfo("End21: scene " + from + " -> " + to + " at t=" + t.ToString("0.0") + " ready=" + p2Ready + " head " + HeadNow());
             reseatTries2 = 0;
             if (!IsRoom(from) && from != Sc.Ocean && (IsRoom(to) || to == Sc.Ocean) && !haveHome) { Vector3 hh = HeadNow(); if (hh.y < originW.y + 150f) { homeHead = hh; haveHome = true; } }      // (only when you really are on the island: scrubbing can leave you in a room)
             Vector3 an; float ayaw, hx, z0, z1;

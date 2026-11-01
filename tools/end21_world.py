@@ -329,26 +329,26 @@ elif kind == 'base':
             else:
                 pass
     # ---------------- the Zero Point chamber (a round hall) attached to the end of the hazy corridor (heading z)
-    CR = 38.0; ccx, ccz = px, pz + CR
+    CR = 30.0; ccx, ccz = px, pz + CR
     b.cyl(Bz(ccx, -0.2, ccz), CR + 0.5, 0.4, MF, 48)
-    rwall(ccx, ccz, CR, 0.0, 31.0, 96, MWP, lambda d: abs(d - 270) < 5.5)      # solid round wall, the entrance in the south
+    rwall(ccx, ccz, CR, 0.0, 26.0, 96, MWP, lambda d: abs(d - 270) < 5.5)      # solid round wall, the entrance in the south
     for k in range(16):                                                                                                         # crystals and pillars round the walls
         a = k * 2 * math.pi / 16 + 0.2; x, z = ccx + math.cos(a) * (CR - 3.0), ccz + math.sin(a) * (CR - 3.0)
         if abs(math.degrees(a) - 270) < 14: continue
-        cylv(x, 4.0 + (k % 3), z, 1.6, 8.0 + 2 * (k % 3), MCR if k % 2 else MCR2, 6, r2=0.1); cylv(x, 14.0, z, 0.9, 28.0, MD, 8); cylv(x, 14.0, z, 0.95, 0.5, LPU, 8)
+        cylv(x, 4.0 + (k % 3), z, 1.6, 8.0 + 2 * (k % 3), MCR if k % 2 else MCR2, 6, r2=0.1); cylv(x, 11.0, z, 0.9, 22.0, MD, 8); cylv(x, 11.0, z, 0.95, 0.5, LPU, 8)
     bx(ccx, 0.2, ccz - CR + 8.0, 6.0, 0.4, 16.0, MS)                                                                            # the walkway from the entrance
     cylv(ccx, 0.5, ccz + 6.0, 9.0, 1.0, MS, 32); cylv(ccx, 1.05, ccz + 6.0, 8.2, 0.1, LPU, 32)                                  # the machine's base platform
     ring_obj('Ring', 15.0, 1.1, LPU, (ccx, 17.0, ccz + 6.0), 'z', 72, 10); ring_obj('Ring2', 12.5, 0.5, LC, (ccx, 17.0, ccz + 5.9), 'z', 72, 6); ring_obj('Ring3', 17.5, 0.35, LW, (ccx, 17.0, ccz + 6.2), 'z', 72, 6)
     for sgn in (-1, 1): bx(ccx + sgn * 16.0, 8.0, ccz + 6.0, 2.4, 16.0, 2.4, MD, 2.0); bx(ccx + sgn * 16.0, 8.0, ccz + 4.7, 0.3, 14.0, 0.2, LPU, 1.0)    # the pylons the ring hangs from
     for k in range(10): a = k * 2 * math.pi / 10; bx(ccx + math.cos(a) * 11.0, 17.0 + math.sin(a) * 11.0, ccz + 6.0, 1.0, 1.0, 1.2, MS, 1.0)
     wp(ccx, 0, ccz - CR); wp(ccx, 0, ccz - CR + 14)
-    wreck_rooms(13, 0.9); wreck_round(ccx, ccz, CR, 31.0, 90, 17, lambda d: abs(d - 270) < 12)
+    wreck_rooms(13, 0.9); wreck_round(ccx, ccz, CR, 26.0, 90, 17, lambda d: abs(d - 270) < 12)
     b.build('Base')
     # the glass dome (alpha, separate so the scene can shatter it) and the swirl disc inside the ring
     GL = material('A_Glass', tex_glass(0.22)); gm = sphere(CR + 0.2, 40, 16)
     import bmesh
     bm = bmesh.new(); bm.from_mesh(gm); bmesh.ops.delete(bm, geom=[f for f in bm.faces if f.calc_center_median().z < -0.5], context='FACES'); bm.to_mesh(gm); bm.free()
-    go = bpy.data.objects.new('Glass', gm); bpy.context.collection.objects.link(go); go.data.materials.append(GL); go.location = Bz(ccx, 31.0, ccz); go.scale = (1, 1, 0.37)
+    go = bpy.data.objects.new('Glass', gm); bpy.context.collection.objects.link(go); go.data.materials.append(GL); go.location = Bz(ccx, 26.0, ccz); go.scale = (1, 1, 0.37)
     for nm, r_, spd in (('Ring', 0, 1), ('Ring2', 0, -1.5), ('Ring3', 0, 0.7)):
         o = bpy.data.objects[nm]; keys(o, 'rotation_euler', lambda t, spd=spd: (math.pi / 2, spd * 2 * math.pi * t / 8, 0), 24, 8, 2)
     for o in bpy.data.objects:

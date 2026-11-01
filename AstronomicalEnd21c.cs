@@ -121,8 +121,17 @@ namespace AstronomicalEvent
             if (careM != null && baseM != null)
             {
                 giantGo = Clone(careM, "EGiant"); giant = new Act { Name = "Giant", M = careM, Go = giantGo, Rig = CRig.Of(careM, giantGo), Scale = 38f / 1.8f, Vis = new[] { 542f, T_FLOOD + 3f }, Mir = 1f, Creature = true }; acts.Add(giant);
-                Action<float, string> gg = (t, c) => Wp(giant, t, bChc.x, Y_BASE + 39f, bChc.z + 33f, 180f, c); gg(542f, "Roar"); giant.W[0].Cut = true; gg(545.2f, "Slam"); gg(550f, "Roar"); gg(556f, "Roar");
+                Action<float, string> gg = (t, c) => Wp(giant, t, bChc.x, Y_BASE + 33f, bChc.z + 24f, 180f, c); gg(542f, "Roar"); giant.W[0].Cut = true; gg(545.2f, "Slam"); gg(550f, "Roar"); gg(556f, "Roar");
                 giantLight = new GameObject("EGiantLight").AddComponent<Light>(); giantLight.transform.SetParent(root.transform, false); giantLight.type = LightType.Point; giantLight.range = 190f; giantLight.color = new Color(0.8f, 0.6f, 1f); giantLight.intensity = 0f; giantLight.shadows = LightShadows.None;
+            }
+            // Jones and the Foundation are at the Zero Point machine in the chamber too (8:30 - 9:13): Jones works the machine, the Foundation guards the entrance, both react to the Caretaker
+            if (jonM != null && fouM != null && bPts.Count > 1)
+            {
+                float cx = bChc.x, cz = bChc.z + 6f, py = Y_BASE + 1.1f; var JC = NewAct("JonesC", jonM, 1f, true, true, 1f, T_CHAM + 1.5f, T_FLOOD + 3f); var FC = NewAct("FoundationC", fouM, 1f, true, true, 1f, T_CHAM + 1.5f, T_FLOOD + 3f);
+                Action<Act, float, float, float, float, string> cw = (a, t, x, z, yw, cl) => Wp(a, t, x, py, z, yw, cl);
+                if (JC != null) { cw(JC, T_CHAM + 1.5f, cx + 3.6f, cz - 1.5f, 0f, "Console"); JC.W[0].Cut = true; cw(JC, 534f, cx + 3.6f, cz - 1.5f, 0f, "Console"); cw(JC, 534.3f, cx + 3.6f, cz - 1.5f, 0f, "Look"); cw(JC, 540f, cx + 3.6f, cz - 1.5f, 0f, "Alert"); cw(JC, 544.6f, cx + 3.6f, cz - 1.5f, 0f, "Brace"); cw(JC, 546.9f, cx + 3.6f, cz - 1.5f, 0f, "Stagger"); cw(JC, 548.6f, cx + 3.6f, cz - 1.5f, 0f, "Brace"); cw(JC, 553f, cx + 3.6f, cz - 1.5f, 0f, "Brace"); }
+                if (FC != null) { cw(FC, T_CHAM + 1.5f, cx - 3.8f, cz - 1.5f, 180f, "Ready"); FC.W[0].Cut = true; cw(FC, 536f, cx - 3.8f, cz - 1.5f, 180f, "Aim"); cw(FC, 538.5f, cx - 3.8f, cz - 1.5f, 15f, "Aim"); cw(FC, 544.6f, cx - 3.8f, cz - 1.5f, 15f, "Fire"); cw(FC, 548.4f, cx - 3.8f, cz - 1.5f, 15f, "Stagger"); cw(FC, 550.2f, cx - 3.8f, cz - 1.5f, 15f, "Brace"); cw(FC, 553f, cx - 3.8f, cz - 1.5f, 15f, "Brace");
+                    FC.Aim = () => giantGo != null && giantGo.activeSelf ? giantGo.transform.position + Vector3.up * 14f : W(new Vector3(cx, py + 20f, cz)); }
             }
             AstronomicalDebug.Anchors["facroom"] = () => W(new Vector3(0f, Y_FAC + 1.5f, 2.8f)); AstronomicalDebug.Anchors["hallp"] = () => W(new Vector3(0f, Y_HALL + 1.5f, HallZ(lastT) + 3f)); AstronomicalDebug.Anchors["gyroroom"] = () => W(new Vector3(0f, Y_GYRO + 3f, 3f));
             AstronomicalDebug.Anchors["chamber"] = () => W(bChc + Vector3.up * 8f); AstronomicalDebug.Anchors["hatch"] = () => W(new Vector3(hatchX, GroundNear(hatchX, hatchZ) + 1f, hatchZ)); AstronomicalDebug.Anchors["baseguide"] = () => W(LeaderPos(lastT, 0f, 0f) + Vector3.up * 1.2f);
@@ -178,7 +187,7 @@ namespace AstronomicalEvent
                 if (t > T_BASE + 0.3f && t < T_CHAM && UnityEngine.Random.value < dt * 0.4f) { shake = Mathf.Max(shake, 0.5f); Vector3 hp = HeadNow(); for (int k = 0; k < 14; k++) Emit(dust, hp + new Vector3(UnityEngine.Random.Range(-2f, 2f), UnityEngine.Random.Range(1f, 2.5f), UnityEngine.Random.Range(-3f, 3f)), new Vector3(0f, -UnityEngine.Random.Range(0.4f, 1.2f), 0f), new Color(0.6f, 0.6f, 0.7f, 0.5f), UnityEngine.Random.Range(0.1f, 0.35f), UnityEngine.Random.Range(1.5f, 3f)); }
                 if (at(T_BASE + 0.4f)) shake = Mathf.Max(shake, 1.5f);
                 if (at(T_BASE + 2.5f)) { shake = Mathf.Max(shake, 1.5f); Boom(W(LeaderPos(t, 0f, 0f)), 5f, 0.3f, new Color(0.9f, 0.9f, 1f)); }
-                Vector3 top = W(bChc + new Vector3(0f, 40f, 15f));      // where its fist meets the glass
+                Vector3 top = W(bChc + new Vector3(0f, 33f, 10f));      // where its fist meets the glass
                 if (t > 543f && t < T_FLOOD && UnityEngine.Random.value < dt * 3f) shake = Mathf.Max(shake, 0.5f);
                 if (at(545.2f)) Sfx(sBig, top, 0.8f, 0.8f); if (at(547.05f)) { Sfx(sGlass, top, 1f, 0.9f, 0.1f); Boom(top, 26f, 1.2f, new Color(0.4f, 0.8f, 1f)); shake = Mathf.Max(shake, 3f); flashLamp.intensity = Lit * 25f; for (int k = 0; k < 120; k++) Emit(fx, top + UnityEngine.Random.insideUnitSphere * 8f, UnityEngine.Random.onUnitSphere * UnityEngine.Random.Range(6f, 30f), new Color(0.5f, 0.9f, 1f, 1f), UnityEngine.Random.Range(0.2f, 0.7f), UnityEngine.Random.Range(0.8f, 2f)); }
                 if (t > 547.2f && t < T_FLOOD && UnityEngine.Random.value < dt * 30f) Emit(fx, top + UnityEngine.Random.insideUnitSphere * 30f, new Vector3(0f, -UnityEngine.Random.Range(4f, 12f), 0f), new Color(0.8f, 0.95f, 1f, 0.9f), UnityEngine.Random.Range(0.2f, 0.7f), UnityEngine.Random.Range(1f, 2.5f));      // the glass cracks and showers down

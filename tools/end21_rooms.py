@@ -55,10 +55,10 @@ if kind == 'facility':
     for x, z, h in ((10.5, 6.5, 1.0), (10.5, 4.8, 1.0), (10.5, 5.7, 2.1)): bx(x, h / 2, z, 1.4, h, 1.4, S_ if h < 2 else WLL, 1.0)
     for z in (7.5, 6.0): b.cyl(Z(10.9, 0.6, z), 0.5, 1.2, A_, 10)
     # ---- Jones's scanner chair: Jones sits reclined facing the door (-z); seat top 0.44, back leans away from him (+z)
-    bx(0, 0.2, 3.25, 0.5, 0.4, 0.5, D_, 1.0); bx(0, 0.42, 3.22, 0.9, 0.1, 0.76, D_, 1.0, top=S_)         # a pedestal and a thin seat pan: the legs hang free in front (z < 2.7)
+    bx(0, 0.15, 3.25, 0.5, 0.3, 0.5, D_, 1.0); bx(0, 0.29, 3.22, 0.9, 0.1, 0.76, D_, 1.0, top=S_)         # a pedestal and a thin seat pan: the legs hang free in front (z < 2.7)
     for sx in (-0.5, 0.5): bx(sx, 0.62, 3.0, 0.1, 0.1, 0.7, D_, 1.0)                    # armrests
     bx(0, 0.02, 3.05, 1.3, 0.04, 1.6, A_, 1.0)                                              # a hazard-yellow floor plate
-    bk = MB([DK, STE, CYA]); bk.box((0, 0, 0.55), (0.9, 0.12, 1.1), 0, 1.0, top=1); bk.box((0, 0.0, 1.18), (0.34, 0.16, 0.26), 1, 1.0); o = bk.build('ChairBack'); o.location = Z(0, 0.44, 3.4); o.rotation_euler = (math.radians(24), 0, 0)
+    bk = MB([DK, STE, CYA]); bk.box((0, 0, 0.55), (0.9, 0.12, 1.1), 0, 1.0, top=1); bk.box((0, 0.0, 1.18), (0.34, 0.16, 0.26), 1, 1.0); o = bk.build('ChairBack'); o.location = Z(0, 0.34, 3.4); o.rotation_euler = (math.radians(24), 0, 0)
     bpy.ops.mesh.primitive_torus_add(major_radius=0.44, minor_radius=0.032, major_segments=40, minor_segments=8); ring = bpy.context.active_object; ring.name = 'ScanRing'; ring.data.materials.append(CYA); ring.location = Z(0, 1.38, 3.55); ring.rotation_euler = (math.radians(24), 0, 0)
     arm = MB([STE, DK]); arm.box((0, 0, 0), (0.1, 0.1, 1.5), 0, 1.0); arm.box((0, -0.35, 0.72), (0.1, 0.8, 0.1), 0, 1.0); oa = arm.build('ScanArm'); oa.location = Z(0, 1.1, 3.7); oa.rotation_euler = (math.radians(24), 0, 0)
     # ---- the vitals computer: Gunnar works at it; the Foundation slams him into it at 5:12
