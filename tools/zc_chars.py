@@ -13,7 +13,7 @@ CAST = {
     'mancake': ('ue', 'mancake.glb', COMMON + ',Dance', 512, {}), 'terminator': ('term', 'the_terminator.glb', COMMON, 512, {}),
     'chief': ('ue', os.path.join(OUT, 'ar_chief.glb'), COMMON, 512, {}), 'ryu': ('ue', os.path.join(OUT, 'ar_ryu.glb'), COMMON, 512, {}), 'tntina': ('ue', os.path.join(OUT, 'ar_tntina.glb'), COMMON + ',Dance', 512, {}),
     'ripley': ('ue', os.path.join(OUT, 'ar_ripley.glb'), COMMON, 512, {}), 'predator': ('ue', os.path.join(OUT, 'ar_predator.glb'), COMMON + ',Roar', 512, {}),
-    'iron': ('ue', 'fortnite_iron_man.glb', COMMON + ',Hover,FlyPose,Repulsor', 1024, {}), 'thor': ('mixa', 'thor-fortnite.glb', COMMON, 512, {}), 'wolverine': ('wolv', 'rigged_wolverine.glb', COMMON + ',Lunge', 512, {}),
+    'iron': ('ue', 'fortnite_iron_man.glb', COMMON + ',Hover,FlyPose,Repulsor', 1024, {}), 'thor': ('mixa', os.path.join(OUT, 'thor_tex.glb'), COMMON, 512, {}), 'wolverine': ('wolv', 'rigged_wolverine.glb', COMMON + ',Lunge', 512, {}),
     'dog': ('mixa', 'skin_fortnite_dog_supreme_versionemote.glb', COMMON + ',Dance', 512, {'STRIP': 'Matriau,Matriau.001', 'KEEPANIM': '1'}), 'meowscle': ('mixa', 'meowscle_rig.glb', COMMON + ',Flex', 512, {}),
 }
 for cid in (sys.argv[1:] or list(CAST)):

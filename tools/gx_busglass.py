@@ -20,10 +20,12 @@ uv = me.uv_layers.active.data
 def tex(p):
     u, v = p; return px[min(h - 1, max(0, int(v * h))), min(w - 1, max(0, int(u * w)))][:3]
 P('pixels read'); win = []
+VV = np.array([(W @ v.co)[:] for v in me.vertices]); ZLOW = float(VV[:, 2].min() + 0.42 * (VV[:, 2].max() - VV[:, 2].min()))
 for pl in me.polygons:
     if pl.material_index != slot: continue
     c = np.mean([uv[l].uv[:] for l in pl.loop_indices], axis=0); r, g, b = tex(c)
-    if 0.01 < r < 0.25 and r - b > 0.008 and g > b * 0.9 and r > g * 0.9: win.append(pl.index)
+    zc_ = np.mean([(W @ me.vertices[vi].co)[2] for vi in pl.vertices])
+    if (0.01 < r < 0.25 and r - b > 0.008 and g > b * 0.9 and r > g * 0.9) or (max(r, g, b) < 0.1 and zc_ > ZLOW): win.append(pl.index)   # the brown window paint + the near-black windshield / rear glass above the sill
 P('classified'); print('WINDOW faces', len(win), 'of', len(me.polygons))
 V = np.array([(W @ v.co)[:] for v in me.vertices])
 if win:
@@ -52,6 +54,9 @@ def box(bm, c, sz):
 def cyl(bm, c, rad, hgt):
     r = bmesh.ops.create_cone(bm, cap_ends=True, segments=14, radius1=rad, radius2=rad, depth=hgt); bmesh.ops.translate(bm, vec=c, verts=r['verts'])
 P('materials made')
+import os
+if os.environ.get('NOINT'):
+    bpy.ops.export_scene.gltf(filepath=out, export_format='GLB', export_yup=True, export_animations=False); P('exported (no interior)'); sys.exit(0)
 seat_o, sb = new_obj('seats', seat_m); floor_o, fb = new_obj('floor', floor_m); green_o, gb = new_obj('green', gm); red_o, rb = new_obj('red', rm); lamp_o, lb = new_obj('lamps', lm)
 box(fb, (0, (y0 + y1) / 2, floor), (2 * hx - 10, y1 - y0 + 100, 8))
 n = 11

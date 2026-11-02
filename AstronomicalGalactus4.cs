@@ -7,7 +7,7 @@ namespace AstronomicalEvent
     // Galactus, part 4: the cockpit view of the assault (gun + crosshair), the Zero Point he holds in his hands, the swarm of buses flying into his mouth
     internal sealed partial class AstronomicalGalactus
     {
-        GameObject cockGo; Transform reticle; Transform zpBall, zpGlow, zpHalo; Material zpMat; readonly List<GameObject> swarm = new List<GameObject>(); Transform mouthHalo;
+        GameObject cockGo; Transform moon, pillar; Transform reticle; Transform zpBall, zpGlow, zpHalo; Material zpMat; readonly List<GameObject> swarm = new List<GameObject>(); Transform mouthHalo;
         Vector3 zpLocal; float zpR; bool zpOn;     // the Zero Point, in the root's frame (set by GxCup)
         const int SWARM = 96;
 
@@ -32,6 +32,7 @@ namespace AstronomicalEvent
             var disc = Quad("GCkDisc", kit.Glow(Color.white, tex, 3002)); disc.SetParent(cockGo.transform, false); disc.localPosition = new Vector3(0f, 0.0f, -0.05f); disc.localRotation = Quaternion.Euler(70f, 0f, 0f); disc.localScale = Vector3.one * 0.32f;
             var rt = kit.Tex(128, 128, (x, y) => { float dx = x - 63.5f, dy = y - 63.5f, r = Mathf.Sqrt(dx * dx + dy * dy); bool ring = r > 40f && r < 44f && !(Mathf.Abs(dx) < 14f || Mathf.Abs(dy) < 14f); bool tick = r >= 44f && r < 58f && (Mathf.Abs(dx) < 2.2f || Mathf.Abs(dy) < 2.2f); bool dot = r < 3f; bool inner = r > 14f && r < 16.5f; bool tri = Mathf.Abs(Mathf.Abs(dx) - Mathf.Abs(dy)) < 2.2f && r > 21f && r < 33f; return ring || tick || dot || inner || tri ? new Color(1f, 1f, 1f, 0.95f) : new Color(0, 0, 0, 0); }, TextureWrapMode.Clamp);
             reticle = Quad("GReticle", kit.Glow(Color.white, rt, 3003)); reticle.gameObject.SetActive(false);
+            moon = Prim(PrimitiveType.Sphere, "GMoon", kit.Flat(new Color(0.92f, 0.96f, 1f))); moon.gameObject.SetActive(false); pillar = Quad("GPillar", kit.Glow(new Color(0.6f, 0.85f, 1f, 0.6f), glowTex, 3001)); pillar.gameObject.SetActive(false);
             // ---- the Zero Point between his hands
             zpMat = kit.Glow(new Color(1f, 0.85f, 0.7f, 0.9f), null, 3001); zpBall = Prim(PrimitiveType.Sphere, "GZP", zpMat); zpBall.gameObject.SetActive(false);
             zpGlow = Quad("GZPGlow", kit.Glow(new Color(1f, 0.6f, 0.45f, 0.7f), glowTex, 3003)); zpGlow.gameObject.SetActive(false); zpHalo = Quad("GZPHalo", kit.Glow(new Color(0.6f, 0.7f, 1f, 0.5f), glowTex, 3002)); zpHalo.gameObject.SetActive(false);
@@ -44,7 +45,7 @@ namespace AstronomicalEvent
             mouthHalo = Quad("GMouthHalo", kit.Glow(new Color(1f, 0.55f, 0.85f, 0.6f), glowTex, 3000)); mouthHalo.gameObject.SetActive(false);
         }
 
-        void ExtraCleanup() { swarm.Clear(); cockGo = null; reticle = zpBall = zpGlow = zpHalo = mouthHalo = null; zpOn = false; }
+        void ExtraCleanup() { swarm.Clear(); cockGo = null; moon = pillar = reticle = zpBall = zpGlow = zpHalo = mouthHalo = null; zpOn = false; }
 
         // two-bone IK for the left arm: the hand goes to `target` (world), the elbow drops
         void CupArm(Transform sh, Transform el, Transform hand, Vector3 target, float w)
@@ -80,10 +81,13 @@ namespace AstronomicalEvent
             if (cockGo != null && cockGo.activeSelf != ck) cockGo.SetActive(ck); if (reticle != null && reticle.gameObject.activeSelf != ck) reticle.gameObject.SetActive(ck);
             if (ck)
             {
-                var ct = cam.transform; cockGo.transform.position = ct.position + ct.forward * 0.95f + ct.up * -0.5f; cockGo.transform.rotation = ct.rotation; cockGo.transform.localScale = Vector3.one * 1.5f;
+                var ct = cam.transform; cockGo.transform.position = ct.position + ct.forward * 0.95f + ct.up * -0.62f; cockGo.transform.rotation = ct.rotation; cockGo.transform.localScale = Vector3.one * 0.5f;
                 reticle.position = ct.position + ct.forward * 2.6f; reticle.rotation = ct.rotation * Quaternion.Euler(0f, 0f, 8f * t); reticle.localScale = Vector3.one * 0.85f;
                 var rm = reticle.GetComponent<Renderer>().sharedMaterial; bool lockOn = (int)(t * 2f) % 4 == 0; rm.color = lockOn ? new Color(1f, 0.35f, 0.3f, 0.95f) : new Color(0.9f, 0.97f, 1f, 0.9f);
             }
+            // ---- the moon over the island and the light pillar at the Zero Point (3:35 - 4:30)
+            bool mn = t >= 224f && t < 276f && cam != null; if (moon != null && moon.gameObject.activeSelf != mn) { moon.gameObject.SetActive(mn); pillar.gameObject.SetActive(mn); }
+            if (mn) { Vector3 mdir = (root.transform.TransformDirection(new Vector3(0.45f, 0.28f, 1f))).normalized; moon.position = cam.transform.position + mdir * 2200f; moon.localScale = Vector3.one * 150f; Vector3 f0 = W(FallPos(t) + new Vector3(10f, -45f, 70f * (1f - 0.4f * Sm(212f, 265f, t)))); Vector3 up0 = f0 + Vector3.down * 120f; Glow(pillar, up0, 90f, new Color(0.6f, 0.85f, 1f, 0.5f * Sm(224f, 240f, t)), cam, true); }
             // ---- the Zero Point
             bool zp = zpOn && zpBall != null; if (zpBall != null && zpBall.gameObject.activeSelf != zp) { zpBall.gameObject.SetActive(zp); zpGlow.gameObject.SetActive(zp); zpHalo.gameObject.SetActive(zp); }
             if (zp)

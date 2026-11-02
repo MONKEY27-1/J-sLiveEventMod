@@ -20,7 +20,7 @@ namespace AstronomicalEvent
         static readonly Seg[] SEGS = { G(0f, 55f, Sc.Deck), G(55f, 120f, Sc.Arrive), G(120f, 180f, Sc.Reach), G(180f, 270f, Sc.Fall), G(270f, 330f, Sc.BusIn), G(330f, 420f, Sc.Assault), G(420f, 510f, Sc.Inside), G(510f, 535f, Sc.Space), G(535f, 575f, Sc.Mouth),
             G(575f, 600f, Sc.Blast), G(600f, 605f, Sc.Dark), G(605f, 620f, Sc.Office), G(620f, 700f, Sc.Promo) };
         const float T_END = 650.9f, IY = 800f;
-        static readonly float[] CUTS = { 180f, 270f, 330f, 351f, 397f, 420f, 510f, 535f, 575f, 600f, 605f };
+        static readonly float[] CUTS = { 180f, 270f, 330f, 362f, 412f, 420f, 510f, 535f, 575f, 600f, 605f };
         static float Sm(float a, float b, float x) { return AstronomicalCube.Sm(a, b, x); }
         static Seg SegAt(float t) { Seg r = SEGS[0]; foreach (var g in SEGS) if (t >= g.T0) r = g; return r; }
         static Seg SegBefore(Seg s) { Seg r = SEGS[0]; foreach (var g in SEGS) { if (g == s) break; r = g; } return r; }
@@ -163,12 +163,12 @@ namespace AstronomicalEvent
                 case Sc.Deck: top = new Color(0.72f, 0.74f, 0.88f); mid = new Color(0.88f, 0.86f, 0.92f); hor = new Color(1f, 0.96f, 0.95f); break;
                 case Sc.Arrive: top = new Color(0.7f, 0.7f, 0.86f); mid = new Color(0.9f, 0.82f, 0.9f); hor = new Color(1f, 0.9f, 0.92f); break;
                 case Sc.Reach: { float k = Sm(120f, 180f, t); top = Color.Lerp(new Color(0.7f, 0.7f, 0.86f), new Color(0.55f, 0.4f, 0.7f), k); mid = Color.Lerp(new Color(0.9f, 0.82f, 0.9f), new Color(0.95f, 0.6f, 0.7f), k); hor = Color.Lerp(new Color(1f, 0.9f, 0.92f), new Color(1f, 0.7f, 0.65f), k); break; }
-                case Sc.Fall: { float k = Sm(195f, 240f, t); top = Color.Lerp(new Color(0.42f, 0.52f, 0.68f), new Color(0.03f, 0.05f, 0.3f), k); mid = Color.Lerp(new Color(0.65f, 0.68f, 0.8f), new Color(0.1f, 0.15f, 0.5f), k); hor = Color.Lerp(new Color(0.85f, 0.8f, 0.9f), new Color(0.35f, 0.3f, 0.75f), k); break; }
+                case Sc.Fall: { float k = Sm(195f, 240f, t); top = Color.Lerp(new Color(0.42f, 0.52f, 0.68f), new Color(0.01f, 0.05f, 0.2f), k); mid = Color.Lerp(new Color(0.65f, 0.68f, 0.8f), new Color(0.02f, 0.12f, 0.34f), k); hor = Color.Lerp(new Color(0.85f, 0.8f, 0.9f), new Color(0.06f, 0.26f, 0.5f), k); break; }
                 case Sc.BusIn: top = new Color(0.8f, 0.88f, 0.96f); mid = new Color(0.9f, 0.94f, 1f); hor = new Color(0.97f, 0.98f, 1f); break;
                 case Sc.Assault: { float k = Sm(330f, 400f, t); top = Color.Lerp(new Color(0.8f, 0.88f, 0.96f), new Color(0.75f, 0.6f, 0.8f), k); mid = Color.Lerp(new Color(0.9f, 0.94f, 1f), new Color(0.95f, 0.7f, 0.8f), k); hor = Color.Lerp(new Color(0.97f, 0.98f, 1f), new Color(1f, 0.8f, 0.8f), k); break; }
-                case Sc.Inside: top = new Color(0.12f, 0.02f, 0.06f); mid = new Color(0.3f, 0.05f, 0.08f); hor = new Color(0.5f, 0.1f, 0.1f); break;
+                case Sc.Inside: top = new Color(0.03f, 0.02f, 0.14f); mid = new Color(0.08f, 0.05f, 0.3f); hor = new Color(0.25f, 0.12f, 0.5f); break;
                 case Sc.Space: case Sc.Mouth: top = new Color(0.01f, 0.01f, 0.07f); mid = new Color(0.03f, 0.04f, 0.2f); hor = new Color(0.1f, 0.08f, 0.32f); break;
-                case Sc.Blast: { float k = Sm(580f, 592f, t); top = Color.Lerp(new Color(0.01f, 0.01f, 0.07f), new Color(0.2f, 0.5f, 1f), k); mid = Color.Lerp(new Color(0.03f, 0.04f, 0.2f), new Color(0.5f, 0.8f, 1f), k); hor = Color.Lerp(new Color(0.1f, 0.08f, 0.32f), new Color(0.9f, 0.97f, 1f), k); break; }
+                case Sc.Blast: { float k = Sm(580f, 590f, t) * (1f - Sm(593f, 598f, t)); top = Color.Lerp(new Color(0.01f, 0.01f, 0.07f), new Color(0.08f, 0.2f, 0.6f), k); mid = Color.Lerp(new Color(0.03f, 0.04f, 0.2f), new Color(0.25f, 0.45f, 0.95f), k); hor = Color.Lerp(new Color(0.1f, 0.08f, 0.32f), new Color(0.6f, 0.8f, 1f), k); break; }
             }
         }
         void UpdateSky(float t, Seg g)
@@ -333,13 +333,13 @@ namespace AstronomicalEvent
             {
                 case Sc.Deck: case Sc.Arrive: c = new Color(1f, 0.95f, 0.9f); a = 0.1f; break;
                 case Sc.Reach: c = new Color(1f, 0.55f, 0.55f); a = 0.06f + 0.1f * Sm(120f, 180f, t); break;
-                case Sc.Fall: c = Color.Lerp(new Color(0.6f, 0.7f, 1f), new Color(0.7f, 0.45f, 1f), Sm(200f, 250f, t)); a = 0.1f; break;
+                case Sc.Fall: c = Color.Lerp(new Color(0.6f, 0.7f, 1f), new Color(0.1f, 0.3f, 0.8f), Sm(200f, 250f, t)); a = 0.1f + 0.02f * Sm(215f, 250f, t); break;
                 case Sc.BusIn: c = Color.white; a = 0.16f; break;
-                case Sc.Assault: c = t >= 351f && t < 397f ? new Color(0.45f, 0.4f, 1f) : new Color(0.82f, 0.9f, 1f); a = t >= 351f && t < 397f ? 0.16f : 0.34f * (1f - 0.5f * Sm(405f, 418f, t)); break;
-                case Sc.Inside: c = new Color(1f, 0.15f, 0.1f); a = 0.2f; break;
+                case Sc.Assault: c = t >= 362f && t < 412f ? new Color(0.45f, 0.4f, 1f) : new Color(0.82f, 0.9f, 1f); a = t >= 362f && t < 412f ? 0.16f : 0.34f * (1f - 0.5f * Sm(405f, 418f, t)); break;
+                case Sc.Inside: c = new Color(0.45f, 0.3f, 1f); a = 0.16f; break;
                 case Sc.Space: c = new Color(0.3f, 0.4f, 1f); a = 0.08f; break;
                 case Sc.Mouth: c = Color.Lerp(new Color(0.3f, 0.4f, 1f), new Color(0.3f, 1f, 0.5f), Sm(555f, 575f, t)); a = 0.08f + 0.12f * Sm(555f, 575f, t); break;
-                case Sc.Blast: c = new Color(0.5f, 0.8f, 1f); a = 0.15f; break;
+                case Sc.Blast: c = new Color(0.5f, 0.8f, 1f); a = 0.06f * (1f - Sm(592f, 597f, t)); break;
                 case Sc.Office: c = new Color(1f, 0.2f, 0.12f); a = 0.22f; break;
             }
             return a;

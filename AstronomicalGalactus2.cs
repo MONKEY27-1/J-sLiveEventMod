@@ -140,8 +140,8 @@ namespace AstronomicalEvent
         bool GxPlace(float t, Seg g, out Vector3 pos)
         {
             pos = Vector3.zero;
-            if (t < 48f) return false; if (t < 180f) { float d = t < 100f ? Mathf.Lerp(2300f, 900f, Sm(48f, 100f, t)) : Mathf.Lerp(900f, 430f, Sm(100f, 180f, t)); d *= (AstronomicalDebug.Tweak[3] != 0f ? AstronomicalDebug.Tweak[3] : Mathf.Lerp(1f, 0.16f, Sm(60f, 165f, t))); pos = new Vector3(0f, IY - Mathf.Lerp(140f, 95f, Sm(100f, 165f, t)), d); return true; }
-            if (t < 272f) { Vector3 f = FallPos(t); pos = new Vector3(40f, f.y - 150f, 360f); return true; }
+            if (t < 48f) return false; if (t < 180f) { float d = t < 105f ? Mathf.Lerp(1700f, 480f, Sm(48f, 105f, t)) : Mathf.Lerp(480f, 430f, Sm(105f, 180f, t)); d *= (AstronomicalDebug.Tweak[3] != 0f ? AstronomicalDebug.Tweak[3] : Mathf.Lerp(1.0f, 0.16f, Sm(112f, 165f, t))); float w2 = Sm(110f, 168f, t); pos = new Vector3(Mathf.Lerp(d * 0.34f * (1f - Sm(60f, 172f, t)), 150f, w2), IY + Mathf.Lerp(300f, -95f, Sm(64f, 168f, t)), Mathf.Lerp(d, 55f, w2)); return true; }   // he stands off the helicarrier's RIGHT side (your right) for the blow
+            if (t < 272f) { Vector3 f = FallPos(t); float k = Sm(180f, 200f, t); pos = new Vector3(Mathf.Lerp(0f, 30f, k), f.y + Mathf.Lerp(-150f, 330f, k), Mathf.Lerp(360f, 230f, k)); return true; }
             if (t < 330f) { pos = new Vector3(0f, BusPos.y - 150f, Mathf.Lerp(900f, 560f, Sm(272f, 330f, t))); return true; }
             if (t < 420f) { pos = new Vector3(0f, BusPos.y - 150f, Mathf.Lerp(560f, 62f, Sm(330f, 418f, t))); return true; }
             if (t < 510f) return false;
@@ -151,17 +151,24 @@ namespace AstronomicalEvent
         }
         // 2:55 he brings a fist down on the carrier: the arm is aimed from the shoulder at the deck (the end nearest him) and speeds up until it lands at HitT
         const float HitT = 177.4f;
-        // his LEFT hand does the hitting (the energy of 3:35 is in it too): that is the arm on your right as he faces you, whichever of the model's two arm parts that is
+        // his RIGHT hand does the hitting (the user corrected: right, not left) (the energy of 3:35 is in it too): that is the arm on your right as he faces you, whichever of the model's two arm parts that is
         Transform gxHSh, gxHEl, gxOSh, gxOEl, gxOHand; bool gxSwap; float gxS = GS; Vector3 hitTgt = new Vector3(0f, 800f, 40f);
         Vector3 FistPoint() { return W(hitTgt); }
+        // 3:35 - 4:30 the arm reaches out over the island, palm open and fingers spread, to the point under the falling player where the energy gathers
+        void GxReach(float t)
+        {
+            if (gxOSh == null || gxOEl == null || t < 196f || t >= 276f) return; float w = Sm(198f, 214f, t) * (1f - Sm(262f, 276f, t)); if (w <= 0.001f) return;
+            Vector3 f = FallPos(t); Vector3 pt = new Vector3(f.x + 10f, f.y - 45f, f.z + 70f * (1f - 0.4f * Sm(212f, 265f, t)));
+            AimArm(gxOSh, gxOEl, gxOHand, (W(pt) - gxOSh.position).normalized, w);
+        }
         void GxHitAim(float t)
         {
-            if (gxHSh == null || gxHEl == null || t < 168f || t >= 180f) return;
+            if (gxOSh == null || gxOEl == null || t < 168f || t >= 180f) return;
             float w = Mathf.Pow(Mathf.Clamp01((t - 168f) / 5f), 1.2f); if (w <= 0f) return;
             // 2:55 - 3:00 a BACKHAND: the forearm swings in from outside the carrier, low and fast, across the deck (the recording: the arm sweeps through the whole foreground)
-            Vector3 sl = root.transform.InverseTransformPoint(gxHSh.position); float sd = Mathf.Sign(sl.x == 0f ? 1f : sl.x); float u = Mathf.Clamp01((t - 168f) / 12f), e = Mathf.Pow(u, 1.8f);
-            Vector3 tg = new Vector3(sd * Mathf.Lerp(78f, -38f, e), IY + DeckY + Mathf.Lerp(34f, 6f, Mathf.Min(1f, e * 1.6f)), Mathf.Lerp(12f, -8f, e)); Vector3 d = tg - sl; float reach = 104f; if (d.magnitude > reach) tg = sl + d.normalized * reach; hitTgt = tg;
-            AimArm(gxHSh, gxHEl, gxHHand, (W(tg) - gxHSh.position).normalized, w);
+            Vector3 sl = root.transform.InverseTransformPoint(gxOSh.position); float sd = Mathf.Sign(sl.x == 0f ? 1f : sl.x); float u = Mathf.Clamp01((t - 168f) / 12f), e = Mathf.Pow(u, 1.8f);
+            Vector3 tg = new Vector3(sd * Mathf.Lerp(78f, -38f, e), IY + DeckY + Mathf.Lerp(34f, 6f, Mathf.Min(1f, e * 1.6f)), Mathf.Lerp(12f, -8f, e)); Vector3 d = tg - sl; float reach = 170f; if (d.magnitude > reach) tg = sl + d.normalized * reach; hitTgt = tg;
+            AimArm(gxOSh, gxOEl, gxOHand, (W(tg) - gxOSh.position).normalized, w);
         }
         // the new model's arms are sculpted in a guard pose (forearm bent ~90 deg): StraightEl is the elbow rotation that lines the forearm up with the upper arm, DownSh the shoulder rotation that makes the straight arm hang down (the table's angles are for a straight hanging arm)
         static Quaternion StraightEl(Transform el, Transform hand) { return hand != null ? Quaternion.FromToRotation(hand.localPosition.normalized, el.localPosition.normalized) : Quaternion.identity; }
@@ -176,26 +183,47 @@ namespace AstronomicalEvent
         // He is bigger in this part (x3) so the trench is long; the whole of him is moved so that the point of the arm under the bus stays at the bus (the bus does not move)
         public const float BusEye = 3.8f; public const float RunS = 3f; Vector3 runH, runS, runHd; float runRad, runU; bool runOn, runInside, armHidden;
         // while the bus is inside the arm the arm's own shell is hidden (the tunnel replaces it)
-        void ShowArm(bool show) { if (gxOSh == null || armHidden == !show) return; armHidden = !show; foreach (var r in gxOSh.GetComponentsInChildren<Renderer>(true)) r.enabled = show; }
+        void ShowArm(bool show) { if (gxOSh == null || armHidden == !show) return; armHidden = !show; foreach (var nm in new[] { gxOSh.name, gxOEl.name }) { List<Renderer> rl; if (skinBy.TryGetValue(nm, out rl)) foreach (var r in rl) if (r != null) r.enabled = show; } }
         static float RunWeave(float u) { return u > 0f && u < 1f ? 16f * Mathf.Sin(9f * u) * Sm(0f, 0.08f, u) * (1f - Sm(0.9f, 1f, u)) : 0f; }
         void GxRun(float t, GameObject go, float s)
         {
             runOn = t >= 330f && t < 420f && gxOSh != null && gxOEl != null && gxHead != null; if (!runOn) return;
             var rt = root.transform; AimArm(gxOSh, gxOEl, gxOHand, rt.TransformDirection(new Vector3(0f, 0.03f, -1f).normalized), Sm(330f, 338f, t));
             Vector3 H = rt.InverseTransformPoint(gxOHand != null ? gxOHand.position : gxOEl.TransformPoint(new Vector3(0f, -5.4f, 0f))), S = rt.InverseTransformPoint(gxOSh.position), Hd = rt.InverseTransformPoint(gxHead.position), Fp = rt.InverseTransformPoint(gxEyeL != null && gxEyeR != null ? (gxEyeL.position + gxEyeR.position) * 0.5f : gxHead.TransformPoint(new Vector3(0f, 4.5f, 6f)));
-            float rad = 3.4f * s; Vector3 T; float u, lat; runInside = t >= 351f && t < 397f; ShowArm(!runInside);
-            if (t < 351f) { u = t < 345f ? Mathf.Lerp(-0.7f, 0f, Sm(330f, 345f, t)) : Mathf.Lerp(0f, 0.02f, Sm(345f, 351f, t)); float upf = t < 345f ? 1f : 1f - Sm(345f, 351f, t); T = H + (S - H) * u + Vector3.up * ((rad * (1f + 0.45f * Mathf.Clamp01(u)) + 22f) * upf); lat = t < 345f ? RunWeave(u) : 0f; }
-            else if (t < 397f) { u = Mathf.Lerp(0.03f, 0.97f, Sm(351f, 397f, t)); T = H + (S - H) * u; lat = 7f * Mathf.Sin(t * 0.6f); }   // inside the arm: the bus is on its axis
-            else { u = 1f; lat = 0f; Vector3 P0 = S + Vector3.up * (rad * 1.45f + 22f), P1 = Fp + new Vector3(0f, -1f * s, -6f * s); T = Vector3.Lerp(P0, P1, Sm(397f, 420f, t)); }
+            float rad = 3.4f * s; Vector3 T; float u, lat; runInside = t >= 362f && t < 412f; ShowArm(!runInside);
+            if (t < 362f) { u = t < 352f ? Mathf.Lerp(-0.9f, 0f, Sm(330f, 352f, t)) : Mathf.Lerp(0f, 0.02f, Sm(352f, 362f, t)); float upf = t < 352f ? 1f : 1f - Sm(352f, 362f, t); T = H + (S - H) * u + Vector3.up * ((rad * (1f + 0.45f * Mathf.Clamp01(u)) + 70f) * upf); lat = t < 352f ? RunWeave(u) : 0f; }
+            else if (t < 412f) { u = Mathf.Lerp(0.03f, 0.97f, Sm(362f, 412f, t)); T = H + (S - H) * u; lat = 7f * Mathf.Sin(t * 0.6f); }   // inside the arm: the bus is on its axis
+            else { u = 1f; lat = 0f; Vector3 P0 = S + Vector3.up * (rad * 1.45f + 22f), P1 = Fp + new Vector3(0f, -1f * s, -6f * s); T = Vector3.Lerp(P0, P1, Sm(412f, 420f, t)); }
             Vector3 want = BusPos - new Vector3(lat, 0f, 0f), shift = want - T; go.transform.localPosition += shift;
             runH = H + shift; runS = S + shift; runHd = Hd + shift; runRad = rad; runU = u;
         }
+        // ---- Galactus' living motion, layered on the pose table: 14 named animations, each with an envelope in time.  d = additive angles [0..10] like the table + [11] torso yaw, [12] torso roll
+        static float Env(float a, float b, float c, float e, float t) { return Sm(a, b, t) * (1f - Sm(c, e, t)); }
+        static float[] GxIdle(float t)
+        {
+            var d = new float[13]; float br = Mathf.Sin(t * 1.3f);
+            d[10] += 0.6f * br; d[3] += 1.5f * br; d[7] += 1.5f * br; d[12] += 0.4f * Mathf.Sin(t * 0.6f);                                                      // 1 breathing
+            { float e = Env(52f, 62f, 116f, 124f, t), s = Mathf.Sin(t * 2.1f); d[0] += 14f * s * e; d[4] -= 14f * s * e; d[11] += 5f * s * e; d[12] += 2.5f * Mathf.Cos(t * 2.1f) * e; d[10] += 2f * Mathf.Abs(s) * e; }   // 2 the slow walk-in
+            { float e = Env(118f, 126f, 148f, 154f, t), s = Mathf.Sin((t - 118f) * 0.45f); d[8] += 30f * s * e; d[9] += 7f * Mathf.Sin((t - 118f) * 0.9f) * e; }   // 3 looks along the deck
+            { float e = Env(124f, 132f, 158f, 166f, t); d[1] += 9f * Mathf.Sin(t * 1.3f) * e; d[5] -= 9f * Mathf.Sin(t * 1.3f + 1f) * e; d[11] += 4f * Mathf.Sin(t * 0.8f) * e; }   // 4 shoulder rolls
+            { float e = Env(128f, 134f, 164f, 168f, t); float c = 0.5f + 0.5f * Mathf.Sin(t * 2.4f); d[3] += 14f * c * e; d[7] += 14f * (1f - c) * e; }             // 5 the fists clench in turn
+            { float e = Env(148f, 154f, 163f, 168f, t); d[9] -= 24f * e; d[10] -= 7f * e; d[1] += 22f * e; d[5] -= 22f * e; d[12] += 3f * Mathf.Sin(t * 31f) * e; }  // 6 the roar before the blow: head back, arms flung wide, the body shakes
+            { float e = Env(168f, 174f, 178f, 182f, t); d[10] += 10f * e; d[11] -= 12f * e; }                                                                    // 7 the wind-up lean and torso twist for the backhand
+            { float e = Env(178f, 184f, 262f, 272f, t); d[9] += 14f * e; d[8] += 16f * Mathf.Sin(t * 0.5f) * e; d[10] += 4f * e; d[7] += 10f * Mathf.Sin(t * 3f) * e; }  // 8 he looks down at the falling player, fingers working
+            { float e = Env(196f, 204f, 266f, 274f, t); d[11] += 9f * Mathf.Sin(t * 0.6f) * e; d[12] += 3f * Mathf.Sin(t * 0.9f) * e; }                          // 9 shifting his weight while the energy gathers
+            { float e = Env(272f, 282f, 326f, 334f, t); d[8] += 18f * Mathf.Sin(t * 0.4f) * e; d[10] += 4f * Mathf.Sin(t * 0.5f) * e; d[0] += 6f * Mathf.Sin(t * 1.1f) * e; d[4] += 6f * Mathf.Sin(t * 1.1f + 2f) * e; }  // 10 sizing up the buses
+            { float e = Env(334f, 342f, 414f, 422f, t); d[8] += 12f * Mathf.Sin(t * 0.5f) * e; d[11] += 7f * Mathf.Sin(t * 0.4f) * e; d[12] += 2f * Mathf.Sin(t * 0.7f) * e; }   // 11 tracking the bus up his arm
+            { float e = Env(508f, 516f, 575f, 578f, t); float pc = Mathf.Repeat(t - 510f, 9f); float r = Sm(0.4f, 1.6f, pc) * (1f - Sm(2.6f, 4.2f, pc)); d[9] -= 18f * r * e; d[10] -= 6f * r * e; d[1] += 16f * r * e; d[5] -= 16f * r * e; d[12] += 2.5f * Mathf.Sin(t * 27f) * r * e; }   // 12 the roars in space, every 9 s
+            { float e = Env(508f, 516f, 575f, 578f, t); d[0] += 12f * Mathf.Sin(t * 0.8f) * e; d[4] += 12f * Mathf.Sin(t * 0.8f + 1.7f) * e; d[11] += 6f * Mathf.Sin(t * 0.35f) * e; }   // 13 the arms drift like in zero gravity
+            { float e = Env(540f, 550f, 575f, 578f, t); d[10] -= 7f * e * Mathf.Abs(Mathf.Sin(t * 5f)); d[8] += 14f * Mathf.Sin(t * 0.7f) * e; d[9] -= 8f * e; }                  // 14 the mouth opens wide, he rears back and shudders as the payload swells
+            return d;
+        }
         void GxFrame(float t, float tp, float dt, Seg g, Camera cam)
         {
-            if (galM == null) return; if (!(t >= 351f && t < 397f)) ShowArm(true); Vector3 pos; bool on = GxPlace(t, g, out pos); var go = galM.Pivot; if (go.activeSelf != on) go.SetActive(on); if (!on) return;
-            if (gxTorso == null) return; float[] p = GxAng(t); float s = GS * Fit(galM, 1f) * 60f / Mathf.Max(0.01f, galM.RendererBounds.size.y); bool run = t >= 330f && t < 420f; s = run ? GS * RunS : GS; gxS = s;
+            if (galM == null) return; if (!(t >= 362f && t < 412f)) ShowArm(true); Vector3 pos; bool on = GxPlace(t, g, out pos); var go = galM.Pivot; if (go.activeSelf != on) go.SetActive(on); if (!on) return;
+            if (gxTorso == null) return; float[] p = GxAng(t); var gi = GxIdle(t); for (int q = 0; q < 11; q++) p[q] += gi[q]; float s = GS * Fit(galM, 1f) * 60f / Mathf.Max(0.01f, galM.RendererBounds.size.y); bool run = t >= 330f && t < 420f; s = run ? GS * RunS : GS * (1f + 0.9f * Env(184f, 204f, 266f, 276f, t) + 0.5f * Env(130f, 156f, 176f, 186f, t)); gxS = s;
             // idle breathing / the walk-in sway
-            float br = 0.5f * Mathf.Sin(t * 0.7f); float lean = p[10] + br; var rq = Quaternion.Euler(lean * 0.6f, 180f, 0f); go.transform.localRotation = rq; go.transform.localScale = Vector3.one * s; go.transform.localPosition = pos - rq * (gxBelt * s) + (t < 130f ? Vector3.up * 2f * Mathf.Sin(t * 0.9f) : Vector3.zero);
+            float br = 0.5f * Mathf.Sin(t * 0.7f); float lean = p[10] + br; float bend = 100f * Env(186f, 206f, 262f, 280f, t); var rq = Quaternion.Euler(lean * 0.6f + bend, 180f, 0f); go.transform.localRotation = rq; go.transform.localScale = Vector3.one * s; go.transform.localPosition = pos - rq * (gxBelt * s) + (t < 130f ? Vector3.up * 2f * Mathf.Sin(t * 0.9f) : Vector3.zero);
             if (t < 575f)
             {
                 gxSwap = root.transform.InverseTransformPoint(gxShL.position).x < root.transform.InverseTransformPoint(gxShR.position).x;   // the part called L stands on your left: then the table's L columns drive R, mirrored
@@ -204,9 +232,9 @@ namespace AstronomicalEvent
                 float str = Sm(122f, 136f, t);
                 gxHSh.localRotation = Quaternion.Euler(p[0], sg * p[2], sg * p[1]) * Quaternion.Slerp(Quaternion.identity, DownSh(gxHEl), str); gxHEl.localRotation = Quaternion.Euler(p[3], 0f, 0f) * Quaternion.Slerp(Quaternion.identity, StraightEl(gxHEl, gxHHand), str);
                 gxOSh.localRotation = Quaternion.Euler(p[4], sg * p[6], sg * p[5]) * Quaternion.Slerp(Quaternion.identity, DownSh(gxOEl), str); gxOEl.localRotation = Quaternion.Euler(p[7], 0f, 0f) * Quaternion.Slerp(Quaternion.identity, StraightEl(gxOEl, gxOHand), str);
-                gxHead.localRotation = Quaternion.Euler(p[9] + 2f * Mathf.Sin(t * 0.5f), p[8], 0f); gxTorso.localRotation = Quaternion.Euler(0f, 3f * Mathf.Sin(t * 0.3f), 0f);
+                gxHead.localRotation = Quaternion.Euler(p[9] + 2f * Mathf.Sin(t * 0.5f), p[8], 0f); gxTorso.localRotation = Quaternion.Euler(0f, 3f * Mathf.Sin(t * 0.3f) + gi[11], gi[12]);
                 for (int i = 0; i < gxParts.Count; i++) { gxParts[i].localPosition = gxPartBase[i]; }
-                GxHitAim(t); GxRun(t, go, s); GxCup(t);
+                GxLegs(t); GxHitAim(t); GxReach(t); GxRun(t, go, s); GxCup(t);
             }
             else
             {   // 9:35: he comes apart: every piece drifts away, tumbling, burning

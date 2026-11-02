@@ -41,6 +41,7 @@ namespace AstronomicalEvent
                 gxParts.Clear(); foreach (var tr in new[] { gxTorso, gxHead, gxShL, gxElL, gxShR, gxElR }) gxParts.Add(tr);
                 gxPartBase = new Vector3[gxParts.Count]; gxDir = new Vector3[gxParts.Count]; gxSpin = new Vector3[gxParts.Count]; Vector3[] dirs = { new Vector3(0f, 0.1f, 1f), new Vector3(0f, 1f, 0.5f), new Vector3(1f, 0.2f, 0.4f), new Vector3(1f, -0.3f, 0.6f), new Vector3(-1f, 0.2f, 0.4f), new Vector3(-1f, -0.3f, 0.6f) };
                 for (int i = 0; i < gxParts.Count; i++) { gxPartBase[i] = gxParts[i] != null ? gxParts[i].localPosition : Vector3.zero; gxDir[i] = dirs[i] * 6f; gxSpin[i] = new Vector3(Hash(i, 7) - 0.5f, Hash(i, 8) - 0.5f, Hash(i, 9) - 0.5f); }
+                BuildSkin();
             }
             boltMat = kit.Glow(new Color(1f, 0.55f, 0.85f, 1f), lineTex, 3003); convMat = kit.Glow(new Color(1f, 0.4f, 0.7f, 0.9f), lineTex, 3002);
             for (int i = 0; i < 8; i++) bolts.Add(MakeLine("GBolt" + i, boltMat, 14, 3f)); for (int i = 0; i < 12; i++) conv.Add(MakeLine("GConv" + i, convMat, 16, 4f));
@@ -67,11 +68,12 @@ namespace AstronomicalEvent
             AstronomicalDebug.Anchors["gx"] = () => gxRoot != null ? gxRoot.TransformPoint(new Vector3(0f, 14f, 0f)) : Vector3.zero; AstronomicalDebug.Anchors["iron"] = () => actBy.ContainsKey("iron") ? actBy["iron"].Go.transform.position + Vector3.up : Vector3.zero;
             AstronomicalDebug.Anchors["gxbelt"] = () => gxRoot != null ? gxRoot.position : Vector3.zero; AstronomicalDebug.Anchors["gxhead"] = () => gxHead != null ? gxHead.position : Vector3.zero; AstronomicalDebug.Anchors["gxfeet"] = () => galM != null ? galM.Pivot.transform.position : Vector3.zero; JsLiveEventsMod.Log.LogInfo("Galactus: belt offset in pivot space " + gxBelt + ", head " + (gxHead != null ? galM.Pivot.transform.InverseTransformPoint(gxHead.position).ToString() : "-"));
             AstronomicalDebug.Anchors["office"] = () => W(new Vector3(0f, IY + 1f, OfficeZ)); AstronomicalDebug.Anchors["fall"] = () => W(FallPos(Mathf.Clamp(lastT, 180f, 270f))); BuildExtra();
+            if (corM != null) foreach (var r in corM.Pivot.GetComponentsInChildren<Renderer>(true)) foreach (var m in r.sharedMaterials) { if (m == null) continue; try { m.mainTexture = null; bool lit = m.HasProperty("_Glossiness") || m.shader.name.Contains("Standard"); m.color = lit ? new Color(0.22f, 0.18f, 0.5f, m.color.a) : new Color(0.85f, 0.7f, 1f, m.color.a); } catch { } }
         }
         void ContentCleanup()
         {
             acts.Clear(); actBy.Clear(); fleet.Clear(); fleetX.Clear(); fleetY.Clear(); fleetZ.Clear(); halls.Clear(); beams.Clear(); bolts.Clear(); conv.Clear(); galMats.Clear(); gxParts.Clear(); gxTorso = gxHead = gxShL = gxElL = gxShR = gxElR = gxHSh = gxHEl = gxOSh = gxOEl = gxHandL = gxHandR = gxEyeL = gxEyeR = gxMouthP = gxChestP = gxHHand = gxOHand = null;
-            ExtraCleanup(); cracks.Clear(); pylons.Clear(); pylonGl.Clear(); gates.Clear(); conduits.Clear(); tunnel = tunEnd = null; drones.Clear(); droneGl.Clear(); lasers.Clear(); heliGo = busGo = null; heliM = sbusM = sbusfM = galM = corM = offM = ironM = thorM = wolvM = jonM = null; cdTm = capTm = subTm = null; orb = ball = planet = null;
+            ExtraCleanup(); skinBy.Clear(); gxHipL = gxKneeL = gxHipR = gxKneeR = null; cracks.Clear(); pylons.Clear(); pylonGl.Clear(); gates.Clear(); conduits.Clear(); tunnel = tunEnd = null; drones.Clear(); droneGl.Clear(); lasers.Clear(); heliGo = busGo = null; heliM = sbusM = sbusfM = galM = corM = offM = ironM = thorM = wolvM = jonM = null; cdTm = capTm = subTm = null; orb = ball = planet = null;
         }
 
         // ---------------------------------------------------------------- the frame
@@ -80,7 +82,7 @@ namespace AstronomicalEvent
             foreach (var a in acts) ActFrame(a, t, dt); DeckFrame(t, tp, dt, cam); GxFrame(t, tp, dt, g, cam); GxFx(t, tp, dt, cam); RunFx(t, tp, dt, cam); ExtraFrame(t, tp, dt, cam); BusFrame(t, tp, dt); CorridorFrame(t, tp, dt); BlastFrame(t, tp, dt); OfficeFrame(t); CaptionFrame(t, cam); AmbientFrame(t, dt, cam); CloudsFrame(t);
             RenderSettings.ambientLight = Color.Lerp(ambientSave, MoodAmbient(g, t), 0.8f); sun.intensity = 0.6f * Lit; sun.color = Color.Lerp(Color.white, MoodAmbient(g, t), 0.4f);
             // the red lamp follows the bus inside Galactus
-            redLamp.intensity = (g.S == Sc.Inside ? Lit * (2.4f + 1.2f * Mathf.Sin(t * 13f) * Mathf.Sin(t * 5f)) : 0f); redLamp.transform.position = W(BusPos + new Vector3(0f, 9f, 18f));
+            redLamp.color = new Color(0.6f, 0.4f, 1f); redLamp.intensity = (g.S == Sc.Inside ? Lit * (2.4f + 1.2f * Mathf.Sin(t * 13f) * Mathf.Sin(t * 5f)) : 0f); redLamp.transform.position = W(BusPos + new Vector3(0f, 9f, 18f));
         }
         void CloudsFrame(float t) { if (clouds == null) return; var r = clouds.GetComponent<ParticleSystemRenderer>(); bool on = t < 421f || t > 579f && t < 601f; if (r.enabled != on) r.enabled = on; }
         Color MoodAmbient(Seg g, float t)
@@ -140,22 +142,23 @@ namespace AstronomicalEvent
             }
             if (!paused && tp < 155f && t >= 155f) Sfx(sThunder, eL, 1f, 0.8f);
             // the hand's energy 3:35 - 4:30: streams of red / purple from the palm and fingers converge on a bright point under it, which blows up into the white flash
-            bool cv = on && t >= 212f && t < 272f; float ce = Sm(212f, 265f, t); Vector3 hand = gxHHand != null ? gxHHand.position : gp; Vector3 pt = W(FallPos(t)) + new Vector3(10f, -45f, 70f * (1f - 0.4f * ce));
-            for (int i = 0; i < conv.Count; i++) { var l = conv[i]; if (l.enabled != cv) l.enabled = cv; if (!cv) continue; int n = l.positionCount; Vector3 a = hand + new Vector3(Mathf.Sin(i * 2.1f) * 5f, -3f, Mathf.Cos(i * 2.1f) * 4f) * GS * 0.5f; for (int k = 0; k < n; k++) { float s = k / (float)(n - 1); Vector3 q = Vector3.Lerp(a, pt, s * Mathf.Min(1f, 0.3f + ce)); q += new Vector3(Mathf.Sin(s * 9f + t * 5f + i), Mathf.Cos(s * 7f + t * 4f), Mathf.Sin(s * 5f - t * 6f + i)) * 8f * Mathf.Sin(s * Mathf.PI); l.SetPosition(k, q); } l.widthMultiplier = 3f + 4f * ce; convMat.color = Color.Lerp(new Color(1f, 0.35f, 0.5f, 0.9f), new Color(0.5f, 0.7f, 1f, 1f), ce); }
-            Glow(hitPt, pt, 10f + 110f * ce * ce * ce + 400f * Sm(262f, 270f, t), Color.Lerp(new Color(0.8f, 0.5f, 1f, 1f), new Color(0.8f, 0.95f, 1f, 1f), ce), cam, cv);
+            bool cv = on && t >= 212f && t < 272f; float ce = Sm(212f, 265f, t); Vector3 hand = gxOHand != null ? gxOHand.position : gp; Vector3 pt = W(FallPos(t) + new Vector3(10f, -45f, 70f * (1f - 0.4f * ce)));
+            Vector3 cdir = (pt - hand).sqrMagnitude < 1f ? Vector3.down : (pt - hand).normalized; Vector3 cside = Vector3.Cross(cdir, Vector3.up); cside = cside.sqrMagnitude < 1e-3f ? Vector3.right : cside.normalized;
+            for (int i = 0; i < conv.Count; i++) { var l = conv[i]; if (l.enabled != cv) l.enabled = cv; if (!cv) continue; int n = l.positionCount; float fk = (i - (conv.Count - 1) * 0.5f) / ((conv.Count - 1) * 0.5f); Vector3 a = hand + cside * (fk * 2.0f * gxS) + cdir * (0.5f * gxS); for (int k = 0; k < n; k++) { float s = k / (float)(n - 1); Vector3 q = Vector3.Lerp(a, pt, s * Mathf.Min(1f, 0.25f + 1.2f * ce)); q += (cside * Mathf.Sin(s * 11f + t * 6f + i) + Vector3.Cross(cdir, cside) * Mathf.Cos(s * 8f + t * 5f - i)) * 5f * Mathf.Sin(s * Mathf.PI); l.SetPosition(k, q); } l.widthMultiplier = 2.2f + 2.5f * ce; convMat.color = Color.Lerp(new Color(0.55f, 0.8f, 1f, 0.95f), new Color(0.9f, 0.97f, 1f, 1f), ce); }
+            Glow(hitPt, pt, 10f + 110f * ce * ce * ce + 400f * Sm(262f, 270f, t), Color.Lerp(new Color(0.6f, 0.8f, 1f, 1f), new Color(0.9f, 0.97f, 1f, 1f), ce), cam, cv);
         }
         // ---------------------------------------------------------------- 5:45 - 7:00 up his arm: pylons on the arm to weave round, a swarm of drones the bus shoots down (all placed from the arm's points that GxRun stores)
         void RunFx(float t, float tp, float dt, Camera cam)
         {
             bool on = runOn && t >= 336f && t < 419f;
             // the thick pale mist of the recording: big soft white puffs streaming past the bus (not inside the arm: there the liner is the backdrop)
-            if (!paused && dt > 0f && t >= 328f && t < 420f && !(t >= 351f && t < 397f)) { for (int k = 0; k < (int)(3 * Parts + 1); k++) Emit(dust, W(BusPos + new Vector3(UnityEngine.Random.Range(-110f, 110f), UnityEngine.Random.Range(-70f, 80f), UnityEngine.Random.Range(-30f, 320f))), root.transform.TransformDirection(new Vector3(0f, 0f, -48f)), new Color(0.88f, 0.94f, 1f, UnityEngine.Random.Range(0.22f, 0.4f)), UnityEngine.Random.Range(45f, 110f), 3.5f); }
+            if (!paused && dt > 0f && t >= 328f && t < 420f && !(t >= 362f && t < 412f)) { for (int k = 0; k < (int)(3 * Parts + 1); k++) Emit(dust, W(BusPos + new Vector3(UnityEngine.Random.Range(-110f, 110f), UnityEngine.Random.Range(-70f, 80f), UnityEngine.Random.Range(-30f, 320f))), root.transform.TransformDirection(new Vector3(0f, 0f, -48f)), new Color(0.88f, 0.94f, 1f, UnityEngine.Random.Range(0.22f, 0.4f)), UnityEngine.Random.Range(45f, 110f), 3.5f); }
             // ONE long straight tunnel along the arm's axis (root z): the bus stays in the middle, the liner / ribs / light strips stream past (a treadmill, so it is as long as the music needs)
             bool ins = runOn && runInside && tunnel != null;
             if (tunnel != null && tunnel.gameObject.activeSelf != ins) tunnel.gameObject.SetActive(ins);
             if (ins)
             {
-                const float R = 50f, LEN = 1500f, SPEED = 52f; float te = t - 351f; Vector3 c0 = BusPos + new Vector3(0f, 7f, 0f);
+                const float R = 50f, LEN = 1500f, SPEED = 33f; float te = t - 362f; Vector3 c0 = BusPos + new Vector3(0f, 7f, 0f);
                 tunnel.localPosition = c0 + new Vector3(0f, 0f, LEN * 0.5f - 200f); tunnel.localRotation = Quaternion.Euler(90f, 0f, 0f); tunnel.localScale = new Vector3(2f * R, LEN * 0.5f, 2f * R);
                 tunMat.mainTextureScale = new Vector2(10f, LEN / 64f); tunMat.mainTextureOffset = new Vector2(0f, te * SPEED / 64f);
                 float pulse = 0.65f + 0.35f * Mathf.Sin(t * 3f);
@@ -170,15 +173,15 @@ namespace AstronomicalEvent
                 }
                 for (int k = 0; k < conduits.Count; k++) { var l = conduits[k]; if (!l.enabled) l.enabled = true; float a = k * 0.785398f; Vector3 off = new Vector3(Mathf.Cos(a), Mathf.Sin(a), 0f) * (R - 5.5f); l.SetPosition(0, W(c0 + off + new Vector3(0f, 0f, -150f))); l.SetPosition(1, W(c0 + off + new Vector3(0f, 0f, 900f))); l.widthMultiplier = (k % 2 == 0 ? 3.2f : 1.6f) * pulse; }
                 condMat.color = Color.Lerp(new Color(0.7f, 0.85f, 1f, 0.95f), new Color(1f, 0.45f, 0.9f, 0.95f), 0.5f + 0.5f * Mathf.Sin(t * 0.8f)); trimMat.color = Color.Lerp(new Color(0.7f, 0.75f, 1f, 1f), new Color(1f, 0.55f, 0.95f, 1f), 0.5f + 0.5f * Mathf.Sin(t * 1.3f));
-                if (!paused) for (int bi = 0; bi < 8; bi++) { float bt = 356f + 5f * bi; if (tp < bt && t >= bt) Boom(W(c0 + new Vector3((Hash(bi, 91) - 0.5f) * 70f, (Hash(bi, 92) - 0.5f) * 50f, 110f + 60f * Hash(bi, 93))), 20f, 0.9f, new Color(1f, 0.55f, 0.2f)); }
+                if (!paused) for (int bi = 0; bi < 8; bi++) { float bt = 368f + 6f * bi; if (tp < bt && t >= bt) Boom(W(c0 + new Vector3((Hash(bi, 91) - 0.5f) * 70f, (Hash(bi, 92) - 0.5f) * 50f, 110f + 60f * Hash(bi, 93))), 20f, 0.18f, new Color(1f, 0.55f, 0.2f)); }
                 Glow(tunEnd, W(c0 + new Vector3(0f, 0f, 720f)), R * 7f, new Color(0.8f, 0.8f + 0.1f * Mathf.Sin(t * 2f), 1f, 0.85f), cam, true);
             }
             else { if (gates.Count > 0 && gates[0].gameObject.activeSelf) foreach (var gt in gates) gt.gameObject.SetActive(false); foreach (var l in conduits) if (l.enabled) l.enabled = false; if (tunEnd != null && tunEnd.gameObject.activeSelf) tunEnd.gameObject.SetActive(false); }
-            if (!paused && runOn && tp < 351f && t >= 351f) { Boom(W(BusPos), 24f, 1.0f, new Color(1f, 0.6f, 0.5f)); }
+            if (!paused && runOn && tp < 362f && t >= 362f) { Boom(W(BusPos), 24f, 0.25f, new Color(1f, 0.6f, 0.5f)); }
             for (int i = 0; i < drones.Count; i++)
             {
                 var d = drones[i]; var gl = droneGl[i]; float dz = 40f + Mathf.Repeat(560f * Hash(i, 71) - (t - 340f) * 22f, 540f), dd = 90f + 130f * Hash(i, 72); bool act = on && t >= 342f && dz >= dd;
-                bool inT = t >= 351f && t < 397f; Vector3 p = BusPos + new Vector3((Hash(i, 73) - 0.5f) * (inT ? 70f : 120f) + 6f * Mathf.Sin(t * 1.3f + i), (inT ? 7f + (Hash(i, 74) - 0.5f) * 70f : 8f + 80f * Hash(i, 74)) + 5f * Mathf.Sin(t * 1.7f + i * 2f), dz);
+                bool inT = t >= 362f && t < 412f; Vector3 p = BusPos + new Vector3((Hash(i, 73) - 0.5f) * (inT ? 70f : 120f) + 6f * Mathf.Sin(t * 1.3f + i), (inT ? 7f + (Hash(i, 74) - 0.5f) * 70f : 8f + 80f * Hash(i, 74)) + 5f * Mathf.Sin(t * 1.7f + i * 2f), dz);
                 if (on && !paused && droneDz[i] >= dd && dz < dd && t >= 342f && droneDz[i] < 1e8f && Mathf.Abs(droneDz[i] - dz) < 60f) { Vector3 wp = W(p); for (int k = 0; k < 14; k++) Emit(fx, wp, UnityEngine.Random.onUnitSphere * UnityEngine.Random.Range(8f, 30f), Color.Lerp(new Color(1f, 0.45f, 0.15f, 0.95f), new Color(1f, 0.9f, 0.6f, 0.95f), UnityEngine.Random.value), UnityEngine.Random.Range(3f, 7f), UnityEngine.Random.Range(0.4f, 1.1f)); Sfx(sBoom, wp, 0.3f, UnityEngine.Random.Range(0.9f, 1.3f), 0.04f); }
                 droneDz[i] = dz;
                 if (d.gameObject.activeSelf != act) d.gameObject.SetActive(act); if (!act) { if (gl.gameObject.activeSelf) gl.gameObject.SetActive(false); continue; }
@@ -196,7 +199,7 @@ namespace AstronomicalEvent
         void BusFrame(float t, float tp, float dt)
         {
             bool bus = t >= 270f && t < 580f; if (busGo != null) { if (busGo.activeSelf != bus) busGo.SetActive(bus); if (bus) { busGo.transform.localPosition = BusPos + Vector3.up * (0.3f * Mathf.Sin(t * 1.1f)); busGo.transform.localRotation = Quaternion.Euler(1.2f * Mathf.Sin(t * 0.7f), 0f, 2f * Mathf.Sin(t * 0.9f)); busGo.transform.localScale = Vector3.one * busS; } }
-            bool fl = ((t >= 270f && t < 422f) && !(t >= 351f && t < 397f)) || (t >= 508f && t < 578f);
+            bool fl = ((t >= 270f && t < 422f) && !(t >= 362f && t < 412f)) || (t >= 508f && t < 578f);
             for (int i = 0; i < fleet.Count; i++) { var go = fleet[i]; if (!fl) { if (go.activeSelf) go.SetActive(false); continue; } float zz = Mathf.Repeat(fleetZ[i] - (t - 270f) * 28f, 700f) - 200f; float yv = fleetY[i] + 4f * Mathf.Sin(t * 0.6f + i); Vector3 p = BusPos + new Vector3(fleetX[i], yv, zz); if (Mathf.Abs(fleetX[i]) < 30f && Mathf.Abs(yv) < 12f && zz > -40f && zz < 40f) p.x += 60f * Mathf.Sign(fleetX[i] + 0.01f); PlaceGo(go, p, busS, Quaternion.Euler(0f, 0f, 3f * Mathf.Sin(t * 0.5f + i)), true); }
             // the payload: a green orb on the roof, swelling before the end
             float pay = bus ? 1f : 0f; float swell = 1f + 2.5f * Sm(540f, 575f, t) + 14f * Sm(575f, 579f, t); Vector3 op = BusPos + new Vector3(0f, 1.6f, -7.5f);   // the payload sits on the rear of the roof, not on you
@@ -214,7 +217,7 @@ namespace AstronomicalEvent
                 if (!on) { if (halls[i].activeSelf) halls[i].SetActive(false); if (i < beams.Count && beams[i].activeSelf) beams[i].SetActive(false); continue; }
                 float z = -90f + i * 60f - Mathf.Repeat(sc, 60f); Vector3 p = BusPos + new Vector3(0f, -1.6f, z); PlaceGo(halls[i], p, 1f, Quaternion.identity, true); if (i < beams.Count) PlaceGo(beams[i], p, 1f, Quaternion.Euler(0f, 0f, 0f), true);
             }
-            if (!paused && dt > 0f && on) { for (int k = 0; k < 4; k++) Emit(fx, W(BusPos + new Vector3(UnityEngine.Random.Range(-10f, 10f), UnityEngine.Random.Range(0.5f, 14f), 70f)), new Vector3(0f, 0f, -90f), Color.Lerp(new Color(1f, 0.3f, 0.2f), new Color(1f, 0.8f, 0.4f), UnityEngine.Random.value), 0.6f, 1.2f); if (UnityEngine.Random.value < 0.12f) Emit(fx, W(BusPos + new Vector3(UnityEngine.Random.Range(-6f, 6f), UnityEngine.Random.Range(1f, 12f), 50f)), new Vector3(0f, 8f, -60f), new Color(0.4f, 1f, 0.5f), 1.2f, 1.2f); }
+            if (!paused && dt > 0f && on) { for (int k = 0; k < 4; k++) Emit(fx, W(BusPos + new Vector3(UnityEngine.Random.Range(-10f, 10f), UnityEngine.Random.Range(0.5f, 14f), 70f)), new Vector3(0f, 0f, -90f), Color.Lerp(new Color(0.6f, 0.5f, 1f), new Color(1f, 0.7f, 0.95f), UnityEngine.Random.value), 0.6f, 1.2f); if (UnityEngine.Random.value < 0.12f) Emit(fx, W(BusPos + new Vector3(UnityEngine.Random.Range(-6f, 6f), UnityEngine.Random.Range(1f, 12f), 50f)), new Vector3(0f, 8f, -60f), new Color(0.4f, 1f, 0.5f), 1.2f, 1.2f); }
             // the planet in the space scene
             bool sp = t >= 510f && t < 580f; if (planet != null) { if (planet.gameObject.activeSelf != sp) planet.gameObject.SetActive(sp); if (sp) planet.position = W(BusPos + new Vector3(-420f, 150f, 900f)); }
         }
@@ -230,6 +233,7 @@ namespace AstronomicalEvent
             {
                 if (tp < 578f && t >= 578f) { Vector3 c = W(BusPos + BusRoof + new Vector3(0f, 6f, 20f)); Boom(c, 30f, 1.4f, new Color(0.5f, 1f, 0.6f)); Sfx(sBig, c, 1f, 0.7f); ShowCap("", "", 0.1f, 578f); }
                 if (tp < 585f && t >= 585f) { Vector3 c = W(BusPos + new Vector3(0f, 6f, 60f)); Boom(c, 50f, 1.6f, new Color(0.7f, 0.9f, 1f)); Sfx(sBig, c, 1f, 0.6f); Sfx(sThunder, c, 1f, 0.6f); }
+                if (t >= 585f && t < 593f) { float e = t - 585f; for (int k = 0; k < 40; k++) { Vector3 d = UnityEngine.Random.onUnitSphere; Emit(fx, W(BusPos + new Vector3(0f, 6f, 60f)) + d * (e * 330f), d * 200f, Color.Lerp(new Color(0.55f, 0.75f, 1f, 0.95f), new Color(0.85f, 0.55f, 1f, 0.95f), UnityEngine.Random.value), UnityEngine.Random.Range(14f, 40f), 1.2f); } }
                 if (t >= 578f && t < 596f) for (int k = 0; k < 6; k++) Emit(fx, W(BusPos + new Vector3(0f, 6f, 60f)) + UnityEngine.Random.insideUnitSphere * 30f, UnityEngine.Random.onUnitSphere * UnityEngine.Random.Range(60f, 220f), Color.Lerp(new Color(0.5f, 0.9f, 1f), Color.white, UnityEngine.Random.value), UnityEngine.Random.Range(4f, 14f), 2f);
             }
         }
