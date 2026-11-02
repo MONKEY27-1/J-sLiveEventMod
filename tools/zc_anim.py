@@ -58,6 +58,9 @@ def nmre(pat):
 if prof == 'term':
     B = dict(pelvis=nm('root hips'), s1=nm('spine_03'), s2=nm('spine lower'), s3=nm('spine middle'), s4=nm('spine upper'), neck=nm('head neck lower'), head=nm('head neck upper'), ual=nm('arm left shoulder 2'), lal=nm('arm left elbow'), hl=nm('arm left wrist'),
              uar=nm('arm right shoulder 2'), lar=nm('arm right elbow'), hr=nm('arm right wrist'), tl=nm('leg left thigh'), cl=nm('leg left knee'), fl=nm('leg left foot'), tr=nm('leg right thigh'), cr=nm('leg right knee'), fr=nm('leg right foot')); SPINE = ['s1', 's2', 's3', 's4']
+elif prof == 'wolv':
+    B = dict(pelvis=nmre(r'^Hips_'), s1=nmre(r'^Spine02_'), s2=nmre(r'^Spine01_'), s3=nmre(r'^Spine_\d'), neck=nmre(r'^neck_'), head=nmre(r'^Head_'), ual=nmre(r'^LeftArm_'), lal=nmre(r'^LeftForeArm_'), hl=nmre(r'^LeftHand_'),
+             uar=nmre(r'^RightArm_'), lar=nmre(r'^RightForeArm_'), hr=nmre(r'^RightHand_'), tl=nmre(r'^LeftUpLeg_'), cl=nmre(r'^LeftLeg_'), fl=nmre(r'^LeftFoot_'), tr=nmre(r'^RightUpLeg_'), cr=nmre(r'^RightLeg_'), fr=nmre(r'^RightFoot_')); SPINE = ['s1', 's2', 's3']
 elif prof == 'mixa':
     B = dict(pelvis=nmre(r'^mixamorig:Hips_'), s1=nmre(r'^mixamorig:Spine_'), s2=nmre(r'^mixamorig:Spine1_'), s3=nmre(r'^mixamorig:Spine2_'), neck=nmre(r'^mixamorig:Neck_'), head=nmre(r'^mixamorig:Head_'), ual=nmre(r'^mixamorig:LeftArm_'), lal=nmre(r'^mixamorig:LeftForeArm_'), hl=nmre(r'^mixamorig:LeftHand_'),
              uar=nmre(r'^mixamorig:RightArm_'), lar=nmre(r'^mixamorig:RightForeArm_'), hr=nmre(r'^mixamorig:RightHand_'), tl=nmre(r'^mixamorig:LeftUpLeg_'), cl=nmre(r'^mixamorig:LeftLeg_'), fl=nmre(r'^mixamorig:LeftFoot_'), tr=nmre(r'^mixamorig:RightUpLeg_'), cr=nmre(r'^mixamorig:RightLeg_'), fr=nmre(r'^mixamorig:RightFoot_')); SPINE = ['s1', 's2', 's3']
@@ -72,7 +75,7 @@ elif prof == 'gunnar':
     B = dict(pelvis=nm('pelvis_'), s1=nm('spine_01_'), s2=nm('spine_02_'), s3=nm('spine_03_'), s4=nm('spine_04_'), s5=nm('spine_05_'), neck=nm('Helmet_neck_01'), head=nm('Helmet_Head'), ual=nm('upperarm_l_'), lal=nm('lowerarm_l_'), hl=nm('hand_l_'), uar=nm('upperarm_r_'), lar=nm('lowerarm_r_'), hr=nm('hand_r_'),
              tl=nm('thigh_l_'), cl=nm('calf_l_'), fl=nm('foot_l_'), tr=nm('thigh_r_'), cr=nm('calf_r_'), fr=nm('foot_r_')); SPINE = ['s1', 's2', 's3', 's4', 's5']
 else:
-    B = dict(pelvis=nm('pelvis_'), s1=nm('spine_01_'), s2=nm('spine_02_'), s3=nm('spine_03_'), s4=nm('spine_04_'), s5=nm('spine_05_'), neck=nm('neck_01_'), head=nmre(r'^head_\d+$'), ual=nm('upperarm_l_'), lal=nm('lowerarm_l_'), hl=nm('hand_l_'), uar=nm('upperarm_r_'), lar=nm('lowerarm_r_'), hr=nm('hand_r_'),
+    B = dict(pelvis=nm('pelvis_'), s1=nm('spine_01_'), s2=nm('spine_02_'), s3=nm('spine_03_'), s4=nm('spine_04_'), s5=nm('spine_05_'), neck=nm('neck_01_'), head=nmre(r'^head_\d+(_\d+)?$'), ual=nm('upperarm_l_'), lal=nm('lowerarm_l_'), hl=nm('hand_l_'), uar=nm('upperarm_r_'), lar=nm('lowerarm_r_'), hr=nm('hand_r_'),
              tl=nm('thigh_l_'), cl=nm('calf_l_'), fl=nm('foot_l_'), tr=nm('thigh_r_'), cr=nm('calf_r_'), fr=nm('foot_r_')); SPINE = ['s1', 's2', 's3', 's4', 's5']
 TOP = SPINE[-1]
 # ---- the character frame: up (pelvis -> neck), left (right shoulder -> left shoulder), fwd = left x up (glTF: Jones faces +Z)

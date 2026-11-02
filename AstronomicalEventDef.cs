@@ -218,6 +218,7 @@ namespace AstronomicalEvent
             { "end21", "2021-12-04" },
             { "skyfire", "2021-09-12" },
             { "zerocrisis", "2021-03-16" },
+            { "galactus", "2020-12-01" },
         };
 
         static void SortAll()

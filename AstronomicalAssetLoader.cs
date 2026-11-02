@@ -277,6 +277,7 @@ namespace AstronomicalEvent
                 || d.Kind == "end21"
                 || d.Kind == "skyfire"
                 || d.Kind == "zerocrisis"
+                || d.Kind == "galactus"
             )
             {
                 if (!string.IsNullOrEmpty(d.MusicFile))

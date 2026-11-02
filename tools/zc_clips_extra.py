@@ -54,6 +54,12 @@ def c_pray(t):   # kneeling, hands together, head down
     return P(IDLE, pel=(0, -0.62, 0.0), fl=(FX * 0.6, 0.0, 0.3), fr=(-FX * 0.6, -0.3, -0.1), frp=0.9, lean=0.25, nod=0.4, hl=(0.1, 0.1, 0.8, 0.5), hr=(0.1, 0.1, 0.8, 0.5), el=(0.5, -0.8, -0.2), er=(0.5, -0.8, -0.2))
 def c_drag(t):   # leans into a pull: both hands forward, bracing
     return P(IDLE, hl=(0.2, 0.25, 1.0, 0.9), hr=(0.2, 0.25, 1.0, 0.9), el=(0.5, -0.8, -0.1), er=(0.5, -0.8, -0.1), lean=0.4, pel=(0, -0.12, 0.12), fl=(FX, 0, 0.45), fr=(-FX, 0, -0.4), nod=0.1)
-CLIPS.update({'Hang': c_hang, 'Device': c_device, 'DeviceUp': c_deviceup, 'Fight': c_fight, 'Block': c_block, 'Kick': c_kick, 'Roar': c_roar, 'Sprint': c_sprint, 'Lunge': c_lunge, 'Reach': c_reach, 'Channel': c_channel, 'LookUp': c_lookup,
+def c_hover(t):   # floating upright: arms a little out, legs together, a slow bob
+    b = sn(t, 0.3); return P(IDLE, hl=(0.45, -0.85, 0.05, 1.0), hr=(0.45, -0.85, 0.05, 1.0), el=(0.8, -0.3, -0.3), er=(0.8, -0.3, -0.3), pel=(0, 0.02 * b, 0), fl=(FX * 0.45, 0.03, 0.0), fr=(-FX * 0.45, 0.0, 0.0), nod=0.05, lean=0.03 * b)
+def c_flypose(t):   # the body is tipped forward by the plugin: arms straight back along it, legs together and straight
+    return P(IDLE, hl=(0.12, -1.0, -0.35, 1.0), hr=(0.12, -1.0, -0.35, 1.0), el=(0.5, 0.0, -1.0), er=(0.5, 0.0, -1.0), fl=(FX * 0.35, 0.0, -0.05), fr=(-FX * 0.35, 0.0, -0.05), nod=-0.25, lean=-0.05)
+def c_repulsor(t):   # one palm thrust forward (firing), the other arm back
+    k = 0.5 + 0.5 * sn(t, 2.0); return P(IDLE, hr=(0.05, 0.1, 1.0, 1.0), er=(0.5, -0.9, 0.0), hl=(0.35, -0.8, -0.4, 1.0), el=(0.7, -0.3, -0.5), lean=0.1 + 0.03 * k, twist=-0.15, fl=(FX + 0.04, 0, 0.1), fr=(-FX - 0.02, 0, -0.18))
+CLIPS.update({'Hover': c_hover, 'FlyPose': c_flypose, 'Repulsor': c_repulsor, 'Hang': c_hang, 'Device': c_device, 'DeviceUp': c_deviceup, 'Fight': c_fight, 'Block': c_block, 'Kick': c_kick, 'Roar': c_roar, 'Sprint': c_sprint, 'Lunge': c_lunge, 'Reach': c_reach, 'Channel': c_channel, 'LookUp': c_lookup,
               'KnockDown': c_knockdown, 'GetUp': c_getup, 'Wave': c_wave, 'Victory': c_victory, 'Float': c_float, 'Think': c_think, 'Flex': c_flex, 'Dance': c_dance, 'Taunt': c_taunt, 'Pray': c_pray, 'Drag': c_drag})
 LOCO.add('Sprint')
