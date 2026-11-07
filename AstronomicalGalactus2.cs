@@ -58,7 +58,7 @@ namespace AstronomicalEvent
         static float Fit(GltfModel m, float h, bool longest = false) { if (m == null) return 1f; var s = m.RendererBounds.size; float v = longest ? Mathf.Max(s.x, s.y, s.z) : s.y; return h / Mathf.Max(0.05f, v); }
         void BuildModels()
         {
-            heliM = Take("heli", 1.2f); sbusM = Take("sbus", 1.2f); sbusfM = Take("sbusfar", 1.2f); galM = Take("galactus", 1.15f); corM = Take("corridor", 1.2f); offM = Take("office", 1.2f); ironM = Take("iron", 1.4f); thorM = Take("thor", 1.3f); wolvM = Take("wolverine", 1.3f); jonM = Take("jones", 1.25f);
+            heliM = Take("heli", 1.2f); sbusM = Take("sbus", 1.2f); sbusfM = Take("sbusfar", 1.2f); galM = Take("galactus", 1.15f); corM = Take("corridor", 1.2f); offM = Take("office", 1.2f); ironM = Take("iron", 1.4f); thorM = Take("thor", 0.95f); wolvM = Take("wolverine", 1.3f); jonM = Take("jones", 1.25f);
         }
         Act NewAct(string id, GltfModel m, float height)
         {
@@ -90,8 +90,8 @@ namespace AstronomicalEvent
         {
             acts.Clear(); actBy.Clear(); var th = NewAct("thor", thorM, 2.0f); var wv = NewAct("wolv", wolvM, 1.75f); var ir = NewAct("iron", ironM, 2.0f); var jo = NewAct("jones", jonM, 1.9f);
             Vector3 roof = BusPos + BusRoof;
-            if (th != null) { th.Keys.Add(Kf(0f, -7f, -26f, 20f, "Taunt")); th.Keys.Add(Kf(174f, -7f, -26f, 20f, "Taunt")); th.Keys.Add(Kf(176f, -7f, -26f, 20f, "KnockDown")); th.Keys.Add(Kf(179.5f, -9f, -29f, 20f, "KnockDown")); th.Keys.Add(Kf(180f, -9f, -29f, 20f, "Hide")); th.Keys.Add(Kf(330f, roof.x - 1.7f, roof.z - 2.8f, 160f, "Taunt", roof.y)); th.Keys.Add(Kf(575f, roof.x - 1.7f, roof.z - 2.8f, 160f, "Taunt", roof.y)); th.Keys.Add(Kf(577f, roof.x - 1.7f, roof.z - 2.8f, 160f, "Hide", roof.y)); }
-            if (wv != null) { wv.Keys.Add(Kf(0f, 6f, -28f, -10f, "Fight")); wv.Keys.Add(Kf(174f, 6f, -28f, -10f, "Fight")); wv.Keys.Add(Kf(176f, 6f, -28f, -10f, "Stagger")); wv.Keys.Add(Kf(179.5f, 8f, -31f, -10f, "KnockDown")); wv.Keys.Add(Kf(180f, 8f, -31f, -10f, "Hide")); wv.Keys.Add(Kf(270f, roof.x + 1.5f, roof.z - 1.8f, 180f, "Lunge", roof.y)); wv.Keys.Add(Kf(420f, roof.x + 1.5f, roof.z - 1.8f, 180f, "Fight", roof.y)); wv.Keys.Add(Kf(420.5f, roof.x + 1.5f, roof.z - 1.8f, 180f, "Hide", roof.y)); wv.Keys.Add(Kf(500f, roof.x + 1.5f, roof.z + 1.2f, 180f, "Hide", roof.y)); wv.Keys.Add(Kf(510f, roof.x + 1.5f, roof.z + 1.2f, 180f, "Fight", roof.y)); wv.Keys.Add(Kf(578f, roof.x + 1.5f, roof.z + 1.2f, 180f, "Roar", roof.y)); wv.Keys.Add(Kf(579f, roof.x + 1.5f, roof.z + 1.2f, 180f, "Hide", roof.y)); }
+            if (th != null) { th.Keys.Add(Kf(0f, -7f, -26f, 20f, "Taunt")); th.Keys.Add(Kf(174f, -7f, -26f, 20f, "Taunt")); th.Keys.Add(Kf(176f, -7f, -26f, 20f, "KnockDown")); th.Keys.Add(Kf(179.5f, -9f, -29f, 20f, "KnockDown")); th.Keys.Add(Kf(180f, -9f, -29f, 20f, "Hide")); th.Keys.Add(Kf(330f, roof.x - 1.7f, roof.z - 2.8f, 160f, "Taunt", roof.y)); th.Keys.Add(Kf(365f, roof.x - 1.7f, roof.z - 2.8f, 160f, "LookUp", roof.y)); th.Keys.Add(Kf(374f, roof.x - 1.7f, roof.z - 2.8f, 160f, "Brace", roof.y)); th.Keys.Add(Kf(386f, roof.x - 1.7f, roof.z - 2.8f, 160f, "LookUp", roof.y)); th.Keys.Add(Kf(402f, roof.x - 1.7f, roof.z - 2.8f, 160f, "Taunt", roof.y)); th.Keys.Add(Kf(510f, roof.x - 1.7f, roof.z - 2.8f, 160f, "LookUp", roof.y)); th.Keys.Add(Kf(535f, roof.x - 1.7f, roof.z - 2.8f, 160f, "Fight", roof.y)); th.Keys.Add(Kf(555f, roof.x - 1.7f, roof.z - 2.8f, 160f, "Roar", roof.y)); th.Keys.Add(Kf(570f, roof.x - 1.7f, roof.z - 2.8f, 160f, "Brace", roof.y)); th.Keys.Add(Kf(575f, roof.x - 1.7f, roof.z - 2.8f, 160f, "Hide", roof.y)); }
+            if (wv != null) { wv.Keys.Add(Kf(0f, 6f, -28f, -10f, "Fight")); wv.Keys.Add(Kf(174f, 6f, -28f, -10f, "Fight")); wv.Keys.Add(Kf(176f, 6f, -28f, -10f, "Stagger")); wv.Keys.Add(Kf(179.5f, 8f, -31f, -10f, "KnockDown")); wv.Keys.Add(Kf(180f, 8f, -31f, -10f, "Hide")); wv.Keys.Add(Kf(270f, roof.x + 1.5f, roof.z - 1.8f, 180f, "Lunge", roof.y)); wv.Keys.Add(Kf(420f, roof.x + 1.5f, roof.z - 1.8f, 180f, "Fight", roof.y)); wv.Keys.Add(Kf(420.5f, roof.x + 1.5f, roof.z - 1.8f, 180f, "Hide", roof.y)); wv.Keys.Add(Kf(500f, roof.x + 1.5f, roof.z + 1.2f, 180f, "Hide", roof.y)); wv.Keys.Add(Kf(510f, roof.x + 1.5f, roof.z + 1.2f, 180f, "LookUp", roof.y)); wv.Keys.Add(Kf(535f, roof.x + 1.5f, roof.z + 1.2f, 180f, "Fight", roof.y)); wv.Keys.Add(Kf(544f, roof.x + 1.5f, roof.z + 1.2f, 180f, "Lunge", roof.y)); wv.Keys.Add(Kf(549f, roof.x + 1.5f, roof.z + 1.2f, 180f, "Fight", roof.y)); wv.Keys.Add(Kf(558f, roof.x + 1.5f, roof.z + 1.2f, 180f, "Lunge", roof.y)); wv.Keys.Add(Kf(563f, roof.x + 1.5f, roof.z + 1.2f, 180f, "Fight", roof.y)); wv.Keys.Add(Kf(578f, roof.x + 1.5f, roof.z + 1.2f, 180f, "Roar", roof.y)); wv.Keys.Add(Kf(579f, roof.x + 1.5f, roof.z + 1.2f, 180f, "Hide", roof.y)); }
             if (wv != null) wv.Ov = t =>
             {
                 if (t < 504.5f || t >= 510f) return null; float u = (t - 504.5f) / 5.5f; Vector3 a0 = new Vector3(roof.x - 9f, roof.y + 16f, roof.z - 78f), a1 = new Vector3(roof.x + 1.5f, roof.y, roof.z + 1.2f); Vector3 p = Vector3.Lerp(a0, a1, u); p.y += 14f * Mathf.Sin(u * Mathf.PI);
@@ -105,7 +105,7 @@ namespace AstronomicalEvent
                 if (t >= 525f && t < 580f) { Vector3 p = BusPos + new Vector3(5f, 5f + Mathf.Sin(t * 0.8f), 30f - 4f * Sm(535f, 575f, t)); return new K { T = t, X = p.x, Y = p.y, Z = p.z, Yaw = 0f, Pitch = 0f, Clip = t < 560f ? "Hover" : "Repulsor" }; }
                 return null;
             };
-            if (jo != null) jo.Keys.Add(Kf(605f, 0.8f, OfficeZ + 0.6f, 200f, "KnockDown", IY + 0.15f));
+            if (jo != null) { jo.Keys.Add(Kf(605f, 0.8f, OfficeZ + 0.6f, 200f, "KnockDown", IY + 0.15f)); jo.Keys.Add(Kf(609.5f, 0.8f, OfficeZ + 0.6f, 200f, "GetUp", IY + 0.15f)); jo.Keys.Add(Kf(613f, 0.8f, OfficeZ + 0.6f, 200f, "LookUp", IY + 0.15f)); jo.Keys.Add(Kf(616f, 0.8f, OfficeZ + 0.6f, 200f, "Think", IY + 0.15f)); jo.Keys.Add(Kf(620f, 0.8f, OfficeZ + 0.6f, 200f, "Hide", IY + 0.15f)); }
             foreach (var a in acts) { a.Keys.Sort((p, q) => p.T.CompareTo(q.T)); }
         }
         float ActScaleFor(string id, float t) { if (id == "iron") return t > 280f ? 8f : 2.0f; return 0f; }
@@ -175,15 +175,15 @@ namespace AstronomicalEvent
         static Quaternion DownSh(Transform el) { return Quaternion.FromToRotation(el.localPosition.normalized, Vector3.down); }
         // point an arm straight along a world direction (upper arm along the shoulder -> elbow direction)
         void AimArm(Transform sh, Transform el, Transform hand, Vector3 dirW, float w)
-        {
-            var aim = Quaternion.FromToRotation(el.localPosition.normalized, sh.parent.InverseTransformDirection(dirW));
-            sh.localRotation = Quaternion.Slerp(sh.localRotation, aim, w); el.localRotation = Quaternion.Slerp(el.localRotation, StraightEl(el, hand), w);
+        {   // frame-agnostic (the bones of the glb have their own axes): turn the upper arm so shoulder -> elbow points along dirW, then the forearm in line with it
+            var qs = Quaternion.FromToRotation((el.position - sh.position).normalized, dirW.normalized); sh.rotation = Quaternion.Slerp(sh.rotation, qs * sh.rotation, w);
+            if (hand == null) return; var ua = (el.position - sh.position).normalized; var qe = Quaternion.FromToRotation((hand.position - el.position).normalized, ua); el.rotation = Quaternion.Slerp(el.rotation, qe * el.rotation, w);
         }
         // 5:30 - 7:00 the bus flies UP HIS ARM (the Death Star trench run of the real event): his RIGHT arm (on your left as he faces you) is held straight out towards you like a runway, the bus goes from the fist along the forearm, over the elbow and the upper arm to the shoulder, then up in front of his chest to his face.
         // He is bigger in this part (x3) so the trench is long; the whole of him is moved so that the point of the arm under the bus stays at the bus (the bus does not move)
         public const float BusEye = 3.8f; public const float RunS = 3f; Vector3 runH, runS, runHd; float runRad, runU; bool runOn, runInside, armHidden;
         // while the bus is inside the arm the arm's own shell is hidden (the tunnel replaces it)
-        void ShowArm(bool show) { if (gxOSh == null || armHidden == !show) return; armHidden = !show; foreach (var nm in new[] { gxOSh.name, gxOEl.name }) { List<Renderer> rl; if (skinBy.TryGetValue(nm, out rl)) foreach (var r in rl) if (r != null) r.enabled = show; } }
+        void ShowArm(bool show) { if (gxOSh == null || armHidden == !show) return; armHidden = !show; List<Renderer> rl; if (skinBy.TryGetValue(gxOSh.name.EndsWith("L") ? "ArmL" : "ArmR", out rl)) foreach (var r in rl) if (r != null) r.enabled = show; }
         static float RunWeave(float u) { return u > 0f && u < 1f ? 16f * Mathf.Sin(9f * u) * Sm(0f, 0.08f, u) * (1f - Sm(0.9f, 1f, u)) : 0f; }
         void GxRun(float t, GameObject go, float s)
         {
@@ -216,30 +216,26 @@ namespace AstronomicalEvent
             { float e = Env(508f, 516f, 575f, 578f, t); float pc = Mathf.Repeat(t - 510f, 9f); float r = Sm(0.4f, 1.6f, pc) * (1f - Sm(2.6f, 4.2f, pc)); d[9] -= 18f * r * e; d[10] -= 6f * r * e; d[1] += 16f * r * e; d[5] -= 16f * r * e; d[12] += 2.5f * Mathf.Sin(t * 27f) * r * e; }   // 12 the roars in space, every 9 s
             { float e = Env(508f, 516f, 575f, 578f, t); d[0] += 12f * Mathf.Sin(t * 0.8f) * e; d[4] += 12f * Mathf.Sin(t * 0.8f + 1.7f) * e; d[11] += 6f * Mathf.Sin(t * 0.35f) * e; }   // 13 the arms drift like in zero gravity
             { float e = Env(540f, 550f, 575f, 578f, t); d[10] -= 7f * e * Mathf.Abs(Mathf.Sin(t * 5f)); d[8] += 14f * Mathf.Sin(t * 0.7f) * e; d[9] -= 8f * e; }                  // 14 the mouth opens wide, he rears back and shudders as the payload swells
+            // The last bus impacts visibly jolt his shoulders and head instead of leaving him in a static roar pose.
+            float jolt = 0f, rattle = 0f;
+            foreach (float bt in BOOMS) if (bt >= 540f && bt <= 575f) { float e = Sm(bt - 0.16f, bt + 0.04f, t) * (1f - Sm(bt + 0.12f, bt + 0.85f, t)); jolt = Mathf.Max(jolt, e); rattle += Mathf.Sin((t - bt) * 48f) * e; }
+            d[0] -= 8f * jolt; d[4] -= 8f * jolt; d[9] += 10f * jolt; d[10] += 4f * jolt; d[12] += 2.5f * rattle;
             return d;
         }
         void GxFrame(float t, float tp, float dt, Seg g, Camera cam)
         {
             if (galM == null) return; if (!(t >= 362f && t < 412f)) ShowArm(true); Vector3 pos; bool on = GxPlace(t, g, out pos); var go = galM.Pivot; if (go.activeSelf != on) go.SetActive(on); if (!on) return;
-            if (gxTorso == null) return; float[] p = GxAng(t); var gi = GxIdle(t); for (int q = 0; q < 11; q++) p[q] += gi[q]; float s = GS * Fit(galM, 1f) * 60f / Mathf.Max(0.01f, galM.RendererBounds.size.y); bool run = t >= 330f && t < 420f; s = run ? GS * RunS : GS * (1f + 0.9f * Env(184f, 204f, 266f, 276f, t) + 0.5f * Env(130f, 156f, 176f, 186f, t)); gxS = s;
-            // idle breathing / the walk-in sway
-            float br = 0.5f * Mathf.Sin(t * 0.7f); float lean = p[10] + br; float bend = 100f * Env(186f, 206f, 262f, 280f, t); var rq = Quaternion.Euler(lean * 0.6f + bend, 180f, 0f); go.transform.localRotation = rq; go.transform.localScale = Vector3.one * s; go.transform.localPosition = pos - rq * (gxBelt * s) + (t < 130f ? Vector3.up * 2f * Mathf.Sin(t * 0.9f) : Vector3.zero);
+            if (gxTorso == null || gxHead == null) return;
+            float s = GS * Fit(galM, 60f); bool run = t >= 330f && t < 420f; s = run ? GS * RunS : GS * (1f + 0.9f * Env(184f, 204f, 266f, 276f, t) + 0.5f * Env(130f, 156f, 176f, 186f, t)); gxS = s;
+            float lean = 0.5f * Mathf.Sin(t * 0.7f); float bend = 100f * Env(186f, 206f, 262f, 280f, t); var rq = Quaternion.Euler(lean * 0.6f + bend, 180f, 0f); float sc = s * Fit(galM, 60f); go.transform.localRotation = rq; go.transform.localScale = Vector3.one * sc; go.transform.localPosition = pos - rq * (gxBelt * sc);   // the loader normalises a skinned glb to 1.8 units: Fit brings it back to the 60-unit authoring height
             if (t < 575f)
             {
-                gxSwap = root.transform.InverseTransformPoint(gxShL.position).x < root.transform.InverseTransformPoint(gxShR.position).x;   // the part called L stands on your left: then the table's L columns drive R, mirrored
-                gxHSh = gxSwap ? gxShR : gxShL; gxHEl = gxSwap ? gxElR : gxElL; gxOSh = gxSwap ? gxShL : gxShR; gxOEl = gxSwap ? gxElL : gxElR; gxHHand = gxSwap ? gxHandR : gxHandL; gxOHand = gxSwap ? gxHandL : gxHandR; float sg = gxSwap ? -1f : 1f;
-                // the sculpted guard pose until he starts to move (~2:05), then the table's angles act on straight hanging arms
-                float str = Sm(122f, 136f, t);
-                gxHSh.localRotation = Quaternion.Euler(p[0], sg * p[2], sg * p[1]) * Quaternion.Slerp(Quaternion.identity, DownSh(gxHEl), str); gxHEl.localRotation = Quaternion.Euler(p[3], 0f, 0f) * Quaternion.Slerp(Quaternion.identity, StraightEl(gxHEl, gxHHand), str);
-                gxOSh.localRotation = Quaternion.Euler(p[4], sg * p[6], sg * p[5]) * Quaternion.Slerp(Quaternion.identity, DownSh(gxOEl), str); gxOEl.localRotation = Quaternion.Euler(p[7], 0f, 0f) * Quaternion.Slerp(Quaternion.identity, StraightEl(gxOEl, gxOHand), str);
-                gxHead.localRotation = Quaternion.Euler(p[9] + 2f * Mathf.Sin(t * 0.5f), p[8], 0f); gxTorso.localRotation = Quaternion.Euler(0f, 3f * Mathf.Sin(t * 0.3f) + gi[11], gi[12]);
-                for (int i = 0; i < gxParts.Count; i++) { gxParts[i].localPosition = gxPartBase[i]; }
-                GxLegs(t); GxHitAim(t); GxReach(t); GxRun(t, go, s); GxCup(t);
+                BreakApart(false); GxClips(t);
+                gxSwap = root.transform.InverseTransformPoint(gxShL.position).x < root.transform.InverseTransformPoint(gxShR.position).x;   // the part called L stands on your left: then the L bones drive his RIGHT
+                gxHSh = gxSwap ? gxShR : gxShL; gxHEl = gxSwap ? gxElR : gxElL; gxOSh = gxSwap ? gxShL : gxShR; gxOEl = gxSwap ? gxElL : gxElR; gxHHand = gxSwap ? gxHandR : gxHandL; gxOHand = gxSwap ? gxHandL : gxHandR;
+                GxAdd(t); GxHitAim(t); GxReach(t); GxRun(t, go, s); GxCup(t);
             }
-            else
-            {   // 9:35: he comes apart: every piece drifts away, tumbling, burning
-                float e = t - 575f; for (int i = 0; i < gxParts.Count; i++) { var d = gxDir[i]; gxParts[i].localPosition = gxPartBase[i] + d * (e * e * 1.2f + e * 4f) * 1.0f; gxParts[i].localRotation = Quaternion.Euler(gxSpin[i] * e * 25f); }
-            }
+            else BreakApart(true, t - 575f);
             // haze: far Galactus is a pale silhouette in the clouds
             float hz = t < 130f ? 1f - Sm(55f, 128f, t) : 0f; float hl = t >= 100f && t < 190f ? 0.55f * Sm(100f, 130f, t) * (1f - Sm(176f, 190f, t)) : 0f; float hm = Sm(325f, 336f, t) * (1f - Sm(412f, 420f, t)) * 0.6f; if (Mathf.Abs(hz + hm + hl - GxHaze) > 0.01f || t < 130f || hm > 0f || hl > 0f) { GxHaze = hz + hm + hl; Color c = hl > 0f ? Color.Lerp(Color.white, new Color(1.9f, 1.45f, 2.1f), hl) : hm > 0f ? Color.Lerp(Color.white, new Color(1.9f, 2.1f, 2.7f), hm) : Color.Lerp(Color.white, new Color(2.6f, 2.4f, 2.6f), hz); foreach (var m in galMats) if (m != null) m.color = c; }
         }

@@ -37,10 +37,8 @@ namespace AstronomicalEvent
             if (corM != null) { var h0 = Sub(corM, "Hall"); var b0 = Sub(corM, "Beams"); for (int i = 0; i < 4 && h0 != null; i++) { var h = UnityEngine.Object.Instantiate(h0.gameObject, root.transform); h.name = "GHall" + i; h.SetActive(false); clones.Add(h); halls.Add(h); if (b0 != null) { var b = UnityEngine.Object.Instantiate(b0.gameObject, root.transform); b.name = "GBeams" + i; b.SetActive(false); clones.Add(b); beams.Add(b); } } }
             if (galM != null)
             {
-                gxRoot = Sub(galM, "Gx"); gxBelt = gxRoot != null ? galM.Pivot.transform.InverseTransformPoint(gxRoot.position) : Vector3.zero; gxTorso = Sub(galM, "Torso"); gxHead = Sub(galM, "Head"); gxShL = Sub(galM, "ShL"); gxElL = Sub(galM, "ElL"); gxShR = Sub(galM, "ShR"); gxElR = Sub(galM, "ElR"); gxHandL = Sub(galM, "HandL"); gxHandR = Sub(galM, "HandR"); gxEyeL = Sub(galM, "EyeL"); gxEyeR = Sub(galM, "EyeR"); gxMouthP = Sub(galM, "MouthP"); gxChestP = Sub(galM, "ChestP");
-                gxParts.Clear(); foreach (var tr in new[] { gxTorso, gxHead, gxShL, gxElL, gxShR, gxElR }) gxParts.Add(tr);
-                gxPartBase = new Vector3[gxParts.Count]; gxDir = new Vector3[gxParts.Count]; gxSpin = new Vector3[gxParts.Count]; Vector3[] dirs = { new Vector3(0f, 0.1f, 1f), new Vector3(0f, 1f, 0.5f), new Vector3(1f, 0.2f, 0.4f), new Vector3(1f, -0.3f, 0.6f), new Vector3(-1f, 0.2f, 0.4f), new Vector3(-1f, -0.3f, 0.6f) };
-                for (int i = 0; i < gxParts.Count; i++) { gxPartBase[i] = gxParts[i] != null ? gxParts[i].localPosition : Vector3.zero; gxDir[i] = dirs[i] * 6f; gxSpin[i] = new Vector3(Hash(i, 7) - 0.5f, Hash(i, 8) - 0.5f, Hash(i, 9) - 0.5f); }
+                gxRoot = Sub(galM, "Gx"); gxBelt = gxRoot != null ? galM.Pivot.transform.InverseTransformPoint(gxRoot.position) : Vector3.zero; gxTorso = Sub(galM, "Hips"); gxHead = Sub(galM, "Head"); gxShL = Sub(galM, "UpperArmL"); gxElL = Sub(galM, "ForeArmL"); gxShR = Sub(galM, "UpperArmR"); gxElR = Sub(galM, "ForeArmR"); gxHandL = Sub(galM, "HandL"); gxHandR = Sub(galM, "HandR"); gxEyeL = Sub(galM, "EyeL"); gxEyeR = Sub(galM, "EyeR"); gxMouthP = Sub(galM, "MouthP"); gxChestP = Sub(galM, "ChestP");
+                gxParts.Clear(); gxPartBase = new Vector3[0]; gxDir = new Vector3[0]; gxSpin = new Vector3[0];
                 BuildSkin();
             }
             boltMat = kit.Glow(new Color(1f, 0.55f, 0.85f, 1f), lineTex, 3003); convMat = kit.Glow(new Color(1f, 0.4f, 0.7f, 0.9f), lineTex, 3002);
@@ -64,7 +62,7 @@ namespace AstronomicalEvent
             crackMat = kit.Glow(new Color(1f, 0.5f, 0.12f, 0f), glowTex, 3001); cracks.Clear();
             for (int i = 0; i < 48; i++) { var c = Quad("GCrack" + i, crackMat); c.gameObject.SetActive(false); cracks.Add(c); }
             cdTm = MakeText(root.transform, 0.9f, new Color(1f, 0.85f, 0.4f, 0f), 3003); capTm = MakeText(root.transform, 0.045f, new Color(1f, 1f, 1f, 0f), 3600); subTm = MakeText(root.transform, 0.02f, new Color(1f, 0.95f, 0.9f, 0f), 3600);
-            AstronomicalDebug.Anchors["head"] = () => HeadNow(); AstronomicalDebug.Anchors["bus"] = () => W(BusPos + BusRoof + Vector3.up * 2f); AstronomicalDebug.Anchors["deck"] = () => W(new Vector3(0f, IY + DeckY + 2f, -20f));
+            AstronomicalDebug.Anchors["head"] = () => HeadNow(); AstronomicalDebug.Anchors["thor"] = () => thHip != null ? thHip.position : Vector3.zero; AstronomicalDebug.Anchors["bus"] = () => W(BusPos + BusRoof + Vector3.up * 2f); AstronomicalDebug.Anchors["deck"] = () => W(new Vector3(0f, IY + DeckY + 2f, -20f));
             AstronomicalDebug.Anchors["gx"] = () => gxRoot != null ? gxRoot.TransformPoint(new Vector3(0f, 14f, 0f)) : Vector3.zero; AstronomicalDebug.Anchors["iron"] = () => actBy.ContainsKey("iron") ? actBy["iron"].Go.transform.position + Vector3.up : Vector3.zero;
             AstronomicalDebug.Anchors["gxbelt"] = () => gxRoot != null ? gxRoot.position : Vector3.zero; AstronomicalDebug.Anchors["gxhead"] = () => gxHead != null ? gxHead.position : Vector3.zero; AstronomicalDebug.Anchors["gxfeet"] = () => galM != null ? galM.Pivot.transform.position : Vector3.zero; JsLiveEventsMod.Log.LogInfo("Galactus: belt offset in pivot space " + gxBelt + ", head " + (gxHead != null ? galM.Pivot.transform.InverseTransformPoint(gxHead.position).ToString() : "-"));
             AstronomicalDebug.Anchors["office"] = () => W(new Vector3(0f, IY + 1f, OfficeZ)); AstronomicalDebug.Anchors["fall"] = () => W(FallPos(Mathf.Clamp(lastT, 180f, 270f))); BuildExtra();
@@ -73,13 +71,13 @@ namespace AstronomicalEvent
         void ContentCleanup()
         {
             acts.Clear(); actBy.Clear(); fleet.Clear(); fleetX.Clear(); fleetY.Clear(); fleetZ.Clear(); halls.Clear(); beams.Clear(); bolts.Clear(); conv.Clear(); galMats.Clear(); gxParts.Clear(); gxTorso = gxHead = gxShL = gxElL = gxShR = gxElR = gxHSh = gxHEl = gxOSh = gxOEl = gxHandL = gxHandR = gxEyeL = gxEyeR = gxMouthP = gxChestP = gxHHand = gxOHand = null;
-            ExtraCleanup(); skinBy.Clear(); gxHipL = gxKneeL = gxHipR = gxKneeR = null; cracks.Clear(); pylons.Clear(); pylonGl.Clear(); gates.Clear(); conduits.Clear(); tunnel = tunEnd = null; drones.Clear(); droneGl.Clear(); lasers.Clear(); heliGo = busGo = null; heliM = sbusM = sbusfM = galM = corM = offM = ironM = thorM = wolvM = jonM = null; cdTm = capTm = subTm = null; orb = ball = planet = null;
+            ExtraCleanup(); thorPropsBuilt = false; thorPropsFail = false; capeGo = null; hammerGo = null; skinBy.Clear(); gxHipL = gxKneeL = gxHipR = gxKneeR = null; cracks.Clear(); pylons.Clear(); pylonGl.Clear(); gates.Clear(); conduits.Clear(); tunnel = tunEnd = null; drones.Clear(); droneGl.Clear(); lasers.Clear(); heliGo = busGo = null; heliM = sbusM = sbusfM = galM = corM = offM = ironM = thorM = wolvM = jonM = null; cdTm = capTm = subTm = null; orb = ball = planet = null;
         }
 
         // ---------------------------------------------------------------- the frame
         void Content(float t, float tp, float dt, Seg g, Camera cam)
         {
-            foreach (var a in acts) ActFrame(a, t, dt); DeckFrame(t, tp, dt, cam); GxFrame(t, tp, dt, g, cam); GxFx(t, tp, dt, cam); RunFx(t, tp, dt, cam); ExtraFrame(t, tp, dt, cam); BusFrame(t, tp, dt); CorridorFrame(t, tp, dt); BlastFrame(t, tp, dt); OfficeFrame(t); CaptionFrame(t, cam); AmbientFrame(t, dt, cam); CloudsFrame(t);
+            foreach (var a in acts) ActFrame(a, t, dt); ThorProps(t, dt); DeckFrame(t, tp, dt, cam); GxFrame(t, tp, dt, g, cam); GxFx(t, tp, dt, cam); RunFx(t, tp, dt, cam); ExtraFrame(t, tp, dt, cam); BusFrame(t, tp, dt); CorridorFrame(t, tp, dt); BlastFrame(t, tp, dt); OfficeFrame(t); CaptionFrame(t, cam); AmbientFrame(t, dt, cam); CloudsFrame(t);
             RenderSettings.ambientLight = Color.Lerp(ambientSave, MoodAmbient(g, t), 0.8f); sun.intensity = 0.6f * Lit; sun.color = Color.Lerp(Color.white, MoodAmbient(g, t), 0.4f);
             // the red lamp follows the bus inside Galactus
             redLamp.color = new Color(0.6f, 0.4f, 1f); redLamp.intensity = (g.S == Sc.Inside ? Lit * (2.4f + 1.2f * Mathf.Sin(t * 13f) * Mathf.Sin(t * 5f)) : 0f); redLamp.transform.position = W(BusPos + new Vector3(0f, 9f, 18f));

@@ -5,7 +5,7 @@ DL = r'C:\Users\drago\Downloads'; MP3 = os.path.join(DL, 'Fortnite Galactus Even
 PY = r'C:\Program Files\Blender Foundation\Blender 5.2\5.2\python\bin\python.exe'; BL = r'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe'
 S = [(0, 'The Helicarrier'), (55, 'Galactus arrives'), (120, 'He reaches'), (180, 'The fall'), (270, 'The Battle Bus'), (330, 'The assault'), (420, 'Inside Galactus'), (510, 'Space'), (535, 'The face'), (575, 'The blast'), (600, 'Black'), (605, 'Agent Jones'), (620, 'Season 5')]
 # prop id -> (source, texture px or 0 = copy as is)
-FILES = {'heli': (os.path.join(Z, 'g_heli.glb'), 512), 'sbus': (os.path.join(Z, 'g_sbus.glb'), 512), 'sbusfar': (os.path.join(Z, 'g_sbusfar.glb'), 256), 'galactus': (os.path.join(Z, 'gx_galactus2.glb'), 0), 'corridor': (os.path.join(Z, 'gx_corridor.glb'), 0),
+FILES = {'heli': (os.path.join(Z, 'g_heli.glb'), 512), 'sbus': (os.path.join(Z, 'g_sbus.glb'), 512), 'sbusfar': (os.path.join(Z, 'g_sbusfar.glb'), 256), 'galactus': (os.path.join(HERE, 'cache', 'gx2', 'galactus_anim.glb'), 0), 'corridor': (os.path.join(Z, 'gx_corridor.glb'), 0),
          'office': (os.path.join(Z, 'gx_office.glb'), 0), 'iron': (os.path.join(Z, 'iron.glb'), 0), 'thor': (os.path.join(Z, 'thor.glb'), 0), 'wolverine': (os.path.join(Z, 'wolverine.glb'), 0), 'jones': (os.path.join(Z, 'jones.glb'), 0)}
 for pid, (src, px) in FILES.items():
     dst = os.path.join(D, pid + '.glb')

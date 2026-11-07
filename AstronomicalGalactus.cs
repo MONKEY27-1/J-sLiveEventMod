@@ -160,9 +160,9 @@ namespace AstronomicalEvent
             top = mid = hor = Color.black;
             switch (g.S)
             {
-                case Sc.Deck: top = new Color(0.72f, 0.74f, 0.88f); mid = new Color(0.88f, 0.86f, 0.92f); hor = new Color(1f, 0.96f, 0.95f); break;
-                case Sc.Arrive: top = new Color(0.7f, 0.7f, 0.86f); mid = new Color(0.9f, 0.82f, 0.9f); hor = new Color(1f, 0.9f, 0.92f); break;
-                case Sc.Reach: { float k = Sm(120f, 180f, t); top = Color.Lerp(new Color(0.7f, 0.7f, 0.86f), new Color(0.55f, 0.4f, 0.7f), k); mid = Color.Lerp(new Color(0.9f, 0.82f, 0.9f), new Color(0.95f, 0.6f, 0.7f), k); hor = Color.Lerp(new Color(1f, 0.9f, 0.92f), new Color(1f, 0.7f, 0.65f), k); break; }
+                case Sc.Deck: top = new Color(0.46f, 0.42f, 0.58f); mid = new Color(0.62f, 0.54f, 0.66f); hor = new Color(0.8f, 0.66f, 0.7f); break;
+                case Sc.Arrive: top = new Color(0.44f, 0.4f, 0.58f); mid = new Color(0.64f, 0.52f, 0.66f); hor = new Color(0.84f, 0.64f, 0.68f); break;
+                case Sc.Reach: { float k = Sm(120f, 180f, t); top = Color.Lerp(new Color(0.44f, 0.4f, 0.58f), new Color(0.5f, 0.34f, 0.62f), k); mid = Color.Lerp(new Color(0.64f, 0.52f, 0.66f), new Color(0.88f, 0.52f, 0.62f), k); hor = Color.Lerp(new Color(0.84f, 0.64f, 0.68f), new Color(0.98f, 0.62f, 0.55f), k); break; }
                 case Sc.Fall: { float k = Sm(195f, 240f, t); top = Color.Lerp(new Color(0.42f, 0.52f, 0.68f), new Color(0.01f, 0.05f, 0.2f), k); mid = Color.Lerp(new Color(0.65f, 0.68f, 0.8f), new Color(0.02f, 0.12f, 0.34f), k); hor = Color.Lerp(new Color(0.85f, 0.8f, 0.9f), new Color(0.06f, 0.26f, 0.5f), k); break; }
                 case Sc.BusIn: top = new Color(0.8f, 0.88f, 0.96f); mid = new Color(0.9f, 0.94f, 1f); hor = new Color(0.97f, 0.98f, 1f); break;
                 case Sc.Assault: { float k = Sm(330f, 400f, t); top = Color.Lerp(new Color(0.8f, 0.88f, 0.96f), new Color(0.75f, 0.6f, 0.8f), k); mid = Color.Lerp(new Color(0.9f, 0.94f, 1f), new Color(0.95f, 0.7f, 0.8f), k); hor = Color.Lerp(new Color(0.97f, 0.98f, 1f), new Color(1f, 0.8f, 0.8f), k); break; }
@@ -331,7 +331,7 @@ namespace AstronomicalEvent
             c = Color.black; float a = 0f;
             switch (g.S)
             {
-                case Sc.Deck: case Sc.Arrive: c = new Color(1f, 0.95f, 0.9f); a = 0.1f; break;
+                case Sc.Deck: case Sc.Arrive: c = new Color(0.9f, 0.7f, 0.8f); a = 0.1f; break;
                 case Sc.Reach: c = new Color(1f, 0.55f, 0.55f); a = 0.06f + 0.1f * Sm(120f, 180f, t); break;
                 case Sc.Fall: c = Color.Lerp(new Color(0.6f, 0.7f, 1f), new Color(0.1f, 0.3f, 0.8f), Sm(200f, 250f, t)); a = 0.1f + 0.02f * Sm(215f, 250f, t); break;
                 case Sc.BusIn: c = Color.white; a = 0.16f; break;
