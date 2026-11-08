@@ -9,7 +9,7 @@ namespace AstronomicalEvent
     {
         // ---- the battle bus interior is shown while you are INSIDE the bus (BusIn scene, and a cockpit shot before the dive); IntFloor = the floor below the bus pivot
         public const float IntFloor = -2.2f;
-        bool IsBusInterior(float t) { return t >= 270f && t < 334f; }
+        bool IsBusInterior(float t) { return (t >= 270f && t < 334f) || CockpitNow(); }
         Transform thSh, thShR, thHip, thHand, thToe, thHead; GameObject capeGo, hammerGo; Mesh capeMesh; Vector3[] capeV; Vector3 capeSway, capeSwayV, thPrev; bool thorPropsBuilt, thorPropsFail;
         const int CAPE_R = 8, CAPE_C = 5;
         static Transform BoneStarts(Transform root, string prefix) { foreach (var t in root.GetComponentsInChildren<Transform>(true)) if (t.name.StartsWith(prefix)) return t; return null; }

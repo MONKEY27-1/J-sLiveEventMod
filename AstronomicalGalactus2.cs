@@ -102,10 +102,10 @@ namespace AstronomicalEvent
             {
                 if (t >= 195f && t < 272f) { Vector3 p = FallPos(t) + new Vector3(5f + 1.2f * Mathf.Sin(t * 0.7f), -1.6f, 6f + Mathf.Sin(t * 0.5f)); float k = Sm(195f, 205f, t); return new K { T = t, X = p.x, Y = p.y, Z = p.z, Yaw = 160f, Pitch = 62f * k, Clip = k < 0.5f ? "Hover" : "FlyPose" }; }
                 if (t >= 282f && t < 420f) { float k = Sm(314f, 324f, t); Vector3 p = BusPos + new Vector3(Mathf.Lerp(0.6f, 9f, k), Mathf.Lerp(-0.2f, 6f, k), Mathf.Lerp(13.5f, 22f, k)) + Vector3.up * 0.5f * Mathf.Sin(t * 0.8f); return new K { T = t, X = p.x, Y = p.y, Z = p.z, Yaw = t < 322f ? 180f : 0f, Pitch = t < 322f ? 0f : 70f, Clip = t < 322f ? "Hover" : "FlyPose" }; }
-                if (t >= 525f && t < 580f) { Vector3 p = BusPos + new Vector3(5f, 5f + Mathf.Sin(t * 0.8f), 30f - 4f * Sm(535f, 575f, t)); return new K { T = t, X = p.x, Y = p.y, Z = p.z, Yaw = 0f, Pitch = 0f, Clip = t < 560f ? "Hover" : "Repulsor" }; }
+                if (t >= 525f && t < 580f) { float kq = Sm(534f, 541f, t); Vector3 p = BusPos + new Vector3(Mathf.Lerp(1.6f, 5f, kq), Mathf.Lerp(-0.3f, 5f, kq) + Mathf.Sin(t * 0.8f) * 0.4f, Mathf.Lerp(12f, 30f, kq) - 4f * Sm(535f, 575f, t)); return new K { T = t, X = p.x, Y = p.y, Z = p.z, Yaw = t < 534f ? 180f : 0f, Pitch = 0f, Clip = t < 560f ? "Hover" : "Repulsor" }; }
                 return null;
             };
-            if (jo != null) { jo.Keys.Add(Kf(605f, 0.8f, OfficeZ + 0.6f, 200f, "KnockDown", IY + 0.15f)); jo.Keys.Add(Kf(609.5f, 0.8f, OfficeZ + 0.6f, 200f, "GetUp", IY + 0.15f)); jo.Keys.Add(Kf(613f, 0.8f, OfficeZ + 0.6f, 200f, "LookUp", IY + 0.15f)); jo.Keys.Add(Kf(616f, 0.8f, OfficeZ + 0.6f, 200f, "Think", IY + 0.15f)); jo.Keys.Add(Kf(620f, 0.8f, OfficeZ + 0.6f, 200f, "Hide", IY + 0.15f)); }
+            if (jo != null) { jo.Keys.Add(Kf(605f, 0.8f, OfficeZ + 0.6f, 200f, "KnockDown", IY + 0.15f)); jo.Keys.Add(Kf(610.2f, 0.8f, OfficeZ + 0.6f, 200f, "GetUp", IY + 0.15f)); jo.Keys.Add(Kf(612.6f, 0.8f, OfficeZ + 0.6f, 200f, "LookUp", IY + 0.15f)); jo.Keys.Add(Kf(614f, 0.8f, OfficeZ + 0.6f, 200f, "Think", IY + 0.15f)); jo.Keys.Add(Kf(700f, 0.8f, OfficeZ + 0.6f, 200f, "Hide", IY + 0.15f)); }
             foreach (var a in acts) { a.Keys.Sort((p, q) => p.T.CompareTo(q.T)); }
         }
         float ActScaleFor(string id, float t) { if (id == "iron") return t > 280f ? 8f : 2.0f; return 0f; }
@@ -145,7 +145,7 @@ namespace AstronomicalEvent
             if (t < 330f) { pos = new Vector3(0f, BusPos.y - 150f, Mathf.Lerp(900f, 560f, Sm(272f, 330f, t))); return true; }
             if (t < 420f) { pos = new Vector3(0f, BusPos.y - 150f, Mathf.Lerp(560f, 62f, Sm(330f, 418f, t))); return true; }
             if (t < 510f) return false;
-            if (t < 535f) { pos = new Vector3(0f, BusPos.y - Mathf.Lerp(120f, 105f, Sm(510f, 535f, t)), Mathf.Lerp(250f, 170f, Sm(510f, 535f, t))); return true; }
+            if (t < 535f) { pos = new Vector3(0f, BusPos.y - Mathf.Lerp(120f, 105f, Sm(510f, 535f, t)), Mathf.Lerp(250f, 170f, Sm(510f, 535f, t))); float kc = Sm(468f, 474f, tReal) * (1f - Sm(489f, 495f, tReal)); pos = Vector3.Lerp(pos, new Vector3(0f, BusPos.y - 132f, 72f), kc); return true; }
             if (t < 576f) { pos = new Vector3(0f, BusPos.y - Mathf.Lerp(105f, 62f, Sm(535f, 560f, t)), Mathf.Lerp(170f, 95f, Sm(535f, 575f, t))); return true; }
             return t < 600f;
         }

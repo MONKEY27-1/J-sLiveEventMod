@@ -77,7 +77,7 @@ namespace AstronomicalEvent
         void ExtraFrame(float t, float tp, float dt, Camera cam)
         {
             // ---- cockpit
-            bool ck = cam != null && t >= 330f && t < 420f;
+            bool ck = cam != null && t >= 330f && t < 420f && !CockpitNow();
             if (cockGo != null && cockGo.activeSelf != ck) cockGo.SetActive(ck); if (reticle != null && reticle.gameObject.activeSelf != ck) reticle.gameObject.SetActive(ck);
             if (ck)
             {

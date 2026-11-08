@@ -8,7 +8,7 @@ bpy.ops.wm.read_factory_settings(use_empty=True)
 def mat(name, rgb, rough=0.6):
     m = bpy.data.materials.new(name); m.use_nodes = True; bs = next(n for n in m.node_tree.nodes if n.type == 'BSDF_PRINCIPLED'); bs.inputs['Base Color'].default_value = (rgb[0], rgb[1], rgb[2], 1.0); bs.inputs['Roughness'].default_value = rough; return m
 M = {'wall': mat('GxBusWall', (0.72, 0.78, 0.9)), 'trim': mat('GxBusTrim', (0.12, 0.17, 0.5)), 'floor': mat('GxBusFloor', (0.2, 0.21, 0.26)), 'seat': mat('GxBusSeat', (0.08, 0.16, 0.62)), 'dash': mat('GxBusDash', (0.16, 0.17, 0.2)), 'black': mat('GxBusBlack', (0.03, 0.03, 0.04)),
-     'glass': mat('SF_A_GxBusGlass', (0.05, 0.08, 0.12)), 'light': mat('SF_G_GxBusLight', (0.9, 0.95, 1.0)), 'red': mat('SF_G_GxBusRed', (0.85, 0.08, 0.06)), 'green': mat('SF_G_GxBusGamma', (0.25, 0.9, 0.3)), 'sign': mat('SF_G_GxBusSign', (0.92, 0.94, 1.0)), 'metal': mat('GxBusMetal', (0.42, 0.44, 0.5))}
+     'glass': mat('SF_A_GxBusGlass', (0.05, 0.08, 0.12)), 'light': mat('SF_G_GxBusLight', (0.9, 0.95, 1.0)), 'red': mat('SF_G_GxBusRed', (0.85, 0.08, 0.06)), 'green': mat('SF_G_GxBusGamma', (0.06, 0.55, 0.1)), 'sign': mat('SF_G_GxBusSign', (0.92, 0.94, 1.0)), 'metal': mat('GxBusMetal', (0.42, 0.44, 0.5))}
 KEYS = list(M)
 parts = {k: bmesh.new() for k in KEYS}
 def box(k, c, sz, bevel=0.0):
@@ -31,7 +31,15 @@ box('floor', (0, 0, -0.05), (3.1, 12.5, 0.1)); box('trim', (0, 0, 0.003), (0.5, 
 wz = [-4.2 + i * 1.7 for i in range(6)]       # window centres along Y (from the nose: -4.2 .. 4.3)
 for sx in (-1, 1):
     x = sx * W
-    box('wall', (x, 0, 0.5), (0.1, 12.4, 1.0)); box('trim', (x - sx * 0.04, 0, 1.03), (0.16, 12.4, 0.06)); box('wall', (x, 0, 2.3), (0.1, 12.4, 0.4))
+    if sx == 1:   # the DOOR on the right side by the driver: the first window is an opening down to the floor (the hero stands in it at 4:08 / 6:08)
+        d0, d1 = wz[0] - 0.65, wz[0] + 0.65
+        for (y0, y1) in ((-6.2, d0), (d1, 6.2)): box('wall', (x, (y0 + y1) / 2, 0.5), (0.1, y1 - y0, 1.0)); box('trim', (x - sx * 0.04, (y0 + y1) / 2, 1.03), (0.16, y1 - y0, 0.06))
+        box('wall', (x, 0, 2.3), (0.1, 12.4, 0.4)); box('trim', (x - 0.04, wz[0], 2.08), (0.2, 1.4, 0.06)); box('trim', (x - 0.04, d0, 1.05), (0.2, 0.08, 2.1)); box('trim', (x - 0.04, d1, 1.05), (0.2, 0.08, 2.1))
+        box('metal', (x + 0.2, wz[0], -0.06), (0.7, 1.3, 0.12), 0.02); box('red', (x - 0.02, wz[0], 0.02), (0.06, 1.3, 0.02))       # the step + a warning strip
+        box('wall', (x + 0.28, d0 - 0.02, 1.0), (0.5, 0.05, 2.0)); box('wall', (x + 0.28, d1 + 0.02, 1.0), (0.5, 0.05, 2.0))         # the two folded door leaves, swung out
+        box('light', (x - 0.06, wz[0], 2.0), (0.1, 0.9, 0.03))
+    else:
+        box('wall', (x, 0, 0.5), (0.1, 12.4, 1.0)); box('trim', (x - sx * 0.04, 0, 1.03), (0.16, 12.4, 0.06)); box('wall', (x, 0, 2.3), (0.1, 12.4, 0.4))
     pil = [Y0] + [c + 0.8 for c in wz[:-1]] + [Y1]
     edges = [(-6.2, wz[0] - 0.65)] + [(wz[i] + 0.65, wz[i + 1] - 0.65) for i in range(5)] + [(wz[-1] + 0.65, 6.2)]
     for (y0, y1) in edges: box('wall', (x, (y0 + y1) / 2, 1.65), (0.1, y1 - y0, 1.3)); box('trim', (x - sx * 0.04, (y0 + y1) / 2, 1.65), (0.04, max(0.05, y1 - y0 - 0.06), 1.3))

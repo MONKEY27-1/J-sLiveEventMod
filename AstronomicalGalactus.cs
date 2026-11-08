@@ -304,6 +304,7 @@ namespace AstronomicalEvent
         // carried scenes: falling from the deck, then standing on the bus roof for the rest
         bool Anchor(float t, Seg g, out Vector3 a, out float hx, out float zMin, out float zMax)
         {
+            if (CockpitNow()) { a = BusPos + new Vector3(0f, IntFloor + 2.3f, 2.8f); hx = 1.9f; zMin = -9f; zMax = 3.2f; return true; }   // the cockpit shots: you sit in the bus
             a = Vector3.zero; hx = 1.6f; zMin = -1.6f; zMax = 1.6f;
             switch (g.S)
             {
@@ -348,7 +349,7 @@ namespace AstronomicalEvent
                 case Sc.Space: c = new Color(0.3f, 0.4f, 1f); a = 0.08f; break;
                 case Sc.Mouth: c = Color.Lerp(new Color(0.3f, 0.4f, 1f), new Color(0.3f, 1f, 0.5f), Sm(555f, 575f, t)); a = 0.08f + 0.12f * Sm(555f, 575f, t); break;
                 case Sc.Blast: c = new Color(0.5f, 0.8f, 1f); a = 0.06f * (1f - Sm(592f, 597f, t)); break;
-                case Sc.Office: c = new Color(1f, 0.2f, 0.12f); a = 0.22f; break;
+                case Sc.Office: c = new Color(1f, 0.2f, 0.12f); a = 0.09f; break;
             }
             return a;
         }

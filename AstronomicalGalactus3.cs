@@ -71,16 +71,16 @@ namespace AstronomicalEvent
         void ContentCleanup()
         {
             acts.Clear(); actBy.Clear(); fleet.Clear(); fleetX.Clear(); fleetY.Clear(); fleetZ.Clear(); halls.Clear(); beams.Clear(); bolts.Clear(); conv.Clear(); galMats.Clear(); gxParts.Clear(); gxTorso = gxHead = gxShL = gxElL = gxShR = gxElR = gxHSh = gxHEl = gxOSh = gxOEl = gxHandL = gxHandR = gxEyeL = gxEyeR = gxMouthP = gxChestP = gxHHand = gxOHand = null;
-            ExtraCleanup(); thorPropsBuilt = false; thorPropsFail = false; capeGo = null; hammerGo = null; skinBy.Clear(); gxHipL = gxKneeL = gxHipR = gxKneeR = null; cracks.Clear(); pylons.Clear(); pylonGl.Clear(); gates.Clear(); conduits.Clear(); tunnel = tunEnd = null; drones.Clear(); droneGl.Clear(); lasers.Clear(); heliGo = busGo = null; heliM = sbusM = sbusfM = galM = corM = offM = ironM = thorM = wolvM = jonM = null; cdTm = capTm = subTm = null; orb = ball = planet = null;
+            ExtraCleanup(); MoreCleanup(); thorPropsBuilt = false; thorPropsFail = false; capeGo = null; hammerGo = null; skinBy.Clear(); gxHipL = gxKneeL = gxHipR = gxKneeR = null; cracks.Clear(); pylons.Clear(); pylonGl.Clear(); gates.Clear(); conduits.Clear(); tunnel = tunEnd = null; drones.Clear(); droneGl.Clear(); lasers.Clear(); heliGo = busGo = null; heliM = sbusM = sbusfM = galM = corM = offM = ironM = thorM = wolvM = jonM = null; cdTm = capTm = subTm = null; orb = ball = planet = null;
         }
 
         // ---------------------------------------------------------------- the frame
         void Content(float t, float tp, float dt, Seg g, Camera cam)
         {
-            foreach (var a in acts) ActFrame(a, t, dt); ThorProps(t, dt); DeckFrame(t, tp, dt, cam); GxFrame(t, tp, dt, g, cam); GxFx(t, tp, dt, cam); RunFx(t, tp, dt, cam); ExtraFrame(t, tp, dt, cam); BusFrame(t, tp, dt); CorridorFrame(t, tp, dt); BlastFrame(t, tp, dt); OfficeFrame(t); CaptionFrame(t, cam); AmbientFrame(t, dt, cam); CloudsFrame(t);
+            foreach (var a in acts) ActFrame(a, t, dt); ThorProps(t, dt); DeckFrame(t, tp, dt, cam); GxFrame(t, tp, dt, g, cam); GxFx(t, tp, dt, cam); RunFx(t, tp, dt, cam); ExtraFrame(t, tp, dt, cam); MoreFrame(t, dt, cam); BusFrame(t, tp, dt); CorridorFrame(t, tp, dt); BlastFrame(t, tp, dt); OfficeFrame(t); CaptionFrame(t, cam); AmbientFrame(t, dt, cam); CloudsFrame(t);
             RenderSettings.ambientLight = Color.Lerp(ambientSave, MoodAmbient(g, t), 0.8f); sun.intensity = 0.6f * Lit; sun.color = Color.Lerp(Color.white, MoodAmbient(g, t), 0.4f);
             // the red lamp follows the bus inside Galactus
-            redLamp.color = new Color(1f, 0.28f, 0.2f); redLamp.intensity = (g.S == Sc.Inside ? Lit * (2.4f + 1.2f * Mathf.Sin(t * 13f) * Mathf.Sin(t * 5f)) : 0f); redLamp.transform.position = W(BusPos + new Vector3(0f, 9f, 18f));
+            redLamp.color = new Color(1f, 0.28f, 0.2f); redLamp.intensity = (g.S == Sc.Inside ? Lit * (2.4f + 1.2f * Mathf.Sin(t * 13f) * Mathf.Sin(t * 5f)) : (g.S == Sc.Office || g.S == Sc.Promo) ? Lit * (1.4f + 0.5f * Mathf.Sin(t * 4f)) : 0f); redLamp.transform.position = (g.S == Sc.Office || g.S == Sc.Promo) ? W(new Vector3(0f, IY + 2.9f, OfficeZ)) : W(BusPos + new Vector3(0f, 9f, 18f));
         }
         void CloudsFrame(float t) { if (clouds == null) return; var r = clouds.GetComponent<ParticleSystemRenderer>(); bool on = t < 421f || t > 579f && t < 601f; if (r.enabled != on) r.enabled = on; }
         Color MoodAmbient(Seg g, float t)
