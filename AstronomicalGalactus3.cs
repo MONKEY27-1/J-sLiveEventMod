@@ -22,6 +22,7 @@ namespace AstronomicalEvent
         void BuildContent()
         {
             if (heliM != null) { heliGo = heliM.Pivot; heliGo.SetActive(false); var s = heliM.RendererBounds.size; JsLiveEventsMod.Log.LogInfo("Galactus: heli bounds " + s + ", bus bounds " + (sbusM != null ? sbusM.RendererBounds.size.ToString() : "-") + ", galactus bounds " + (galM != null ? galM.RendererBounds.size.ToString() : "-")); heliS = 170f / Mathf.Max(0.1f, Mathf.Max(s.x, s.z)); }
+            if (sbusintM != null) { busIntGo = sbusintM.Pivot; busIntGo.SetActive(false); }
             if (sbusM != null) { busGo = sbusM.Pivot; busGo.SetActive(false); var s = sbusM.RendererBounds.size; busS = 22f / Mathf.Max(0.1f, Mathf.Max(s.x, s.z)); BusRoof = new Vector3(0f, 0.4f * s.y * busS + 2.4f, 3.5f); }
             BuildActors();
             // deck floor and a high invisible fence round it
@@ -62,11 +63,10 @@ namespace AstronomicalEvent
             crackMat = kit.Glow(new Color(1f, 0.5f, 0.12f, 0f), glowTex, 3001); cracks.Clear();
             for (int i = 0; i < 48; i++) { var c = Quad("GCrack" + i, crackMat); c.gameObject.SetActive(false); cracks.Add(c); }
             cdTm = MakeText(root.transform, 0.9f, new Color(1f, 0.85f, 0.4f, 0f), 3003); capTm = MakeText(root.transform, 0.045f, new Color(1f, 1f, 1f, 0f), 3600); subTm = MakeText(root.transform, 0.02f, new Color(1f, 0.95f, 0.9f, 0f), 3600);
-            AstronomicalDebug.Anchors["head"] = () => HeadNow(); AstronomicalDebug.Anchors["thor"] = () => thHip != null ? thHip.position : Vector3.zero; AstronomicalDebug.Anchors["bus"] = () => W(BusPos + BusRoof + Vector3.up * 2f); AstronomicalDebug.Anchors["deck"] = () => W(new Vector3(0f, IY + DeckY + 2f, -20f));
+            AstronomicalDebug.Anchors["head"] = () => HeadNow(); AstronomicalDebug.Anchors["thor"] = () => thHip != null ? thHip.position : Vector3.zero; AstronomicalDebug.Anchors["gxho"] = () => gxOHand != null ? gxOHand.position : Vector3.zero; AstronomicalDebug.Anchors["gxhh"] = () => gxHHand != null ? gxHHand.position : Vector3.zero; AstronomicalDebug.Anchors["bus"] = () => W(BusPos + BusRoof + Vector3.up * 2f); AstronomicalDebug.Anchors["deck"] = () => W(new Vector3(0f, IY + DeckY + 2f, -20f));
             AstronomicalDebug.Anchors["gx"] = () => gxRoot != null ? gxRoot.TransformPoint(new Vector3(0f, 14f, 0f)) : Vector3.zero; AstronomicalDebug.Anchors["iron"] = () => actBy.ContainsKey("iron") ? actBy["iron"].Go.transform.position + Vector3.up : Vector3.zero;
             AstronomicalDebug.Anchors["gxbelt"] = () => gxRoot != null ? gxRoot.position : Vector3.zero; AstronomicalDebug.Anchors["gxhead"] = () => gxHead != null ? gxHead.position : Vector3.zero; AstronomicalDebug.Anchors["gxfeet"] = () => galM != null ? galM.Pivot.transform.position : Vector3.zero; JsLiveEventsMod.Log.LogInfo("Galactus: belt offset in pivot space " + gxBelt + ", head " + (gxHead != null ? galM.Pivot.transform.InverseTransformPoint(gxHead.position).ToString() : "-"));
             AstronomicalDebug.Anchors["office"] = () => W(new Vector3(0f, IY + 1f, OfficeZ)); AstronomicalDebug.Anchors["fall"] = () => W(FallPos(Mathf.Clamp(lastT, 180f, 270f))); BuildExtra();
-            if (corM != null) foreach (var r in corM.Pivot.GetComponentsInChildren<Renderer>(true)) foreach (var m in r.sharedMaterials) { if (m == null) continue; try { m.mainTexture = null; bool lit = m.HasProperty("_Glossiness") || m.shader.name.Contains("Standard"); m.color = lit ? new Color(0.22f, 0.18f, 0.5f, m.color.a) : new Color(0.85f, 0.7f, 1f, m.color.a); } catch { } }
         }
         void ContentCleanup()
         {
@@ -80,7 +80,7 @@ namespace AstronomicalEvent
             foreach (var a in acts) ActFrame(a, t, dt); ThorProps(t, dt); DeckFrame(t, tp, dt, cam); GxFrame(t, tp, dt, g, cam); GxFx(t, tp, dt, cam); RunFx(t, tp, dt, cam); ExtraFrame(t, tp, dt, cam); BusFrame(t, tp, dt); CorridorFrame(t, tp, dt); BlastFrame(t, tp, dt); OfficeFrame(t); CaptionFrame(t, cam); AmbientFrame(t, dt, cam); CloudsFrame(t);
             RenderSettings.ambientLight = Color.Lerp(ambientSave, MoodAmbient(g, t), 0.8f); sun.intensity = 0.6f * Lit; sun.color = Color.Lerp(Color.white, MoodAmbient(g, t), 0.4f);
             // the red lamp follows the bus inside Galactus
-            redLamp.color = new Color(0.6f, 0.4f, 1f); redLamp.intensity = (g.S == Sc.Inside ? Lit * (2.4f + 1.2f * Mathf.Sin(t * 13f) * Mathf.Sin(t * 5f)) : 0f); redLamp.transform.position = W(BusPos + new Vector3(0f, 9f, 18f));
+            redLamp.color = new Color(1f, 0.28f, 0.2f); redLamp.intensity = (g.S == Sc.Inside ? Lit * (2.4f + 1.2f * Mathf.Sin(t * 13f) * Mathf.Sin(t * 5f)) : 0f); redLamp.transform.position = W(BusPos + new Vector3(0f, 9f, 18f));
         }
         void CloudsFrame(float t) { if (clouds == null) return; var r = clouds.GetComponent<ParticleSystemRenderer>(); bool on = t < 421f || t > 579f && t < 601f; if (r.enabled != on) r.enabled = on; }
         Color MoodAmbient(Seg g, float t)
@@ -196,9 +196,10 @@ namespace AstronomicalEvent
         // ---------------------------------------------------------------- 4:30 - 9:45 the Stark Battle Bus, the fleet and the green payload
         void BusFrame(float t, float tp, float dt)
         {
-            bool bus = t >= 270f && t < 580f; if (busGo != null) { if (busGo.activeSelf != bus) busGo.SetActive(bus); if (bus) { busGo.transform.localPosition = BusPos + Vector3.up * (0.3f * Mathf.Sin(t * 1.1f)); busGo.transform.localRotation = Quaternion.Euler(1.2f * Mathf.Sin(t * 0.7f), 0f, 2f * Mathf.Sin(t * 0.9f)); busGo.transform.localScale = Vector3.one * busS; } }
+            bool inBus = IsBusInterior(t); if (busIntGo != null) { if (busIntGo.activeSelf != inBus) busIntGo.SetActive(inBus); if (inBus) { busIntGo.transform.localPosition = BusPos + new Vector3(0f, IntFloor, 0f) + Vector3.up * (0.05f * Mathf.Sin(t * 1.3f)); busIntGo.transform.localRotation = Quaternion.Euler(0.3f * Mathf.Sin(t * 0.7f), 0f, 0.5f * Mathf.Sin(t * 0.9f)); busIntGo.transform.localScale = Vector3.one * IntS; } }
+            bool bus = t >= 270f && t < 580f && !inBus; if (busGo != null) { if (busGo.activeSelf != bus) busGo.SetActive(bus); if (bus) { busGo.transform.localPosition = BusPos + Vector3.up * (0.3f * Mathf.Sin(t * 1.1f)); busGo.transform.localRotation = Quaternion.Euler(1.2f * Mathf.Sin(t * 0.7f), 0f, 2f * Mathf.Sin(t * 0.9f)); busGo.transform.localScale = Vector3.one * busS; } }
             bool fl = ((t >= 270f && t < 422f) && !(t >= 362f && t < 412f)) || (t >= 508f && t < 578f);
-            for (int i = 0; i < fleet.Count; i++) { var go = fleet[i]; if (!fl) { if (go.activeSelf) go.SetActive(false); continue; } float zz = Mathf.Repeat(fleetZ[i] - (t - 270f) * 28f, 700f) - 200f; float yv = fleetY[i] + 4f * Mathf.Sin(t * 0.6f + i); Vector3 p = BusPos + new Vector3(fleetX[i], yv, zz); if (Mathf.Abs(fleetX[i]) < 30f && Mathf.Abs(yv) < 12f && zz > -40f && zz < 40f) p.x += 60f * Mathf.Sign(fleetX[i] + 0.01f); PlaceGo(go, p, busS, Quaternion.Euler(0f, 0f, 3f * Mathf.Sin(t * 0.5f + i)), true); }
+            for (int i = 0; i < fleet.Count; i++) { var go = fleet[i]; if (!fl) { if (go.activeSelf) go.SetActive(false); continue; } float zz = Mathf.Repeat(fleetZ[i] - (tReal - 215f) * 28f, 700f) - 200f; float yv = fleetY[i] + 4f * Mathf.Sin(t * 0.6f + i); Vector3 p = BusPos + new Vector3(fleetX[i], yv, zz); if (Mathf.Abs(fleetX[i]) < 30f && Mathf.Abs(yv) < 12f && zz > -40f && zz < 40f) p.x += 60f * Mathf.Sign(fleetX[i] + 0.01f); PlaceGo(go, p, busS, Quaternion.Euler(0f, 0f, 3f * Mathf.Sin(t * 0.5f + i)), true); }
             // the payload: a green orb on the roof, swelling before the end
             float pay = bus ? 1f : 0f; float swell = 1f + 2.5f * Sm(540f, 575f, t) + 14f * Sm(575f, 579f, t); Vector3 op = BusPos + new Vector3(0f, 1.6f, -7.5f);   // the payload sits on the rear of the roof, not on you
             if (orb != null) { if (orb.gameObject.activeSelf != bus) orb.gameObject.SetActive(bus); if (bus) { orb.localPosition = op; orb.localScale = Vector3.one * 6f * swell * (1f + 0.06f * Mathf.Sin(t * 9f)); orbMat.color = new Color(0.4f + 0.5f * Sm(570f, 578f, t), 1f, 0.55f + 0.4f * Sm(570f, 578f, t), 0.8f); } }
@@ -215,7 +216,7 @@ namespace AstronomicalEvent
                 if (!on) { if (halls[i].activeSelf) halls[i].SetActive(false); if (i < beams.Count && beams[i].activeSelf) beams[i].SetActive(false); continue; }
                 float z = -90f + i * 60f - Mathf.Repeat(sc, 60f); Vector3 p = BusPos + new Vector3(0f, -1.6f, z); PlaceGo(halls[i], p, 1f, Quaternion.identity, true); if (i < beams.Count) PlaceGo(beams[i], p, 1f, Quaternion.Euler(0f, 0f, 0f), true);
             }
-            if (!paused && dt > 0f && on) { for (int k = 0; k < 4; k++) Emit(fx, W(BusPos + new Vector3(UnityEngine.Random.Range(-10f, 10f), UnityEngine.Random.Range(0.5f, 14f), 70f)), new Vector3(0f, 0f, -90f), Color.Lerp(new Color(0.6f, 0.5f, 1f), new Color(1f, 0.7f, 0.95f), UnityEngine.Random.value), 0.6f, 1.2f); if (UnityEngine.Random.value < 0.12f) Emit(fx, W(BusPos + new Vector3(UnityEngine.Random.Range(-6f, 6f), UnityEngine.Random.Range(1f, 12f), 50f)), new Vector3(0f, 8f, -60f), new Color(0.4f, 1f, 0.5f), 1.2f, 1.2f); }
+            if (!paused && dt > 0f && on) { for (int k = 0; k < 4; k++) Emit(fx, W(BusPos + new Vector3(UnityEngine.Random.Range(-10f, 10f), UnityEngine.Random.Range(0.5f, 14f), 70f)), new Vector3(0f, 0f, -90f), Color.Lerp(new Color(1f, 0.3f, 0.2f), new Color(1f, 0.75f, 0.5f), UnityEngine.Random.value), 0.6f, 1.2f); if (UnityEngine.Random.value < 0.12f) Emit(fx, W(BusPos + new Vector3(UnityEngine.Random.Range(-6f, 6f), UnityEngine.Random.Range(1f, 12f), 50f)), new Vector3(0f, 8f, -60f), new Color(0.4f, 1f, 0.5f), 1.2f, 1.2f); }
             // the planet in the space scene
             bool sp = t >= 510f && t < 580f; if (planet != null) { if (planet.gameObject.activeSelf != sp) planet.gameObject.SetActive(sp); if (sp) planet.position = W(BusPos + new Vector3(-420f, 150f, 900f)); }
         }
@@ -248,7 +249,7 @@ namespace AstronomicalEvent
         void ShowCap(string a, string b, float dur, float at) { capA = a; capB = b; capDur = dur; capT = at; }
         void CaptionFrame(float t, Camera cam)
         {
-            if (capTm == null) return;
+            if (capTm == null) return; if (capTm.gameObject.activeSelf) capTm.gameObject.SetActive(false); if (subTm.gameObject.activeSelf) subTm.gameObject.SetActive(false); return;   // the new recording has no title cards
             if (t >= 2f && t < 8f) { capA = "THE GALACTUS EVENT"; capB = "CHAPTER 2  SEASON 4"; capDur = 6f; capT = 2f; }
             else if (t >= 612f && t < 621f) { capA = "TO BE CONTINUED"; capB = ""; capDur = 9f; capT = 612f; }
             else if (t >= 622f && t < 650f) { capA = "IN SEASON FIVE!"; capB = t > 633f ? "FORTNITE  CHAPTER 2  SEASON 5" : ""; capDur = 28f; capT = 622f; }

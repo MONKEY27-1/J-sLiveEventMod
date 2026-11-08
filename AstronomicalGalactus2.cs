@@ -20,7 +20,7 @@ namespace AstronomicalEvent
             public string Id; public GltfModel M; public GameObject Go; public CRig Rig; public float Scale = 1f, Seed, YawNow; public string Cur, Prev; public float CurT, PrevT, Blend = 1f, LastT = -9f; public readonly List<K> Keys = new List<K>(); public bool Vis; public Func<float, K> Ov;
         }
         readonly List<Act> acts = new List<Act>(); readonly Dictionary<string, Act> actBy = new Dictionary<string, Act>();
-        GltfModel heliM, sbusM, sbusfM, galM, corM, offM, ironM, thorM, wolvM, jonM; GameObject heliGo, busGo;
+        GltfModel sbusintM; GameObject busIntGo; public const float IntS = 1.4f; GltfModel heliM, sbusM, sbusfM, galM, corM, offM, ironM, thorM, wolvM, jonM; GameObject heliGo, busGo;
         void Brighten(GltfModel mdl, float k)
         {
             foreach (var r in mdl.Pivot.GetComponentsInChildren<Renderer>(true))
@@ -58,7 +58,7 @@ namespace AstronomicalEvent
         static float Fit(GltfModel m, float h, bool longest = false) { if (m == null) return 1f; var s = m.RendererBounds.size; float v = longest ? Mathf.Max(s.x, s.y, s.z) : s.y; return h / Mathf.Max(0.05f, v); }
         void BuildModels()
         {
-            heliM = Take("heli", 1.2f); sbusM = Take("sbus", 1.2f); sbusfM = Take("sbusfar", 1.2f); galM = Take("galactus", 1.15f); corM = Take("corridor", 1.2f); offM = Take("office", 1.2f); ironM = Take("iron", 1.4f); thorM = Take("thor", 0.95f); wolvM = Take("wolverine", 1.3f); jonM = Take("jones", 1.25f);
+            heliM = Take("heli", 1.2f); sbusM = Take("sbus", 1.2f); sbusfM = Take("sbusfar", 1.2f); galM = Take("galactus", 1.15f); corM = Take("corridor", 1.2f); sbusintM = Take("sbusint", 1.0f); offM = Take("office", 1.2f); ironM = Take("iron", 1.4f); thorM = Take("thor", 0.95f); wolvM = Take("wolverine", 1.3f); jonM = Take("jones", 1.25f);
         }
         Act NewAct(string id, GltfModel m, float height)
         {
@@ -101,7 +101,7 @@ namespace AstronomicalEvent
             if (ir != null) ir.Ov = t =>
             {
                 if (t >= 195f && t < 272f) { Vector3 p = FallPos(t) + new Vector3(5f + 1.2f * Mathf.Sin(t * 0.7f), -1.6f, 6f + Mathf.Sin(t * 0.5f)); float k = Sm(195f, 205f, t); return new K { T = t, X = p.x, Y = p.y, Z = p.z, Yaw = 160f, Pitch = 62f * k, Clip = k < 0.5f ? "Hover" : "FlyPose" }; }
-                if (t >= 300f && t < 420f) { float k = Sm(300f, 312f, t); Vector3 p = BusPos + new Vector3(Mathf.Lerp(0f, 9f, k), 6f, Mathf.Lerp(36f, 22f, k)) + Vector3.up * 1.2f * Mathf.Sin(t * 0.8f); return new K { T = t, X = p.x, Y = p.y, Z = p.z, Yaw = t < 316f ? 180f : 0f, Pitch = t < 316f ? 0f : 70f, Clip = t < 316f ? "Hover" : "FlyPose" }; }
+                if (t >= 282f && t < 420f) { float k = Sm(314f, 324f, t); Vector3 p = BusPos + new Vector3(Mathf.Lerp(0.6f, 9f, k), Mathf.Lerp(-0.2f, 6f, k), Mathf.Lerp(13.5f, 22f, k)) + Vector3.up * 0.5f * Mathf.Sin(t * 0.8f); return new K { T = t, X = p.x, Y = p.y, Z = p.z, Yaw = t < 322f ? 180f : 0f, Pitch = t < 322f ? 0f : 70f, Clip = t < 322f ? "Hover" : "FlyPose" }; }
                 if (t >= 525f && t < 580f) { Vector3 p = BusPos + new Vector3(5f, 5f + Mathf.Sin(t * 0.8f), 30f - 4f * Sm(535f, 575f, t)); return new K { T = t, X = p.x, Y = p.y, Z = p.z, Yaw = 0f, Pitch = 0f, Clip = t < 560f ? "Hover" : "Repulsor" }; }
                 return null;
             };
@@ -140,7 +140,7 @@ namespace AstronomicalEvent
         bool GxPlace(float t, Seg g, out Vector3 pos)
         {
             pos = Vector3.zero;
-            if (t < 48f) return false; if (t < 180f) { float d = t < 105f ? Mathf.Lerp(1700f, 480f, Sm(48f, 105f, t)) : Mathf.Lerp(480f, 430f, Sm(105f, 180f, t)); d *= (AstronomicalDebug.Tweak[3] != 0f ? AstronomicalDebug.Tweak[3] : Mathf.Lerp(1.0f, 0.16f, Sm(112f, 165f, t))); float w2 = Sm(110f, 168f, t); pos = new Vector3(Mathf.Lerp(d * 0.34f * (1f - Sm(60f, 172f, t)), 150f, w2), IY + Mathf.Lerp(300f, -95f, Sm(64f, 168f, t)), Mathf.Lerp(d, 55f, w2)); return true; }   // he stands off the helicarrier's RIGHT side (your right) for the blow
+            if (t < 48f) return false; if (t < 180f) { float d = t < 105f ? Mathf.Lerp(1700f, 720f, Sm(48f, 105f, t)) : Mathf.Lerp(720f, 440f, Sm(105f, 168f, t)); pos = new Vector3(Mathf.Lerp(d * 0.2f * (1f - Sm(60f, 172f, t)), 40f, Sm(110f, 168f, t)), IY + Mathf.Lerp(110f, -300f, Sm(64f, 168f, t)), d); return true; }   // he stands far back, straight ahead, and is huge when he strikes (his arm is ~20 body-units long: scale 22 reaches the deck from 440 m)   // he stands off the helicarrier's RIGHT side (your right) for the blow
             if (t < 272f) { Vector3 f = FallPos(t); float k = Sm(180f, 200f, t); pos = new Vector3(Mathf.Lerp(0f, 30f, k), f.y + Mathf.Lerp(-150f, 330f, k), Mathf.Lerp(360f, 230f, k)); return true; }
             if (t < 330f) { pos = new Vector3(0f, BusPos.y - 150f, Mathf.Lerp(900f, 560f, Sm(272f, 330f, t))); return true; }
             if (t < 420f) { pos = new Vector3(0f, BusPos.y - 150f, Mathf.Lerp(560f, 62f, Sm(330f, 418f, t))); return true; }
@@ -167,7 +167,7 @@ namespace AstronomicalEvent
             float w = Mathf.Pow(Mathf.Clamp01((t - 168f) / 5f), 1.2f); if (w <= 0f) return;
             // 2:55 - 3:00 a BACKHAND: the forearm swings in from outside the carrier, low and fast, across the deck (the recording: the arm sweeps through the whole foreground)
             Vector3 sl = root.transform.InverseTransformPoint(gxOSh.position); float sd = Mathf.Sign(sl.x == 0f ? 1f : sl.x); float u = Mathf.Clamp01((t - 168f) / 12f), e = Mathf.Pow(u, 1.8f);
-            Vector3 tg = new Vector3(sd * Mathf.Lerp(78f, -38f, e), IY + DeckY + Mathf.Lerp(34f, 6f, Mathf.Min(1f, e * 1.6f)), Mathf.Lerp(12f, -8f, e)); Vector3 d = tg - sl; float reach = 170f; if (d.magnitude > reach) tg = sl + d.normalized * reach; hitTgt = tg;
+            Vector3 tg = new Vector3(sd * Mathf.Lerp(78f, -38f, e), IY + DeckY + Mathf.Lerp(34f, 6f, Mathf.Min(1f, e * 1.6f)), Mathf.Lerp(12f, -8f, e)); Vector3 d = tg - sl; float reach = 19.8f * gxS; if (d.magnitude > reach) tg = sl + d.normalized * reach; hitTgt = tg;
             AimArm(gxOSh, gxOEl, gxOHand, (W(tg) - gxOSh.position).normalized, w);
         }
         // the new model's arms are sculpted in a guard pose (forearm bent ~90 deg): StraightEl is the elbow rotation that lines the forearm up with the upper arm, DownSh the shoulder rotation that makes the straight arm hang down (the table's angles are for a straight hanging arm)
@@ -183,7 +183,7 @@ namespace AstronomicalEvent
         // He is bigger in this part (x3) so the trench is long; the whole of him is moved so that the point of the arm under the bus stays at the bus (the bus does not move)
         public const float BusEye = 3.8f; public const float RunS = 3f; Vector3 runH, runS, runHd; float runRad, runU; bool runOn, runInside, armHidden;
         // while the bus is inside the arm the arm's own shell is hidden (the tunnel replaces it)
-        void ShowArm(bool show) { if (gxOSh == null || armHidden == !show) return; armHidden = !show; List<Renderer> rl; if (skinBy.TryGetValue(gxOSh.name.EndsWith("L") ? "ArmL" : "ArmR", out rl)) foreach (var r in rl) if (r != null) r.enabled = show; }
+        void ShowArm(bool show) { if (gxOSh == null || armHidden == !show) return; armHidden = !show; List<Renderer> rl; string sdn = gxOSh.name.EndsWith("L") ? "L" : "R"; if (skinBy.TryGetValue("Arm" + sdn, out rl)) foreach (var r in rl) if (r != null) r.enabled = show; if (skinBy.TryGetValue("HandMesh" + sdn, out rl)) foreach (var r in rl) if (r != null) r.enabled = show; }
         static float RunWeave(float u) { return u > 0f && u < 1f ? 16f * Mathf.Sin(9f * u) * Sm(0f, 0.08f, u) * (1f - Sm(0.9f, 1f, u)) : 0f; }
         void GxRun(float t, GameObject go, float s)
         {
@@ -226,14 +226,14 @@ namespace AstronomicalEvent
         {
             if (galM == null) return; if (!(t >= 362f && t < 412f)) ShowArm(true); Vector3 pos; bool on = GxPlace(t, g, out pos); var go = galM.Pivot; if (go.activeSelf != on) go.SetActive(on); if (!on) return;
             if (gxTorso == null || gxHead == null) return;
-            float s = GS * Fit(galM, 60f); bool run = t >= 330f && t < 420f; s = run ? GS * RunS : GS * (1f + 0.9f * Env(184f, 204f, 266f, 276f, t) + 0.5f * Env(130f, 156f, 176f, 186f, t)); gxS = s;
+            float s = GS * Fit(galM, 60f); bool run = t >= 330f && t < 420f; s = run ? GS * RunS : GS * (1f + 0.9f * Env(184f, 204f, 266f, 276f, t) + 2.8f * Env(130f, 156f, 176f, 186f, t)); gxS = s;
             float lean = 0.5f * Mathf.Sin(t * 0.7f); float bend = 100f * Env(186f, 206f, 262f, 280f, t); var rq = Quaternion.Euler(lean * 0.6f + bend, 180f, 0f); float sc = s * Fit(galM, 60f); go.transform.localRotation = rq; go.transform.localScale = Vector3.one * sc; go.transform.localPosition = pos - rq * (gxBelt * sc);   // the loader normalises a skinned glb to 1.8 units: Fit brings it back to the 60-unit authoring height
             if (t < 575f)
             {
                 BreakApart(false); GxClips(t);
                 gxSwap = root.transform.InverseTransformPoint(gxShL.position).x < root.transform.InverseTransformPoint(gxShR.position).x;   // the part called L stands on your left: then the L bones drive his RIGHT
                 gxHSh = gxSwap ? gxShR : gxShL; gxHEl = gxSwap ? gxElR : gxElL; gxOSh = gxSwap ? gxShL : gxShR; gxOEl = gxSwap ? gxElL : gxElR; gxHHand = gxSwap ? gxHandR : gxHandL; gxOHand = gxSwap ? gxHandL : gxHandR;
-                GxAdd(t); GxHitAim(t); GxReach(t); GxRun(t, go, s); GxCup(t);
+                cupW = 0f; GxAdd(t); GxHitAim(t); GxReach(t); GxRun(t, go, s); GxCup(t); GxFingers(t);
             }
             else BreakApart(true, t - 575f);
             // haze: far Galactus is a pale silhouette in the clouds

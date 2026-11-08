@@ -127,7 +127,7 @@ namespace AstronomicalEvent
         Material skyboxSave; readonly List<Renderer> skyRs = new List<Renderer>();
         void FindSkyRenderers()
         {
-            skyRs.Clear(); foreach (var r in UnityEngine.Object.FindObjectsOfType<Renderer>()) { if (r == null || !r.enabled || !r.gameObject.activeInHierarchy || r.gameObject == skyGo || (root != null && r.transform.IsChildOf(root.transform))) continue; var m = r.sharedMaterial; string sn = m != null && m.shader != null ? m.shader.name : ""; string nm = r.gameObject.name.ToLowerInvariant(); if ((sn.IndexOf("Sky", StringComparison.OrdinalIgnoreCase) >= 0 && sn.IndexOf("WindTunnel", StringComparison.OrdinalIgnoreCase) < 0) || nm == "standard sky" || nm.Contains("skydome") || nm.Contains("sky dome")) skyRs.Add(r); }
+            skyRs.Clear(); foreach (var r in UnityEngine.Object.FindObjectsOfType<Renderer>()) { if (r == null || !r.enabled || !r.gameObject.activeInHierarchy || r.gameObject == skyGo || (root != null && r.transform.IsChildOf(root.transform))) continue; var m = r.sharedMaterial; string sn = m != null && m.shader != null ? m.shader.name : ""; string nm = r.gameObject.name.ToLowerInvariant(); if ((sn.IndexOf("Sky", StringComparison.OrdinalIgnoreCase) >= 0 && sn.IndexOf("WindTunnel", StringComparison.OrdinalIgnoreCase) < 0) || nm == "standard sky" || (r.bounds.size.x >= 800f && r.bounds.size.y >= 800f && Vector3.Distance(r.bounds.center, HeadNow()) < 60f) || nm.Contains("skydome") || nm.Contains("sky dome")) skyRs.Add(r); }
         }
         readonly List<GameObject> hiddenGos = new List<GameObject>();
         void HideSkies(bool hide)
@@ -166,7 +166,7 @@ namespace AstronomicalEvent
                 case Sc.Fall: { float k = Sm(195f, 240f, t); top = Color.Lerp(new Color(0.42f, 0.52f, 0.68f), new Color(0.01f, 0.05f, 0.2f), k); mid = Color.Lerp(new Color(0.65f, 0.68f, 0.8f), new Color(0.02f, 0.12f, 0.34f), k); hor = Color.Lerp(new Color(0.85f, 0.8f, 0.9f), new Color(0.06f, 0.26f, 0.5f), k); break; }
                 case Sc.BusIn: top = new Color(0.8f, 0.88f, 0.96f); mid = new Color(0.9f, 0.94f, 1f); hor = new Color(0.97f, 0.98f, 1f); break;
                 case Sc.Assault: { float k = Sm(330f, 400f, t); top = Color.Lerp(new Color(0.8f, 0.88f, 0.96f), new Color(0.75f, 0.6f, 0.8f), k); mid = Color.Lerp(new Color(0.9f, 0.94f, 1f), new Color(0.95f, 0.7f, 0.8f), k); hor = Color.Lerp(new Color(0.97f, 0.98f, 1f), new Color(1f, 0.8f, 0.8f), k); break; }
-                case Sc.Inside: top = new Color(0.03f, 0.02f, 0.14f); mid = new Color(0.08f, 0.05f, 0.3f); hor = new Color(0.25f, 0.12f, 0.5f); break;
+                case Sc.Inside: top = new Color(0.02f, 0.02f, 0.1f); mid = new Color(0.12f, 0.03f, 0.22f); hor = new Color(0.55f, 0.12f, 0.2f); break;
                 case Sc.Space: case Sc.Mouth: top = new Color(0.01f, 0.01f, 0.07f); mid = new Color(0.03f, 0.04f, 0.2f); hor = new Color(0.1f, 0.08f, 0.32f); break;
                 case Sc.Blast: { float k = Sm(580f, 590f, t) * (1f - Sm(593f, 598f, t)); top = Color.Lerp(new Color(0.01f, 0.01f, 0.07f), new Color(0.08f, 0.2f, 0.6f), k); mid = Color.Lerp(new Color(0.03f, 0.04f, 0.2f), new Color(0.25f, 0.45f, 0.95f), k); hor = Color.Lerp(new Color(0.1f, 0.08f, 0.32f), new Color(0.6f, 0.8f, 1f), k); break; }
             }
@@ -237,14 +237,18 @@ namespace AstronomicalEvent
         }
 
         // ---------------------------------------------------------------- the frame
+        // ---- the music time of the recording (0 - 559.7 s) is mapped onto the authoring time the scenes were written in (a monotonic piecewise-linear table: edit it to re-time a beat)
+        static readonly float[,] WARP = { { 0f, 48f }, { 60f, 105f }, { 120f, 171.4f }, { 126f, 177.4f }, { 215f, 270f }, { 275f, 330f }, { 380f, 352f }, { 384f, 362f }, { 392f, 412f }, { 394f, 420f }, { 446f, 503f }, { 455f, 510f }, { 491f, 535f }, { 507f, 575f }, { 535f, 600f }, { 550f, 605f }, { 560f, 615f }, { 700f, 755f } };
+        static float Warp(float T) { int n = WARP.GetLength(0); if (T <= WARP[0, 0]) return WARP[0, 1] + (T - WARP[0, 0]); for (int i = 0; i + 1 < n; i++) if (T <= WARP[i + 1, 0]) return Mathf.Lerp(WARP[i, 1], WARP[i + 1, 1], (T - WARP[i, 0]) / (WARP[i + 1, 0] - WARP[i, 0])); return WARP[n - 1, 1] + (T - WARP[n - 1, 0]); }
+        float tReal;
         public void Apply(float t, int idx, float u, AstronomicalAudioManager au)
         {
-            if (!built || root == null) return;
+            if (!built || root == null) return; tReal = t; t = Warp(t);
             var cam = Camera.main; float dt = Mathf.Clamp(Time.unscaledDeltaTime, 0f, 0.1f); bool back = t < lastT - 0.4f; float tp = lastT < 0f ? t : lastT; lastT = t;
             Seg g = SegAt(t);
             if (noclipped.Count > 0 && !noclipHold && Time.unscaledTime - noclipT > 0.6f) NoClip(false);
             bool wantHold = Carried(g.S); if (wantHold && !noclipHold) { noclipHold = true; NoClip(true); } else if (!wantHold && noclipHold) { noclipHold = false; NoClip(false); }
-            if (cam != null) { skyGo.transform.position = cam.transform.position; starGo.transform.position = cam.transform.position; } HideSkies(true);
+            if (cam != null) { skyGo.transform.position = cam.transform.position; starGo.transform.position = cam.transform.position; } HideSkies(true); KidSphere(true);
             bool stars = g.S >= Sc.Space || (g.S == Sc.Fall && t >= 232f); if (starGo.activeSelf != stars) starGo.SetActive(stars);
             if (t - skyT > 0.15f || t < skyT || (curSeg != null && curSeg != g)) { skyT = t; UpdateSky(t, g); }
             if (!paused)
@@ -254,8 +258,12 @@ namespace AstronomicalEvent
             }
             else curSeg = g;
             Content(t, tp, dt, g, cam);
+            if (root.activeSelf != (AstronomicalDebug.Tweak[7] == 0f)) root.SetActive(AstronomicalDebug.Tweak[7] == 0f);
+            if (AstronomicalDebug.Tweak[5] != 0f) { flashGo.SetActive(false); tintGo.SetActive(false); } if (AstronomicalDebug.Tweak[6] != 0f) skyGo.SetActive(false); else if (!skyGo.activeSelf) skyGo.SetActive(true);
+            if (AstronomicalDebug.Tweak[5] == 0f) {
             Color bcol; float bk = Fade(t, g, out bcol); Overlay(flashGo, flashMat, bk, bcol, cam);
             Color tc; float ta = TintOf(t, g, out tc); Overlay(tintGo, tintMat, ta, tc, cam);
+            }
             flashLamp.intensity = Mathf.Max(0f, flashLamp.intensity - dt * 20f * Lit);
             if (!paused && dt > 0f) { rumbleT += dt; if (rumbleT > 0.12f) { rumbleT = 0f; float v = Mathf.Max(shake * 0.4f, 0f); if (v > 0.05f) { try { var gt = GorillaTagger.Instance; if (gt != null) { gt.StartVibration(true, Mathf.Clamp01(v), 0.14f); gt.StartVibration(false, Mathf.Clamp01(v), 0.14f); } } catch { } } } }
             shake = Mathf.Max(0f, shake - dt * 1.4f);
@@ -276,7 +284,7 @@ namespace AstronomicalEvent
         }
         void OnSeg(Seg from, Seg to, float t)
         {
-            JsLiveEventsMod.Log.LogInfo("Galactus: scene " + (from != null ? from.S.ToString() : "-") + " -> " + to.S + " at t=" + t.ToString("0.0") + " head " + HeadNow()); reseatTries = 0; farT = 0f;
+            JsLiveEventsMod.Log.LogInfo("Galactus: scene " + (from != null ? from.S.ToString() : "-") + " -> " + to.S + " at t=" + t.ToString("0.0") + " head " + HeadNow() + " camMain " + (Camera.main != null ? Camera.main.transform.position.ToString() : "null") + " skyAt " + (skyGo != null ? skyGo.transform.position.ToString() : "null")); reseatTries = 0; farT = 0f;
             Vector3 an; float hx, z0, z1; Vector3 c, face; float rad;
             if (Anchor(t, to, out an, out hx, out z0, out z1)) { Reseat(W(an)); FaceDir(root.transform.rotation * Vector3.forward); }
             else if (Station(to.S, out c, out face, out rad)) { Reseat(W(c + Vector3.up * IY) + Vector3.up * 1.6f); FaceDir(root.transform.rotation * face); }
@@ -300,7 +308,7 @@ namespace AstronomicalEvent
             switch (g.S)
             {
                 case Sc.Fall: { float k = Mathf.Clamp01((t - 180f) / 90f); a = FallPos(t) ; return true; }
-                case Sc.BusIn: { a = BusPos + new Vector3(0f, AstronomicalDebug.Tweak[4] != 0f ? AstronomicalDebug.Tweak[4] : BusEye, 3f); hx = 1.7f; zMin = -4f; zMax = 3f; return true; }   // 4:30 - 5:30 you look out of the bus' windows
+                case Sc.BusIn: { a = BusPos + new Vector3(0f, IntFloor + 2.3f, 2.8f); hx = 1.9f; zMin = -9f; zMax = 3.2f; return true; }   // 4:30 - 5:30 you look out of the bus' windows
                 case Sc.Assault: { a = BusPos + BusRoof + Vector3.up * 3f; hx = 2.4f; zMin = -3.2f; zMax = 3.2f; return true; }
                 case Sc.Inside: { a = BusPos + new Vector3(0f, 9f, -36f); hx = 4f; zMin = -4f; zMax = 4f; return true; }   // 7:00 - 8:30 the recording follows the bus from behind
                 case Sc.Space: case Sc.Mouth: case Sc.Blast: { a = BusPos + new Vector3(-17f, 7f, -33f); hx = 4f; zMin = -4f; zMax = 4f; return true; }
@@ -336,7 +344,7 @@ namespace AstronomicalEvent
                 case Sc.Fall: c = Color.Lerp(new Color(0.6f, 0.7f, 1f), new Color(0.1f, 0.3f, 0.8f), Sm(200f, 250f, t)); a = 0.1f + 0.02f * Sm(215f, 250f, t); break;
                 case Sc.BusIn: c = Color.white; a = 0.16f; break;
                 case Sc.Assault: c = t >= 362f && t < 412f ? new Color(0.45f, 0.4f, 1f) : new Color(0.82f, 0.9f, 1f); a = t >= 362f && t < 412f ? 0.16f : 0.34f * (1f - 0.5f * Sm(405f, 418f, t)); break;
-                case Sc.Inside: c = new Color(0.45f, 0.3f, 1f); a = 0.16f; break;
+                case Sc.Inside: c = new Color(1f, 0.25f, 0.2f); a = 0.12f; break;
                 case Sc.Space: c = new Color(0.3f, 0.4f, 1f); a = 0.08f; break;
                 case Sc.Mouth: c = Color.Lerp(new Color(0.3f, 0.4f, 1f), new Color(0.3f, 1f, 0.5f), Sm(555f, 575f, t)); a = 0.08f + 0.12f * Sm(555f, 575f, t); break;
                 case Sc.Blast: c = new Color(0.5f, 0.8f, 1f); a = 0.06f * (1f - Sm(592f, 597f, t)); break;
@@ -345,8 +353,24 @@ namespace AstronomicalEvent
             return a;
         }
 
+        // the game's own "KIDSphereGradient" blindfold (a 6 m sphere round your head: shown when the account is banned / not allowed in, or when you leave the map bounds) would hide the whole event: keep it off while the event runs
+        Renderer kidSphere; bool kidWas; float kidScan;
+        void KidSphere(bool hide)
+        {
+            try
+            {
+                if (hide)
+                {
+                    if (kidSphere == null && Time.unscaledTime >= kidScan) { kidScan = Time.unscaledTime + 1.5f; foreach (var r in UnityEngine.Object.FindObjectsOfType<Renderer>(true)) { var m = r != null ? r.sharedMaterial : null; if (m != null && m.shader != null && m.shader.name.IndexOf("KIDSphere", StringComparison.OrdinalIgnoreCase) >= 0) { kidSphere = r; kidWas = r.enabled; JsLiveEventsMod.Log.LogInfo("Galactus: hiding the game's " + m.shader.name + " sphere '" + r.gameObject.name + "' while the event runs"); break; } } }
+                    if (kidSphere != null && kidSphere.enabled) kidSphere.enabled = false;
+                }
+                else if (kidSphere != null) { kidSphere.enabled = kidWas; kidSphere = null; }
+            }
+            catch { }
+        }
         public void Cleanup()
         {
+            KidSphere(false);
             try { if (noclipped.Count > 0) NoClip(false); noclipHold = false; if (haveHome && root != null && Vector3.Distance(HeadNow(), homeHead) > 6f) Reseat(homeHead); } catch { }
             curSeg = null; try { ContentCleanup(); } catch { } SfxCleanup0(); try { HideSkies(false); } catch { } skyRs.Clear();
             if (ambientSaved) { RenderSettings.ambientLight = ambientSave; RenderSettings.fog = fogSave; RenderSettings.skybox = skyboxSave; skyboxSave = null; ambientSaved = false; }

@@ -4,7 +4,7 @@ Hips > Spine > Chest > Neck > Head (+ EyeL EyeR MouthP markers), Chest > Clav[LR
 and smooth skin weights worked out from the anatomy (trunk chain by height, legs by side + height, arms along their own axes, pauldrons shared with the clavicle).
 Output meshes (all skinned to the one armature): Body, Head, ArmL, ArmR (so the arm shell can be hidden while the bus is inside it).  Scaled to <height> units, origin at the belt, faces -y, his left = +x.
 out.json = the rest skeleton (head/tail per bone, parent) for the animation script."""
-import bpy, bmesh, sys, json, mathutils
+import bpy, bmesh, sys, os, json, mathutils
 import numpy as np
 a = sys.argv[sys.argv.index('--') + 1:]; src, out, js = a[0], a[1], a[2]; HM = float(a[3]) if len(a) > 3 else 60.0
 bpy.ops.wm.read_factory_settings(use_empty=True); bpy.ops.import_scene.gltf(filepath=src); sc = bpy.context.scene
@@ -53,6 +53,8 @@ for sd in 'LR':
     S = U[U[:, 2] > zmax - 10].mean(0); S[2] = zmax - 11.0; E = U[U[:, 2] < zmin + 4].mean(0)
     big = sorted([c for c in lw if len(c) > 1000], key=lambda c: -np.linalg.norm(V[c].mean(0) - E))[:2]
     Hd = V[[i for c in big for i in c]].mean(0)
+    if os.environ.get('HANDS'):
+        for c in big: part[c] = 'Gone'      # (optional) the sculpted fists are replaced by articulated hands (gx_hand.py)
     J['S' + sd] = S; J['E' + sd] = E; J['H' + sd] = Hd
 ymid = float(np.median(V[:, 1])); belt = np.array([cx, ymid, lo[2] + 0.55 * H])
 HV = V[part == 'Head']; neckZ = float(HV[:, 2].min()) + 2.0; headTop = float(HV[:, 2].max())
@@ -91,7 +93,16 @@ zE, zM = lo[2] + 0.843 * H, lo[2] + 0.80 * H
 yE = front(zE, mask=(part == 'Head')); yM = front(zM, mask=(part == 'Head')); yC = front(chestZ, mask=(part == 'Body'))
 def marker(nm, par, p): add(nm, par, p, np.array(p) + np.array([0, 0, 0.004 * H]))
 marker('EyeL', 'Head', [cxf + 3.6, yE + 1.5, zE]); marker('EyeR', 'Head', [cxf - 3.6, yE + 1.5, zE]); marker('MouthP', 'Head', [cxf, yM + 1.5, zM]); marker('ChestP', 'Chest', [cx, yC + 2.0, chestZ])
+handobjs = {'L': [], 'R': []}; handz = {}
 marker('HandL', 'WristL', J['HL']); marker('HandR', 'WristR', J['HR'])
+if os.environ.get('HANDS'):
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import gx_hand
+    handobjs = {'L': [], 'R': []}; handz = {}
+    for sd, sg in (('L', 1), ('R', -1)):
+        par, h, t = bones['Wrist' + sd]; Ln = float(np.linalg.norm(t - h)); r = gx_hand.build_hand(sg, h, t - h, (-sg, 0, 0), Ln)
+        for (nm, pr, hh, tt) in r['bones']: bones[nm] = (pr, np.array(hh[:]), np.array(tt[:]))
+        handobjs[sd] = r['objs']; handz[sd] = r['z']; pc = h + (t - h) / Ln * (0.5 * Ln); bones['Hand' + sd] = ('Wrist' + sd, pc, pc + np.array([0, 0, 0.004 * H * k]))   # marker: the palm centre
+    print('HAND length', round(Ln, 2))
 # ---- weights
 Vs = (V - belt) * k; Z = V[:, 2]; X = V[:, 0] - cx
 def Sm(a, b, x): t = np.clip((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t)
@@ -116,15 +127,22 @@ for i in bi_:
 # head
 for i in np.where(part == 'Head')[0]:
     hw = Sm(neckZ - 0.012 * H, neckZ + 0.04 * H, Z[i]); W[i, idx['Head']] = hw; W[i, idx['Neck']] = 1 - hw
-# arms
+# arms: ONE position-based rule for every arm island (no per-island classes): the upper arm / forearm blend across the plane at the elbow, the clavicle shares the shoulder cap, the wrist bone takes everything beyond the wrist (the fist)
+def unit_(v): return v / np.linalg.norm(v)
 for sd in 'LR':
-    S, E, Hd = J['S' + sd], J['E' + sd], J['H' + sd]; ax1 = E - S; ax2 = Hd - E
+    S, E, Hd = J['S' + sd], J['E' + sd], J['H' + sd]; Wr = E + (Hd - E) * 0.74; uU = unit_(E - S); uF = unit_(Wr - E); nrm = unit_(uU + uF)
     for i in np.where(part == 'Arm' + sd)[0]:
-        p = V[i]
-        if upper[i]:
-            u = np.dot(p - S, ax1) / np.dot(ax1, ax1); wF = Sm(0.72, 1.2, u); wC = (1 - Sm(-0.1, 0.3, u)) * 0.55; W[i, idx['ForeArm' + sd]] = wF; W[i, idx['Clav' + sd]] = wC; W[i, idx['UpperArm' + sd]] = max(0.0, 1 - wF - wC)
-        else:
-            f = np.dot(p - E, ax2) / np.dot(ax2, ax2); wU = 1 - Sm(-0.25, 0.22, f); wH = Sm(0.58, 0.86, f); W[i, idx['UpperArm' + sd]] = wU * 0.9; W[i, idx['Wrist' + sd]] = wH * (1 - wU); W[i, idx['ForeArm' + sd]] = max(0.0, 1 - wU * 0.9 - wH * (1 - wU))
+        p = V[i]; b = Sm(-6.0, 6.0, np.dot(p - E, nrm)); cS = (1 - Sm(-5.0, 9.0, np.dot(p - S, uU))) * 0.5; wh = Sm(-3.0, 3.0, np.dot(p - Wr, uF))
+        up = (1 - b) * (1 - wh); fo = b * (1 - wh)
+        W[i, idx['Clav' + sd]] = up * cS; W[i, idx['UpperArm' + sd]] = up * (1 - cS); W[i, idx['ForeArm' + sd]] = fo; W[i, idx['Wrist' + sd]] = wh
+# Laplacian smoothing of the weights over the mesh edges (kills the popping / bulging at joints); rigid plates stay rigid because their weights are already uniform
+E_ = np.array([[e.vertices[0], e.vertices[1]] for e in me.edges]); nbr = [[] for _ in range(n)]
+for a_, b_ in E_: nbr[a_].append(b_); nbr[b_].append(a_)
+for it in range(10):
+    Wn = W.copy()
+    for i in range(n):
+        if nbr[i]: Wn[i] = 0.5 * W[i] + 0.5 * W[nbr[i]].mean(0)
+    W = Wn
 # keep the 4 strongest
 for i in range(n):
     r = W[i]; o = np.argsort(-r)[4:]; r[o] = 0; s = r.sum(); W[i] = r / s if s > 1e-6 else r
@@ -151,12 +169,23 @@ for nm in names:
 for nm in names:
     par = bones[nm][0]
     if par: arm_d.edit_bones[nm].parent = arm_d.edit_bones[par]
+for nm in names:   # finger bones: local X = the hinge axis (the curl axis), Z = the back of the hand
+    if nm[:3] in ('Idx', 'Mid', 'Rng', 'Pnk', 'Thm') and nm[-2] in 'LR': arm_d.edit_bones[nm].align_roll(mathutils.Vector(handz[nm[-2]]))
 bpy.ops.object.mode_set(mode='OBJECT')
 for pn, (o, oi) in objs.items():
     for nm in names: o.vertex_groups.new(name=nm)
     for j, oidx in enumerate(oi):
         for b in np.nonzero(W[oidx])[0]: o.vertex_groups[names[b]].add([j], float(W[oidx, b]), 'REPLACE')
     md = o.modifiers.new('Armature', 'ARMATURE'); md.object = arm; o.parent = arm
+for sd in 'LR':
+    objs_ = handobjs[sd]
+    if not objs_: continue
+    for ob_, bn in objs_:
+        vg = ob_.vertex_groups.new(name=bn); vg.add(list(range(len(ob_.data.vertices))), 1.0, 'REPLACE')
+    for o_ in sc.objects: o_.select_set(False)
+    for ob_, bn in objs_: ob_.select_set(True)
+    bpy.context.view_layer.objects.active = objs_[0][0]; bpy.ops.object.join(); hj = bpy.context.active_object; hj.name = 'HandMesh' + sd
+    md = hj.modifiers.new('Armature', 'ARMATURE'); md.object = arm; hj.parent = arm
 # emissive -> base colour as before
 for mat in bpy.data.materials:
     if not mat.use_nodes: continue

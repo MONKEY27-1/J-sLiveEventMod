@@ -7,6 +7,9 @@ namespace AstronomicalEvent
     // Galactus, part 6: Thor's props - a red cape (a cloth strip hung from his shoulders and swayed by his own motion) and Mjolnir in his right hand.  Both are built from code and follow bones found by name.
     internal sealed partial class AstronomicalGalactus
     {
+        // ---- the battle bus interior is shown while you are INSIDE the bus (BusIn scene, and a cockpit shot before the dive); IntFloor = the floor below the bus pivot
+        public const float IntFloor = -2.2f;
+        bool IsBusInterior(float t) { return t >= 270f && t < 334f; }
         Transform thSh, thShR, thHip, thHand, thToe, thHead; GameObject capeGo, hammerGo; Mesh capeMesh; Vector3[] capeV; Vector3 capeSway, capeSwayV, thPrev; bool thorPropsBuilt, thorPropsFail;
         const int CAPE_R = 8, CAPE_C = 5;
         static Transform BoneStarts(Transform root, string prefix) { foreach (var t in root.GetComponentsInChildren<Transform>(true)) if (t.name.StartsWith(prefix)) return t; return null; }

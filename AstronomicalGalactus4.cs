@@ -64,7 +64,7 @@ namespace AstronomicalEvent
         // called from GxFrame after the pose: 5:35 - 7:00 and again at the end he holds the Zero Point in front of his chest and cups it with his left hand
         void GxCup(float t)
         {
-            float w = Sm(336f, 346f, t) * (1f - Sm(410f, 418f, t)); zpOn = w > 0.01f && gxChestP != null && gxHHand != null;
+            float w = Sm(336f, 346f, t) * (1f - Sm(410f, 418f, t)); cupW = w; zpOn = w > 0.01f && gxChestP != null && gxHHand != null;
             if (!zpOn) return;
             Vector3 front = galM.Pivot.transform.TransformDirection(Vector3.forward); front.y = 0f; front = front.sqrMagnitude < 1e-4f ? root.transform.TransformDirection(Vector3.back) : front.normalized;
             float s = gxS; Vector3 center = gxChestP.position + front * (2.3f * s) + Vector3.up * (0.2f * s); zpR = 3.2f * s * w;

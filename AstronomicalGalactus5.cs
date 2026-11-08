@@ -10,6 +10,36 @@ namespace AstronomicalEvent
     internal sealed partial class AstronomicalGalactus
     {
         readonly Dictionary<string, List<Renderer>> skinBy = new Dictionary<string, List<Renderer>>(); Transform gxHipL, gxKneeL, gxHipR, gxKneeR;
+        // ---- fingers: 5 fingers x 3 segments per hand; the glb gives every finger bone local X = the hinge axis (curl) and local Z = the back of the hand (spread)
+        static readonly string[] FNAME = { "Idx", "Mid", "Rng", "Pnk", "Thm" }; readonly Transform[,,] fing = new Transform[2, 5, 3]; bool fingOk; float fingSign = 1f; float cupW;
+        void FindFingers() { fingOk = true; for (int sd = 0; sd < 2; sd++) for (int f = 0; f < 5; f++) for (int g = 0; g < 3; g++) { fing[sd, f, g] = Sub(galM, FNAME[f] + (sd == 0 ? "L" : "R") + (g + 1)); if (fing[sd, f, g] == null) fingOk = false; } }
+        // curl[0..2] = degrees per segment (towards the palm), spread = degrees between the fingers, thumbK = how much the thumb follows
+        void Curl(int sd, float c0, float c1, float c2, float spread, float thumbK)
+        {
+            if (!fingOk) return;
+            for (int f = 0; f < 5; f++)
+            {
+                float k = f == 4 ? thumbK : 1f; float sp = f == 4 ? -spread * 1.4f : (f - 1.5f) * (spread / 1.5f);
+                for (int g = 0; g < 3; g++) { var b = fing[sd, f, g]; if (b == null) continue; float cv = (g == 0 ? c0 : g == 1 ? c1 : c2) * k; var q = Quaternion.AngleAxis(fingSign * cv, Vector3.right); if (g == 0) q = q * Quaternion.AngleAxis(sp, Vector3.forward); b.localRotation = b.localRotation * q; }
+            }
+        }
+        // the state of each hand over the event (sd: 0 = the model's L bones, 1 = R); "his right" is the O arm
+        void GxFingers(float t)
+        {
+            if (!fingOk || gxOSh == null) return; int oSide = gxOSh.name.EndsWith("L") ? 0 : 1;
+            for (int sd = 0; sd < 2; sd++)
+            {
+                bool isO = sd == oSide; float c0 = 20f, c1 = 28f, c2 = 18f, spread = 3f, th = 0.8f;
+                float clench = Env(146.5f, 148f, 152f, 154.5f, t); { float pc = Mathf.Repeat(t - 510f, 9f); clench = Mathf.Max(clench, Sm(0.8f, 1.8f, pc) * (1f - Sm(5.2f, 6.8f, pc)) * Sm(512f, 520f, t) * (1f - Sm(570f, 575f, t))); }
+                float open = 0f, fist = 0f;
+                if (isO) { open = Mathf.Max(Env(HitT - 5f, HitT - 3f, HitT + 1.5f, HitT + 4f, t), Env(196f, 206f, 262f, 276f, t), Env(330f, 338f, 414f, 422f, t)); }
+                else fist = Env(HitT - 4f, HitT - 1f, HitT + 4f, HitT + 8f, t);
+                c0 = Mathf.Lerp(c0, 88f, Mathf.Max(clench, fist) ); c1 = Mathf.Lerp(c1, 95f, Mathf.Max(clench, fist)); c2 = Mathf.Lerp(c2, 75f, Mathf.Max(clench, fist));
+                c0 = Mathf.Lerp(c0, -2f, open); c1 = Mathf.Lerp(c1, -4f, open); c2 = Mathf.Lerp(c2, -6f, open); spread = Mathf.Lerp(spread, 14f, open);
+                if (!isO && cupW > 0.001f) { c0 = Mathf.Lerp(c0, 50f, cupW); c1 = Mathf.Lerp(c1, 62f, cupW); c2 = Mathf.Lerp(c2, 44f, cupW); spread = Mathf.Lerp(spread, 7f, cupW); th = 1f; }
+                Curl(sd, c0, c1, c2, spread, th);
+            }
+        }
         GltfModel.Clip cIdle, cWalk, cRoar, cBackhand, cStoop, cBrace, cDrift; bool clipsOk;
         readonly List<Transform> pieces = new List<Transform>(); readonly List<Vector3> pieceDir = new List<Vector3>(), pieceSpin = new List<Vector3>(); bool broken; readonly List<Mesh> bakedMeshes = new List<Mesh>();
 
@@ -22,7 +52,7 @@ namespace AstronomicalEvent
                 List<Renderer> l; string key = smr.gameObject.name; if (!skinBy.TryGetValue(key, out l)) skinBy[key] = l = new List<Renderer>(); l.Add(smr);
                 smr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; smr.receiveShadows = false; smr.allowOcclusionWhenDynamic = false; smr.updateWhenOffscreen = true;
             }
-            cIdle = galM.FindClipExact("Idle"); cWalk = galM.FindClipExact("Walk"); cRoar = galM.FindClipExact("Roar"); cBackhand = galM.FindClipExact("Backhand"); cStoop = galM.FindClipExact("Stoop"); cBrace = galM.FindClipExact("Brace"); cDrift = galM.FindClipExact("Drift");
+            FindFingers(); cIdle = galM.FindClipExact("Idle"); cWalk = galM.FindClipExact("Walk"); cRoar = galM.FindClipExact("Roar"); cBackhand = galM.FindClipExact("Backhand"); cStoop = galM.FindClipExact("Stoop"); cBrace = galM.FindClipExact("Brace"); cDrift = galM.FindClipExact("Drift");
             clipsOk = cIdle != null && cWalk != null && cRoar != null && cBackhand != null && cStoop != null && cBrace != null && cDrift != null;
             JsLiveEventsMod.Log.LogInfo("Galactus: skeleton - " + skinBy.Count + " skinned meshes, clips " + (clipsOk ? "all 7 found" : "MISSING") + " (" + galM.Clips.Count + " in the file), channels " + (cIdle != null ? cIdle.Channels.Count : -1) + "/" + (cWalk != null ? cWalk.Channels.Count : -1) + "/" + (cBackhand != null ? cBackhand.Channels.Count : -1));
         }
