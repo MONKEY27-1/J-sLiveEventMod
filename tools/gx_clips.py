@@ -32,7 +32,7 @@ def pose(hips=(0, 0, 0), hrot=(0, 0, 0), spine=(0, 0, 0), head=(0, 0, 0), shrug=
     R['Hips'] = hrot; R['Spine'] = tuple(0.4 * x for x in spine); R['Chest'] = tuple(0.6 * x for x in spine); R['Neck'] = tuple(0.4 * x for x in head); R['Head'] = tuple(0.6 * x for x in head)
     R['ClavL'] = (0, -shrug[0], 0); R['ClavR'] = (0, shrug[1], 0)
     for side, a, w, spr in (('L', armL, wristL, spread[0]), ('R', armR, wristR, spread[1])):
-        up = adir(side, a[0], a[1]); sgn = 1.0 if side == 'L' else -1.0; fore = rx(-a[2]) @ up; fore = rz(sgn * spr) @ fore
+        up = adir(side, a[0], a[1]); sgn = 1.0 if side == 'L' else -1.0; upf = a[3] if len(a) > 3 else 0.0; fore = (rx(-a[2] * (1 - upf)) @ ry(-sgn * a[2] * upf)) @ up; fore = rz(sgn * spr) @ fore
         sp['aim']['UpperArm' + side] = (up, armframe); sp['aim']['ForeArm' + side] = (fore, armframe); R['Wrist' + side] = w
     for side in 'LR':
         s = 1.0 if side == 'L' else -1.0; tg = footL if side == 'L' else footR
@@ -88,3 +88,14 @@ def drift(t, dur=10.0):
         armL=(44 + 10 * math.sin(w), 34 + 12 * math.sin(w + 1), 38 + 10 * math.sin(w + 0.5)), armR=(44 + 10 * math.sin(w + 2), 34 + 12 * math.sin(w + 3), 38 + 10 * math.sin(w + 2.5)), wristL=(14, 0, 0), wristR=(14, 0, 0),
         footL=ank('L', dy=5.0 + 2 * math.sin(w), dz=7.0 + 2.5 * math.sin(2 * w), wide=1.2), footR=ank('R', dy=3.0 + 2 * math.sin(w + 2), dz=8.5 + 2.5 * math.sin(2 * w + 1), wide=1.2))
 CLIPS = {'Idle': (idle, 6.0), 'Walk': (walk, 6.0), 'Roar': (roar, 7.0), 'Backhand': (backhand, 12.0), 'Stoop': (stoop, 8.0), 'Brace': (brace, 6.0), 'Drift': (drift, 10.0)}
+
+def prelude(t, dur=60.4):
+    """tau 111 - 171.4 (new 1:05 - 2:06): the gestures of the recording: his LEFT hand reaches out (1:10), both arms rise and open (1:14 - 1:30), forearms up (1:36), FISTS RAISED and a roar (1:40 - 1:44), arms wide (1:50), hands sweep forward over the carrier (2:00)"""
+    K = lambda pts: keys(t, pts); w = 2 * PI * t / 6.0
+    aL = K([(0, (15, 4, 28, 0)), (4, (15, 4, 28, 0)), (7, (46, 56, 30, 0)), (11, (54, 50, 24, 0)), (14, (26, 16, 32, 0)), (18, (56, 20, 40, 0)), (24, (86, 10, 46, 0)), (30, (102, 0, 40, 0)), (34, (82, 5, 115, 1)), (38, (94, 12, 136, 1)), (42, (96, 8, 128, 1)), (46, (90, 10, 36, 0)), (52, (42, 70, 40, 0)), (56, (30, 76, 46, 0)), (60.4, (18, 22, 40, 0))])
+    aR = K([(0, (15, 4, 28, 0)), (7, (15, 4, 28, 0)), (15, (18, 6, 30, 0)), (18, (56, 20, 40, 0)), (24, (86, 10, 46, 0)), (30, (102, 0, 40, 0)), (34, (82, 5, 115, 1)), (38, (94, 12, 136, 1)), (42, (96, 8, 128, 1)), (46, (90, 10, 36, 0)), (52, (42, 70, 40, 0)), (56, (38, 44, 70, 0)), (60.4, (18, 10, 30, 0))])
+    sp = K([(0, (1, 0, 0)), (18, (-3, 0, 0)), (30, (-4, 0, 3)), (38, (-7, 0, 0)), (46, (-4, 0, 0)), (52, (10, 0, 0)), (56, (12, 0, 0)), (60.4, (6, 0, 0))]); hd = K([(0, (2, 0, 0)), (7, (0, 0, -12)), (14, (0, 0, 0)), (24, (-6, 0, 4)), (38, (-14, 0, 0)), (46, (-4, 0, 0)), (52, (14, 0, 0)), (60.4, (3, 0, 0))])
+    sh = K([(0, (0.5, 0.5)), (30, (3, 3)), (38, (4, 4)), (46, (2, 2)), (60.4, (0.5, 0.5))]); wide = K([(0, 1.55), (34, 1.55), (38, 2.0), (46, 2.0), (52, 1.7), (60.4, 1.6)]); dz = K([(0, -1.0), (34, -1.0), (38, -2.6), (46, -2.2), (52, -1.4), (60.4, -1.0)])
+    return pose(hips=(0.4 * math.sin(w), 0.2 * math.sin(w + 1), dz + 0.1 * math.sin(2 * w)), hrot=(1.0, 1.2 * math.sin(w), 1.5 * math.sin(w + 1)), spine=tuple(sp[i] + (0.8 * math.sin(2 * w) if i == 0 else 0) for i in range(3)), head=tuple(hd[i] + (3 * math.sin(w + 0.5) if i == 2 else 0) for i in range(3)), shrug=tuple(sh),
+        armL=tuple(aL), armR=tuple(aR), wristL=(6, 0, 0), wristR=(6, 0, 0), footL=ank('L', wide=wide), footR=ank('R', wide=wide))
+CLIPS['Prelude'] = (prelude, 60.4)

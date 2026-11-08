@@ -58,7 +58,7 @@ namespace AstronomicalEvent
         static float Fit(GltfModel m, float h, bool longest = false) { if (m == null) return 1f; var s = m.RendererBounds.size; float v = longest ? Mathf.Max(s.x, s.y, s.z) : s.y; return h / Mathf.Max(0.05f, v); }
         void BuildModels()
         {
-            heliM = Take("heli", 1.2f); sbusM = Take("sbus", 1.2f); sbusfM = Take("sbusfar", 1.2f); galM = Take("galactus", 1.15f); corM = Take("corridor", 1.2f); sbusintM = Take("sbusint", 1.0f); offM = Take("office", 1.2f); ironM = Take("iron", 1.4f); thorM = Take("thor", 0.95f); wolvM = Take("wolverine", 1.3f); jonM = Take("jones", 1.25f);
+            heliM = Take("heli", 1.2f); sbusM = Take("sbus", 1.2f); sbusfM = Take("sbusfar", 1.2f); galM = Take("galactus", 1.15f); corM = Take("corridor", 1.2f); sbusintM = Take("sbusint", 1.0f); islandM = Take("island", 1.0f); offM = Take("office", 1.2f); ironM = Take("iron", 1.4f); thorM = Take("thor", 0.95f); wolvM = Take("wolverine", 1.3f); jonM = Take("jones", 1.25f);
         }
         Act NewAct(string id, GltfModel m, float height)
         {

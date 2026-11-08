@@ -40,7 +40,7 @@ namespace AstronomicalEvent
                 Curl(sd, c0, c1, c2, spread, th);
             }
         }
-        GltfModel.Clip cIdle, cWalk, cRoar, cBackhand, cStoop, cBrace, cDrift; bool clipsOk;
+        GltfModel.Clip cPrelude, cIdle, cWalk, cRoar, cBackhand, cStoop, cBrace, cDrift; bool clipsOk;
         readonly List<Transform> pieces = new List<Transform>(); readonly List<Vector3> pieceDir = new List<Vector3>(), pieceSpin = new List<Vector3>(); bool broken; readonly List<Mesh> bakedMeshes = new List<Mesh>();
 
         void BuildSkin()
@@ -52,8 +52,8 @@ namespace AstronomicalEvent
                 List<Renderer> l; string key = smr.gameObject.name; if (!skinBy.TryGetValue(key, out l)) skinBy[key] = l = new List<Renderer>(); l.Add(smr);
                 smr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; smr.receiveShadows = false; smr.allowOcclusionWhenDynamic = false; smr.updateWhenOffscreen = true;
             }
-            FindFingers(); cIdle = galM.FindClipExact("Idle"); cWalk = galM.FindClipExact("Walk"); cRoar = galM.FindClipExact("Roar"); cBackhand = galM.FindClipExact("Backhand"); cStoop = galM.FindClipExact("Stoop"); cBrace = galM.FindClipExact("Brace"); cDrift = galM.FindClipExact("Drift");
-            clipsOk = cIdle != null && cWalk != null && cRoar != null && cBackhand != null && cStoop != null && cBrace != null && cDrift != null;
+            FindFingers(); cPrelude = galM.FindClipExact("Prelude"); cIdle = galM.FindClipExact("Idle"); cWalk = galM.FindClipExact("Walk"); cRoar = galM.FindClipExact("Roar"); cBackhand = galM.FindClipExact("Backhand"); cStoop = galM.FindClipExact("Stoop"); cBrace = galM.FindClipExact("Brace"); cDrift = galM.FindClipExact("Drift");
+            clipsOk = cPrelude != null && cIdle != null && cWalk != null && cRoar != null && cBackhand != null && cStoop != null && cBrace != null && cDrift != null;
             JsLiveEventsMod.Log.LogInfo("Galactus: skeleton - " + skinBy.Count + " skinned meshes, clips " + (clipsOk ? "all 7 found" : "MISSING") + " (" + galM.Clips.Count + " in the file), channels " + (cIdle != null ? cIdle.Channels.Count : -1) + "/" + (cWalk != null ? cWalk.Channels.Count : -1) + "/" + (cBackhand != null ? cBackhand.Channels.Count : -1));
         }
 
@@ -64,7 +64,7 @@ namespace AstronomicalEvent
         {
             gsegs = new[] {
                 new GSeg { T0 = 0f, C = cIdle, Loop = true, Fade = 0f }, new GSeg { T0 = 48f, C = cWalk, Loop = true, Fade = 4f }, new GSeg { T0 = 103f, C = cIdle, Loop = true, Fade = 5f },
-                new GSeg { T0 = 145f, C = cRoar, Loop = false, Fade = 2.5f }, new GSeg { T0 = 152f, C = cIdle, Loop = true, Fade = 1.5f },
+                new GSeg { T0 = 111f, C = cPrelude, Loop = false, Fade = 5f },
                 new GSeg { T0 = HitT - 6f, C = cBackhand, Loop = false, Fade = 2f }, new GSeg { T0 = HitT + 6f, C = cStoop, Loop = true, Fade = 6f },
                 new GSeg { T0 = 272f, C = cIdle, Loop = true, Fade = 8f }, new GSeg { T0 = 326f, C = cBrace, Loop = true, Fade = 8f }, new GSeg { T0 = 418f, C = cIdle, Loop = true, Fade = 6f }, new GSeg { T0 = 508f, C = cDrift, Loop = true, Fade = 8f } };
         }

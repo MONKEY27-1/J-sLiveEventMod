@@ -5,7 +5,7 @@ DL = r'C:\Users\drago\Downloads'; MP3 = os.path.join(DL, 'Fortnite x Galactus FU
 PY = r'C:\Program Files\Blender Foundation\Blender 5.2\5.2\python\bin\python.exe'; BL = r'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe'
 S = [(0, 'Galactus approaches'), (126, 'Helicarrier destroyed'), (215, 'The Battle Bus'), (275, 'Bus flight'), (376, 'Giant arm and Wolverine'), (455, 'Final approach'), (507, 'Gamma blast'), (535, 'Rift and darkness'), (550, 'Agent Jones')]
 # prop id -> (source, texture px or 0 = copy as is)
-FILES = {'heli': (os.path.join(Z, 'g_heli.glb'), 512), 'sbus': (os.path.join(Z, 'g_sbus_ng.glb'), 512), 'sbusfar': (os.path.join(Z, 'g_sbusfar_ng.glb'), 256), 'galactus': (os.path.join(HERE, 'cache', 'gx2', 'galactus_anim.glb'), 0), 'corridor': (os.path.join(Z, 'gx_corridor.glb'), 0), 'sbusint': (os.path.join(HERE, 'cache', 'gx2', 'sbusint.glb'), 0),
+FILES = {'heli': (os.path.join(Z, 'g_heli.glb'), 512), 'sbus': (os.path.join(Z, 'g_sbus_ng.glb'), 512), 'sbusfar': (os.path.join(Z, 'g_sbusfar_ng.glb'), 256), 'galactus': (os.path.join(HERE, 'cache', 'gx2', 'galactus_anim.glb'), 0), 'corridor': (os.path.join(Z, 'gx_corridor.glb'), 0), 'sbusint': (os.path.join(HERE, 'cache', 'gx2', 'sbusint.glb'), 0), 'island': (r'C:\Program Files (x86)\Steam\steamapps\common\Gorilla Tag\BepInEx\plugins\JsLiveEventsMod\AstronomicalAssets\events\collision\island.glb', 0),
          'office': (os.path.join(HERE, 'cache', 'gx2', 'office2.glb'), 0), 'iron': (os.path.join(Z, 'iron.glb'), 0), 'thor': (os.path.join(Z, 'thor.glb'), 0), 'wolverine': (os.path.join(Z, 'wolverine.glb'), 0), 'jones': (os.path.join(Z, 'jones.glb'), 0)}
 for pid, (src, px) in FILES.items():
     dst = os.path.join(D, pid + '.glb')

@@ -99,6 +99,7 @@ namespace AstronomicalEvent
         // ---------------------------------------------------------------- build
         public void Build(AstronomicalAssetLoader loader, Vector3 anchorPos, float yawIn)
         {
+            ldr = loader;
             def = AstronomicalEvents.Selected; built = false;
             Vector3 head = anchorPos;
             try { var p = GTPlayer.Instance; if (p != null) head = p.headCollider.transform.position; else if (Camera.main != null) head = Camera.main.transform.position; } catch { }
@@ -160,8 +161,8 @@ namespace AstronomicalEvent
             top = mid = hor = Color.black;
             switch (g.S)
             {
-                case Sc.Deck: top = new Color(0.46f, 0.42f, 0.58f); mid = new Color(0.62f, 0.54f, 0.66f); hor = new Color(0.8f, 0.66f, 0.7f); break;
-                case Sc.Arrive: top = new Color(0.44f, 0.4f, 0.58f); mid = new Color(0.64f, 0.52f, 0.66f); hor = new Color(0.84f, 0.64f, 0.68f); break;
+                case Sc.Deck: top = new Color(0.34f, 0.46f, 0.76f); mid = new Color(0.62f, 0.6f, 0.78f); hor = new Color(0.98f, 0.74f, 0.66f); break;
+                case Sc.Arrive: top = new Color(0.4f, 0.42f, 0.68f); mid = new Color(0.64f, 0.54f, 0.7f); hor = new Color(0.9f, 0.66f, 0.66f); break;
                 case Sc.Reach: { float k = Sm(120f, 180f, t); top = Color.Lerp(new Color(0.44f, 0.4f, 0.58f), new Color(0.5f, 0.34f, 0.62f), k); mid = Color.Lerp(new Color(0.64f, 0.52f, 0.66f), new Color(0.88f, 0.52f, 0.62f), k); hor = Color.Lerp(new Color(0.84f, 0.64f, 0.68f), new Color(0.98f, 0.62f, 0.55f), k); break; }
                 case Sc.Fall: { float k = Sm(195f, 240f, t); top = Color.Lerp(new Color(0.42f, 0.52f, 0.68f), new Color(0.01f, 0.05f, 0.2f), k); mid = Color.Lerp(new Color(0.65f, 0.68f, 0.8f), new Color(0.02f, 0.12f, 0.34f), k); hor = Color.Lerp(new Color(0.85f, 0.8f, 0.9f), new Color(0.06f, 0.26f, 0.5f), k); break; }
                 case Sc.BusIn: top = new Color(0.8f, 0.88f, 0.96f); mid = new Color(0.9f, 0.94f, 1f); hor = new Color(0.97f, 0.98f, 1f); break;
