@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -293,6 +294,13 @@ namespace AstronomicalEvent
                     JsLiveEventsMod.Inst.StartCoroutine(RepoInstall(mgr, a.Length > 1 ? a[1] : ""));
                     break;
                 case "find": { string q = a.Length > 1 ? a[1] : "gazebo"; int n = 0; foreach (var t2 in UnityEngine.Object.FindObjectsOfType<Transform>()) { if (t2 != null && t2.name.IndexOf(q, StringComparison.OrdinalIgnoreCase) >= 0 && n++ < 25) Say("found " + t2.name + " at " + t2.position + " active " + t2.gameObject.activeInHierarchy + " parent " + (t2.parent != null ? t2.parent.name : "-")); } Say("find '" + q + "': " + n + " matches"); break; }
+                case "tall": // tall [minTop] [horiz]: the real map's renderers that reach above minTop (world y) within horiz metres of your head (what could block an event up in the air)
+                {
+                    Func<Vector3> fh; Vector3 hp = Anchors.TryGetValue("head", out fh) ? fh() : Vector3.zero; float minTop = F(a, 1, 60f), hz = F(a, 2, 600f); var rows = new List<KeyValuePair<float, string>>();
+                    foreach (var r in UnityEngine.Object.FindObjectsOfType<Renderer>()) { if (r == null || !r.enabled || r is ParticleSystemRenderer) continue; var b = r.bounds; if (b.max.y < minTop) continue; float dx = Mathf.Max(0f, Mathf.Abs(b.center.x - hp.x) - b.extents.x), dz = Mathf.Max(0f, Mathf.Abs(b.center.z - hp.z) - b.extents.z); if (Mathf.Sqrt(dx * dx + dz * dz) > hz) continue; string path = r.name; var pr = r.transform.parent; for (int k = 0; k < 3 && pr != null; k++) { path = pr.name + "/" + path; pr = pr.parent; } rows.Add(new KeyValuePair<float, string>(b.max.y, "top " + b.max.y.ToString("0") + " c " + b.center.ToString("0") + " size " + b.size.ToString("0") + " " + path)); }
+                    rows.Sort((x, y) => y.Key.CompareTo(x.Key)); Say("head " + hp.ToString("0") + ", " + rows.Count + " renderers reach above " + minTop); for (int i = 0; i < Mathf.Min(rows.Count, (int)F(a, 3, 40f)); i++) Say(rows[i].Value);
+                    break;
+                }
                 case "shot":
                     JsLiveEventsMod.Inst.StartCoroutine(Shot(a.Length > 1 ? a[1] : "shot"));
                     break;

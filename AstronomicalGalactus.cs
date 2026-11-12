@@ -22,6 +22,13 @@ namespace AstronomicalEvent
         const float T_END = 650.9f, IY = 800f;
         static readonly float[] CUTS = { 180f, 270f, 330f, 362f, 412f, 420f, 510f, 535f, 575f, 600f, 605f };
         static float Sm(float a, float b, float x) { return AstronomicalCube.Sm(a, b, x); }
+        // The bus REALLY flies now that the real map is in view: the whole event (everything hangs under root) travels over the map towards Galactus. He stays put in the world, because the ground covered
+        // equals the distance he used to "come closer" (900 -> 560 -> 62 m, see GxPlace). Inside his arm it keeps going and climbs, so the space scenes are far above the map.
+        static Vector3 RootOff(float t)
+        {
+            if (t < 272f) return Vector3.zero; float z = t < 330f ? Mathf.Lerp(0f, 340f, Sm(272f, 330f, t)) : Mathf.Lerp(340f, 838f, Sm(330f, 418f, t)); if (t > 420f) z += 6f * (Mathf.Min(t, 510f) - 420f);
+            return new Vector3(0f, 700f * Sm(420f, 510f, t), z);
+        }
         static Seg SegAt(float t) { Seg r = SEGS[0]; foreach (var g in SEGS) if (t >= g.T0) r = g; return r; }
         static Seg SegBefore(Seg s) { Seg r = SEGS[0]; foreach (var g in SEGS) { if (g == s) break; r = g; } return r; }
 
@@ -186,7 +193,7 @@ namespace AstronomicalEvent
             sun = new GameObject("GSun").AddComponent<Light>(); sun.transform.SetParent(root.transform, false); sun.type = LightType.Directional; sun.shadows = LightShadows.None; sun.intensity = 0f; sun.transform.rotation = Quaternion.Euler(35f, yaw + 160f, 0f);
             flashLamp = new GameObject("GFlash").AddComponent<Light>(); flashLamp.transform.SetParent(root.transform, false); flashLamp.type = LightType.Point; flashLamp.range = 260f; flashLamp.intensity = 0f; flashLamp.shadows = LightShadows.None;
             redLamp = new GameObject("GRed").AddComponent<Light>(); redLamp.transform.SetParent(root.transform, false); redLamp.type = LightType.Point; redLamp.range = 90f; redLamp.intensity = 0f; redLamp.shadows = LightShadows.None; redLamp.color = new Color(1f, 0.25f, 0.15f);
-            var rr = new System.Random(9); for (int i = 0; i < 260; i++) { float a = (float)rr.NextDouble() * 6.2832f, r = 120f + 900f * Mathf.Pow((float)rr.NextDouble(), 0.7f), y = (float)(rr.NextDouble() - 0.5) * 260f; Emit(clouds, W(new Vector3(Mathf.Sin(a) * r, IY + y, Mathf.Cos(a) * r)), Vector3.zero, new Color(1f, 1f, 1f, 0.35f + 0.25f * (float)rr.NextDouble()), 90f + 240f * (float)rr.NextDouble(), 1e6f); }
+            var rr = new System.Random(9); for (int i = 0; i < 260; i++) { float a = (float)rr.NextDouble() * 6.2832f, r = 120f + 900f * Mathf.Pow((float)rr.NextDouble(), 0.7f), y = (float)(rr.NextDouble() - 0.5) * 260f; Emit(clouds, W(new Vector3(Mathf.Sin(a) * r, IY + DeckY - 90f + y * 0.45f, Mathf.Cos(a) * r)), Vector3.zero, new Color(1f, 1f, 1f, 0.35f + 0.25f * (float)rr.NextDouble()), 90f + 240f * (float)rr.NextDouble(), 1e6f); }
         }
         void Boom(Vector3 wp, float size, float power, Color? tint = null)
         {
@@ -244,7 +251,7 @@ namespace AstronomicalEvent
         float tReal;
         public void Apply(float t, int idx, float u, AstronomicalAudioManager au)
         {
-            if (!built || root == null) return; tReal = t; t = Warp(t);
+            if (!built || root == null) return; tReal = t; t = Warp(t); root.transform.position = originW + root.transform.rotation * RootOff(t);
             var cam = Camera.main; float dt = Mathf.Clamp(Time.unscaledDeltaTime, 0f, 0.1f); bool back = t < lastT - 0.4f; float tp = lastT < 0f ? t : lastT; lastT = t;
             Seg g = SegAt(t);
             if (noclipped.Count > 0 && !noclipHold && Time.unscaledTime - noclipT > 0.6f) NoClip(false);
@@ -312,12 +319,12 @@ namespace AstronomicalEvent
                 case Sc.Fall: { float k = Mathf.Clamp01((t - 180f) / 90f); a = FallPos(t) ; return true; }
                 case Sc.BusIn: { a = BusPos + new Vector3(0f, IntFloor + 2.3f, 2.8f); hx = 1.9f; zMin = -9f; zMax = 3.2f; return true; }   // 4:30 - 5:30 you look out of the bus' windows
                 case Sc.Assault: { a = BusPos + BusRoof + Vector3.up * 3f; hx = 2.4f; zMin = -3.2f; zMax = 3.2f; return true; }
-                case Sc.Inside: { a = BusPos + new Vector3(0f, 9f, -36f); hx = 4f; zMin = -4f; zMax = 4f; return true; }   // 7:00 - 8:30 the recording follows the bus from behind
-                case Sc.Space: case Sc.Mouth: case Sc.Blast: { a = BusPos + new Vector3(-17f, 7f, -33f); hx = 4f; zMin = -4f; zMax = 4f; return true; }
+                case Sc.Inside: { a = BusPos + BusRoof + new Vector3(0f, 4f, 3f); hx = 2.4f; zMin = -3.2f; zMax = 3.2f; return true; }   // 7:00 - 8:30 the recording follows the bus from behind
+                case Sc.Space: case Sc.Mouth: case Sc.Blast: { a = BusPos + new Vector3(-7f, 7f, 6f); hx = 4f; zMin = -4f; zMax = 4f; return true; }
             }
             return false;
         }
-        Vector3 FallPos(float t) { float k = Mathf.Clamp01((t - 180f) / 90f); return new Vector3(8f * Mathf.Sin(k * 3f), IY + DeckY + 6f - 330f * (k * k * 0.6f + k * 0.4f), -30f + 40f * k) + Vector3.up * 1.6f; }
+        Vector3 FallPos(float t) { float k = Mathf.Clamp01((t - 180f) / 90f); return new Vector3(8f * Mathf.Sin(k * 3f), IY + DeckY + 6f - 70f * (k * k * 0.6f + k * 0.4f), -30f + 40f * k) + Vector3.up * 1.6f; }
         // the dips to white / black between scenes
         float Fade(float t, Seg g, out Color col)
         {
@@ -345,7 +352,7 @@ namespace AstronomicalEvent
                 case Sc.Reach: c = new Color(1f, 0.55f, 0.55f); a = 0.06f + 0.1f * Sm(120f, 180f, t); break;
                 case Sc.Fall: c = Color.Lerp(new Color(0.6f, 0.7f, 1f), new Color(0.1f, 0.3f, 0.8f), Sm(200f, 250f, t)); a = 0.1f + 0.02f * Sm(215f, 250f, t); break;
                 case Sc.BusIn: c = Color.white; a = 0.16f; break;
-                case Sc.Assault: c = t >= 362f && t < 412f ? new Color(0.45f, 0.4f, 1f) : new Color(0.82f, 0.9f, 1f); a = t >= 362f && t < 412f ? 0.16f : 0.34f * (1f - 0.5f * Sm(405f, 418f, t)); break;
+                case Sc.Assault: c = t >= 362f && t < 412f ? new Color(0.45f, 0.4f, 1f) : new Color(0.82f, 0.9f, 1f); a = t >= 362f && t < 412f ? 0.16f : 0.2f * (1f - 0.5f * Sm(405f, 418f, t)); break;
                 case Sc.Inside: c = new Color(1f, 0.25f, 0.2f); a = 0.12f; break;
                 case Sc.Space: c = new Color(0.3f, 0.4f, 1f); a = 0.08f; break;
                 case Sc.Mouth: c = Color.Lerp(new Color(0.3f, 0.4f, 1f), new Color(0.3f, 1f, 0.5f), Sm(555f, 575f, t)); a = 0.08f + 0.12f * Sm(555f, 575f, t); break;
@@ -356,17 +363,35 @@ namespace AstronomicalEvent
         }
 
         // the game's own "KIDSphereGradient" blindfold (a 6 m sphere round your head: shown when the account is banned / not allowed in, or when you leave the map bounds) would hide the whole event: keep it off while the event runs
-        Renderer kidSphere; bool kidWas; float kidScan;
+        // the game's blindfold sphere(s) round the head (KIDSphereGradient 'Geode': banned / k-ID / out of bounds): hide EVERY match, re-checked every 1.5 s, and forced off right before each camera culls (the game re-enables it in its own Update)
+        readonly List<Renderer> kidList = new List<Renderer>(); readonly List<bool> kidWasL = new List<bool>(); float kidScan; bool kidHook;
+        static bool KidName(string n) { if (string.IsNullOrEmpty(n)) return false; n = n.ToLowerInvariant(); return n.Contains("kidsphere") || n.Contains("sphere gradient") || n.Contains("blind") || n.Contains("banned"); }
+        void KidPreCull(Camera c) { for (int i = 0; i < kidList.Count; i++) { var r = kidList[i]; if (r != null) { r.forceRenderingOff = true; r.enabled = false; } } }
         void KidSphere(bool hide)
         {
             try
             {
                 if (hide)
                 {
-                    if (kidSphere == null && Time.unscaledTime >= kidScan) { kidScan = Time.unscaledTime + 1.5f; foreach (var r in UnityEngine.Object.FindObjectsOfType<Renderer>(true)) { var m = r != null ? r.sharedMaterial : null; if (m != null && m.shader != null && m.shader.name.IndexOf("KIDSphere", StringComparison.OrdinalIgnoreCase) >= 0) { kidSphere = r; kidWas = r.enabled; JsLiveEventsMod.Log.LogInfo("Galactus: hiding the game's " + m.shader.name + " sphere '" + r.gameObject.name + "' while the event runs"); break; } } }
-                    if (kidSphere != null && kidSphere.enabled) kidSphere.enabled = false;
+                    if (!kidHook) { Camera.onPreCull += KidPreCull; kidHook = true; }
+                    if (Time.unscaledTime >= kidScan)
+                    {
+                        kidScan = Time.unscaledTime + 1.5f; Vector3 hp = HeadNow();
+                        foreach (var r in UnityEngine.Object.FindObjectsOfType<Renderer>(true))
+                        {
+                            if (r == null || kidList.Contains(r) || (root != null && r.transform.IsChildOf(root.transform))) continue; var m = r.sharedMaterial; string sn = m != null && m.shader != null ? m.shader.name : ""; bool hit = KidName(sn) || r.gameObject.name == "Geode";
+                            if (!hit && m != null && (sn.IndexOf("Sphere", StringComparison.OrdinalIgnoreCase) >= 0 || r.gameObject.name.IndexOf("sphere", StringComparison.OrdinalIgnoreCase) >= 0)) { var b = r.bounds; float sz = Mathf.Max(b.size.x, Mathf.Max(b.size.y, b.size.z)); hit = sz > 2f && sz < 40f && b.Contains(hp) && (Vector3.Distance(b.center, hp) < 2f); }
+                            if (hit) { kidList.Add(r); kidWasL.Add(r.enabled); JsLiveEventsMod.Log.LogInfo("Galactus: hiding the game's sphere '" + r.gameObject.name + "' (shader " + sn + ", size " + r.bounds.size + ") while the event runs"); }
+                        }
+                    }
+                    KidPreCull(null);
                 }
-                else if (kidSphere != null) { kidSphere.enabled = kidWas; kidSphere = null; }
+                else
+                {
+                    if (kidHook) { Camera.onPreCull -= KidPreCull; kidHook = false; }
+                    for (int i = 0; i < kidList.Count; i++) if (kidList[i] != null) { kidList[i].forceRenderingOff = false; kidList[i].enabled = kidWasL[i]; }
+                    kidList.Clear(); kidWasL.Clear();
+                }
             }
             catch { }
         }
